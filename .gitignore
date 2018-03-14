@@ -1,0 +1,6 @@
+*__pycache__*
+*.pyc
+db.sqlite3
+node_modules
+webpack-stats.json
+api/static/bundles/*
