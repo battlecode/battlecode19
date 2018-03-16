@@ -10,7 +10,7 @@ module.exports = {
   context: __dirname,
 
   entry: {
-    App1: [
+    App: [
       'webpack-dev-server/client?http://' + ip + ':3000',
       'webpack/hot/only-dev-server',
       './frontend/App.jsx'
@@ -19,7 +19,7 @@ module.exports = {
   },
 
   output: {
-      path: path.resolve('./api/static/bundles/local/'),
+      path: path.resolve('./battlecode/static/bundles/local/'),
       publicPath: 'http://' + ip + ':3000' + '/assets/bundles/',
       filename: "[name]-[hash].js"
   },

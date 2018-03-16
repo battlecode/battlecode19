@@ -3,4 +3,7 @@
 db.sqlite3
 node_modules
 webpack-stats.json
-api/static/bundles/*
+battlecode/static/bundles/*
+*migrations*
+.coverage
+html-cov/

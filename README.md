@@ -26,6 +26,13 @@ Backend:
 `python manage.py migrate`
 `python manage.py runserver`
 
+Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+## Testing
+
+`coverage run --source='.' manage.py test`
+`coverage report`
+
 ## Installing Packages
 
 Django 2.0.3 and Webpack 4.0.1 are both very recently released. You may run into backwards compatibility issues with 3rd party packages, or deprecated functions. Try to refer to the most up-to-date documentation when possible. You may also run into problems if i.e. you have different version node modules installed globally instead of locally.

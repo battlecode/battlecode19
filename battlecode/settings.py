@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
     'webpack_loader',
     'rest_framework',
+    'battlecode.api',
 ]
 
 MIDDLEWARE = [
@@ -50,20 +50,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ORIGIN_WHITELIST = (
-    'localhost:8000',
-    'localhost:3000',
-)
-
-ROOT_URLCONF = 'api.urls'
+ROOT_URLCONF = 'battlecode.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'api/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'battlecode/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'api.wsgi.application'
+WSGI_APPLICATION = 'battlecode.wsgi.application'
 
 
 # Webpack
@@ -115,10 +109,13 @@ DATABASES = {
 }
 
 
+# Authentication
+
+AUTH_USER_MODEL = 'api.User'
+
+
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
-
-AUTH_USER_MODEL = 'main.User'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -156,6 +153,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'api/static'),
+    os.path.join(BASE_DIR, 'battlecode/static'),
 ]
 

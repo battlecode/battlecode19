@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block main %}
+<div id="app"></div>
+{% render_bundle 'vendors' %}
+{% render_bundle 'App' %}
+<!--<h2>{{user.get_first_name}}</h2>
+<ul>
+  <li>Username: {{ user.username }}</li>
+  <li>Birth Date: {{ user.profile.birth_date }}</li>
+</ul>
+
+<form method="post">
+  {% csrf_token %}
+  {{ user_form.as_p }}
+  {{ profile_form.as_p }}
+  <button type="submit">Save changes</button>
+</form>-->
+
+{% endblock %}

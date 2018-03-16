@@ -1,14 +1,16 @@
 import React from "react"
 import { render } from "react-dom"
 
-import App1Container from "./containers/App1Container"
+import AppContainer from "./containers/AppContainer"
 
-class App1 extends React.Component {
+class App extends React.Component {
   render() {
     return (
-      <App1Container />
+      <div>
+        <AppContainer />
+      </div>
     )
   }
 }
 
-render(<App1/>, document.getElementById('App1'))
+render(<App/>, document.getElementById('app'))
