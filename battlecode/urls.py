@@ -17,10 +17,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views import generic
 from rest_framework import routers, serializers
+from rest_framework.schemas import get_schema_view
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-    path('api/', include('battlecode.api.urls')),
-    path('api-auth/', include('rest_framework.urls')),
+    path('api/', get_schema_view()),
+    path('api/auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/auth/token/obtain/', TokenObtainPairView.as_view()),
+    path('api/auth/token/refresh/', TokenRefreshView.as_view()),
+    path('bapi/', include('battlecode.api.urls')),
     path('admin/', admin.site.urls, name='admin'),
-    path('view/', generic.TemplateView.as_view(template_name='view.html'), name='test-view'),
+    path('', generic.TemplateView.as_view(template_name='view.html'), name='test-view'),
+    path('login/', generic.TemplateView.as_view(template_name='view.html'), name='test-view'),
 ]
