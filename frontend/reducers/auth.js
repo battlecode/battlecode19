@@ -31,15 +31,18 @@ export default (state=initialState, action) => {
     }
   case auth.LOGIN_FAILURE:
   case auth.TOKEN_FAILURE:
+  case auth.REGISTER_FAILURE:
     return {
       access: undefined,
       refresh: undefined,
       errors: action.payload.response || {'non_field_errors': action.payload.statusText},
     }
   case auth.LOGOUT:
+  case auth.REGISTER_SUCCESS:
     return {
       access: undefined,
       refresh: undefined,
+      errors: undefined
     }
   default:
     return state

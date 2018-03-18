@@ -9,5 +9,6 @@ router.register(r'groups', views.GroupViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('register/', views.create_user, name='register'),
     path('teams/', views.TeamListCreate.as_view(), name='teams'),
 ]

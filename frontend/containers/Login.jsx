@@ -12,6 +12,7 @@ const Login = (props) => {
     return (
       <div className="login-page">
         <LoginForm {...props}/>
+        <a href="/register">Register</a>
       </div>
     )
   }

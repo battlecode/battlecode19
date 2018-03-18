@@ -39,7 +39,6 @@
     "react-router": "^4.2.0",
     "react-router-redux": "^5.0.0-alpha.9",
     "react-transition-group": "^1.1.2",
-    "reactstrap": "^5.0.0-beta.2",
     "redux": "^3.7.2",
     "redux-api-middleware": "^2.0.0-beta.3",
     "redux-persist": "^5.0.0-beta.7",

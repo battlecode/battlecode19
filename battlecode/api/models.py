@@ -56,6 +56,8 @@ class Team(models.Model):
 
 class User(AbstractUser):
     email            = models.EmailField(unique=True)
+    first_name       = models.CharField(max_length=30)
+    last_name        = models.CharField(max_length=150)
     date_of_birth    = models.DateField()
     registration_key = models.CharField(max_length=32, null=True, unique=True)
     team             = models.ForeignKey(Team, null=True, default=None, on_delete=models.SET_NULL)
@@ -64,7 +66,7 @@ class User(AbstractUser):
     country          = models.TextField(blank=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth', 'password']
 
 
 @receiver(pre_save, sender=settings.AUTH_USER_MODEL)

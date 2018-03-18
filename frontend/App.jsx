@@ -11,6 +11,7 @@ import AppContainer from './containers/AppContainer';
 import PrivateRoute from './containers/PrivateRoute';
 import Login from './containers/Login';
 import Logout from './containers/Logout';
+import Register from './containers/Register';
 
 const history = createHistory()
 const store = configureStore(history)
@@ -30,10 +31,17 @@ class App extends React.Component {
 ReactDOM.render((
   <Provider store={store}>
     <ConnectedRouter history={history}>
-      <Switch>
-        <Route exact path="/login" component={Login} />
-        <PrivateRoute path="/" component={App}/>
-      </Switch>
+      <div className="container">
+        <div className="row">
+          <div className="col-sm-12">
+            <Switch>
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/register" component={Register} />
+              <PrivateRoute path="/" component={App}/>
+            </Switch>
+          </div>
+        </div>
+      </div>
     </ConnectedRouter>
   </Provider>
 ), document.getElementById('app'));

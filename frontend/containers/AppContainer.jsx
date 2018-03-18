@@ -20,15 +20,11 @@ class AppContainer extends React.Component {
     )
 
     return (
-      <div className="container">
-        <div className="row">
-          <div className="col-sm-12">
-            <h1>Sample App!</h1>
-            <p>{this.props.placeholder}</p>
-            {userList}
-            <Logout />
-          </div>
-        </div>
+      <div>
+        <h1>Sample App!</h1>
+        <p>{this.props.placeholder}</p>
+        {userList}
+        <Logout />
       </div>
     )
   }

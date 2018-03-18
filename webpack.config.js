@@ -7,6 +7,8 @@ const BundleTracker = require('webpack-bundle-tracker')
 var ip = 'localhost'
 
 module.exports = {
+  mode: 'development',
+
   context: __dirname,
 
   entry: {

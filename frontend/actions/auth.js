@@ -8,6 +8,10 @@ export const TOKEN_REQUEST = '@@auth/TOKEN_REQUEST';
 export const TOKEN_RECEIVED = '@@auth/TOKEN_RECEIVED';
 export const TOKEN_FAILURE = '@@auth/TOKEN_FAILURE';
 
+export const REGISTER_REQUEST = '@@auth/REGISTER_REQUEST';
+export const REGISTER_SUCCESS = '@@auth/REGISTER_SUCCESS';
+export const REGISTER_FAILURE = '@@auth/REGISTER_FAILURE';
+
 export const LOGOUT = '@@auth/LOGOUT';
 
 export const login = (email, password) => ({
@@ -17,6 +21,16 @@ export const login = (email, password) => ({
     body: JSON.stringify({email, password}),
     headers: { 'Content-Type': 'application/json' },
     types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE]
+  }
+})
+
+export const register = (email, username, first_name, last_name, date_of_birth, password) => ({
+  [RSAA]: {
+    endpoint: '/api/register/',
+    method: 'POST',
+    body: JSON.stringify({email, username, first_name, last_name, date_of_birth, password}),
+    headers: { 'Content-Type': 'application/json' },
+    types: [REGISTER_REQUEST, REGISTER_SUCCESS, REGISTER_FAILURE]
   }
 })
 

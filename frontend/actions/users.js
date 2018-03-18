@@ -7,7 +7,7 @@ export const USERS_FAILURE = '@@users/USERS_FAILURE';
 
 export const fetchUsers = () => ({
   [RSAA]: {
-    endpoint: '/bapi/users/',
+    endpoint: '/api/users/',
     method: 'GET',
     headers: withAuth(),
     types: [USERS_REQUEST, USERS_SUCCESS, USERS_FAILURE]
