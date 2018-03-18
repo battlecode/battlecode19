@@ -10,6 +10,7 @@ import { Route, Switch } from 'react-router'
 import AppContainer from './containers/AppContainer';
 import PrivateRoute from './containers/PrivateRoute';
 import Login from './containers/Login';
+import Logout from './containers/Logout';
 
 const history = createHistory()
 const store = configureStore(history)

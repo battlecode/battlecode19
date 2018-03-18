@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { Alert, Button, Jumbotron, Form } from 'reactstrap';
+import { Button, Jumbotron, Form } from 'reactstrap';
 import TextInput from './TextInput'
 
 export default class LoginForm extends Component {
@@ -32,11 +32,12 @@ export default class LoginForm extends Component {
 
   render() {
     const errors = this.props.errors || {}
+
     return (
       <Jumbotron className="container">
         <Form onSubmit={this.onSubmit}>
           <h1>Authentication</h1>
-          {errors.non_field_errors ? <Alert color="danger">{errors.non_field_errors}</Alert> : ""}
+          {errors.non_field_errors ? errors.non_field_errors.map(error => (<span>{error}</span>)) : ""}
           <TextInput name="email" label="Email" 
                      error={errors.email}
                      onChange={this.handleInputChange} />
