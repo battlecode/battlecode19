@@ -60,7 +60,6 @@ class User(AbstractUser):
     last_name        = models.CharField(max_length=150)
     date_of_birth    = models.DateField()
     registration_key = models.CharField(max_length=32, null=True, unique=True)
-    team             = models.ForeignKey(Team, null=True, default=None, on_delete=models.SET_NULL)
     bio              = models.CharField(max_length=1000, blank=True)
     avatar           = models.TextField(blank=True)
     country          = models.TextField(blank=True)

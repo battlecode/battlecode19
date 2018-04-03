@@ -8,7 +8,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ('url', 'username', 'email', 'first_name', 'last_name', 'date_of_birth', 'bio', 'country')
-        read_only_fields = ('id', 'team', 'avatar')
+        read_only_fields = ('id', 'avatar')
         ordering = ('id',)
 
     def create(self, validated_data):

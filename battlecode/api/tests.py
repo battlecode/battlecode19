@@ -15,9 +15,6 @@ class UserTestCase(APITestCase):
         self.userA = get_user_model().objects.create_user(**self.generate_user(6147))
         self.userB = get_user_model().objects.create_user(**self.generate_user(6370))
 
-        # Create a team
-        self.team = Team.objects.create(name='team')
-
 
     def generate_user(self, id_num, **kwargs):
         user = {
@@ -60,12 +57,11 @@ class UserTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(content.get('country'), 'USA')
 
-        # Cannot override fields team or registration key on creation
-        user = self.generate_user(2, registration_key='key', team_id=self.team.id)
+        # Cannot override registration key field on creation
+        user = self.generate_user(2, registration_key='key')
         response = self.client.post('/api/user/', user)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         db_user = get_user_model().objects.get(email=user['email'])
-        self.assertEqual(db_user.team, None)
         self.assertNotEqual(db_user.registration_key, user['registration_key'])
 
 
@@ -105,7 +101,6 @@ class UserTestCase(APITestCase):
         self.assertEqual(content.get('first_name'), self.userA.first_name)
         self.assertEqual(content.get('last_name'), self.userA.last_name)
         self.assertEqual(content.get('date_of_birth'), self.userA.date_of_birth)
-        self.assertEqual(content.get('team'), None)
         self.assertEqual(content.get('bio'), '')
         self.assertEqual(content.get('avatar'), None)
         self.assertEqual(content.get('country'), '')
@@ -124,7 +119,6 @@ class UserTestCase(APITestCase):
 
         # Can access certain fields
         self.assertEqual(content.get('username'), self.userB.username)
-        self.assertEqual(content.get('team'), None)
         self.assertEqual(content.get('bio'), '')
         self.assertEqual(content.get('avatar'), None)
         self.assertEqual(content.get('country'), '')
