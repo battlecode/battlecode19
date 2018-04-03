@@ -157,3 +157,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'battlecode/static'),
 ]
 
+
+# Testing
+
+TEST_RUNNER = "django_nose.NoseTestSuiteRunner"

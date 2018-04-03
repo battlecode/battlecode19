@@ -1,14 +1,9 @@
-from django.urls import path, include
-from rest_framework import routers
+from django.urls import path
 
 from . import views
 
-router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
-
 urlpatterns = [
-    path('', include(router.urls)),
-    path('register/', views.create_user, name='register'),
-    path('teams/', views.TeamListCreate.as_view(), name='teams'),
+    path('user/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
+    path('user/', views.UserCreate.as_view(), name='user-create'),
+    path('team/', views.TeamListCreate.as_view(), name='team'),
 ]

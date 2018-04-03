@@ -66,7 +66,7 @@ class User(AbstractUser):
     country          = models.TextField(blank=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth', 'password']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
 
 
 @receiver(pre_save, sender=settings.AUTH_USER_MODEL)
