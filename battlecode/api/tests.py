@@ -78,7 +78,6 @@ class UserTestCase(APITestCase):
         response = self.client.post('/api/user/', user)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-
     def test_cannot_create_duplicate_users(self):
         user = self.generate_user(0)
         response = self.client.post('/api/user/', user)
@@ -137,6 +136,10 @@ class UserTestCase(APITestCase):
         for field in hidden:
             self.assertTrue(field not in content, field)
 
+    def test_get_invalid_user(self):
+        response = self.client.get('/api/user/6452/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_modify_user_logged_in(self):
         # Test good modify for user log in
         self.client.force_authenticate(user=self.userA)
@@ -161,7 +164,8 @@ class UserTestCase(APITestCase):
         temp_user = get_user_model().objects.create_user(**self.generate_user(6172))
         self.client.force_authenticate(user=temp_user)
 
-        put_dict = {'email': 'jsegaran@mit.edu'}
+        put_dict = temp_user.__dict__.copy()
+        put_dict['email'] = 'jsegaran@mit.edu'
         response = self.client.put('/api/user/{}/'.format(temp_user.id),
                 put_dict)
 
@@ -172,6 +176,7 @@ class UserTestCase(APITestCase):
 
         content = json.loads(response.content)
         self.assertEqual(content.get('email'), temp_user.email)
+
 
     def test_modify_user_not_logged_in(self):
         # Test good modify for user log in
@@ -197,7 +202,30 @@ class UserTestCase(APITestCase):
 
         # Resync userB to default
 
-    def test_incomplete_modify_user(self):
+    def test_modify_incomplete(self):
+        # Test good modify for user log in
+        self.client.force_authenticate(user=self.userA)
+
+        new_first_name = 'Teh'
+        new_last_name = 'Devs'
+
+        put_dict = {'first_name': new_first_name, 'last_name': new_last_name}
+
+        response = self.client.put('/api/user/{}/'.format(self.userA.id),
+                put_dict)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.client.force_authenticate(user=self.userB)
+        response = self.client.get('/api/user/{}/'.format(self.userB.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        content = json.loads(response.content)
+        self.assertNotEqual(content.get('first_name'), new_first_name)
+        self.assertNotEqual(content.get('last_name'), new_last_name)
+
+        # Resync userB to default
+
+    def test_patch_modify_user_logged_in(self):
         # Test that you can modify without sending the entire dict across just
         # the fields that should be modified. Also include a bad field that
         # should not be used
@@ -205,7 +233,7 @@ class UserTestCase(APITestCase):
         self.client.force_authenticate(user=temp_user)
 
         put_dict = {'bio': 'jsegaran@mit.edu', 'password': 'password'}
-        response = self.client.put('/api/user/{}/'.format(temp_user.id),
+        response = self.client.patch('/api/user/{}/'.format(temp_user.id),
                 put_dict)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -213,3 +241,24 @@ class UserTestCase(APITestCase):
 
         self.assertEqual(content.get('bio'), put_dict['bio'])
         self.assertFalse('password' in content)
+
+    def test_patch_modify_user_not_logged_in(self):
+        # Test that you can modify without sending the entire dict across just
+        # the fields that should be modified. Also include a bad field that
+        # should not be used
+        temp_user = get_user_model().objects.create_user(**self.generate_user(6172))
+        self.client.force_authenticate(user=self.userB)
+
+        put_dict = {'bio': 'jsegaran@mit.edu', 'password': 'password'}
+        response = self.client.patch('/api/user/{}/'.format(temp_user.id),
+                put_dict)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self.client.force_authenticate(user=temp_user)
+
+        response = self.client.get('/api/user/{}/'.format(self.userB.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        content = json.loads(response.content)
+        self.assertNotEqual(content.get('bio'), put_dict['bio'])

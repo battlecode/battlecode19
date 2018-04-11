@@ -20,7 +20,7 @@ class UserCreate(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
 
 
-class UserDetail(generics.RetrieveUpdateAPIView):
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     Modify (TODO) or get the current user. GET returns private user info only of the
     currently authenticated user. Otherwise it returns public user info.
@@ -53,31 +53,28 @@ class UserDetail(generics.RetrieveUpdateAPIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
-    def put(self, request, pk, format=None):
+    def patch(self, request, pk, format=None):
 
         if not self.is_current_user(request, pk):
             return Response(None, status=status.HTTP_401_UNAUTHORIZED)
 
         user = self.get_object(pk)
-
-        if user is None:
-            return Response(None, status=status.HTTP_404_NOT_FOUND)
+        # user won't be none since we must be logged in
 
         # Get old data
         old_serializer = self.serializer_class(user, context={'request': request})
         data = old_serializer.data
 
-        not_modifiable = {'email', 'password'}
         # update old data
         for key in request.data.keys():
-            if key in not_modifiable:
-                continue
             data[key] = request.data[key]
 
         # reinsert data
         update_serializer = self.serializer_class(user, data=data)
 
-        if not  update_serializer.is_valid():
+        if not update_serializer.is_valid():
+            # I don't think this line can be hitm because all the data should be
+            # present
             return Response(update_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         update_serializer.save()
@@ -86,3 +83,27 @@ class UserDetail(generics.RetrieveUpdateAPIView):
         output_serializer = self.serializer_class(user, context={'request': request})
         output_data = output_serializer.data
         return Response(output_data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk, format=None):
+
+        if not self.is_current_user(request, pk):
+            return Response(None, status=status.HTTP_401_UNAUTHORIZED)
+
+        # user won't be none since we must be logged in
+        user = self.get_object(pk)
+
+        # reinsert data
+        update_serializer = self.serializer_class(user, data=request.data)
+
+        if not update_serializer.is_valid():
+            return Response(update_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        update_serializer.save()
+
+        # create output data
+        output_serializer = self.serializer_class(user, context={'request': request})
+        output_data = output_serializer.data
+        return Response(output_data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, pk, format=None):
+        pass
