@@ -1,4 +1,6 @@
 import json
+import sys
+import logging
 
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -6,6 +8,7 @@ from rest_framework.test import APIClient, APITestCase
 
 from .views import *
 from .models import *
+
 
 class UserTestCase(APITestCase):
     def setUp(self):
@@ -133,3 +136,80 @@ class UserTestCase(APITestCase):
         hidden = ['first_name', 'last_name', 'email', 'date_of_birth', 'registration_key', 'password']
         for field in hidden:
             self.assertTrue(field not in content, field)
+
+    def test_modify_user_logged_in(self):
+        # Test good modify for user log in
+        self.client.force_authenticate(user=self.userA)
+
+        new_first_name = 'Teh'
+        new_last_name = 'Devs'
+        self.userA.first_name = new_first_name
+        self.userA.last_name = new_last_name
+        response = self.client.put('/api/user/{}/'.format(self.userA.id),
+                self.userA.__dict__)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/api/user/{}/'.format(self.userA.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        content = json.loads(response.content)
+        self.assertEqual(content.get('first_name'), new_first_name)
+        self.assertEqual(content.get('last_name'), new_last_name)
+
+    def test_no_modify_email_password(self):
+        # Test good modify for user log in
+        temp_user = get_user_model().objects.create_user(**self.generate_user(6172))
+        self.client.force_authenticate(user=temp_user)
+
+        put_dict = {'email': 'jsegaran@mit.edu'}
+        response = self.client.put('/api/user/{}/'.format(temp_user.id),
+                put_dict)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/api/user/{}/'.format(temp_user.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        content = json.loads(response.content)
+        self.assertEqual(content.get('email'), temp_user.email)
+
+    def test_modify_user_not_logged_in(self):
+        # Test good modify for user log in
+        self.client.force_authenticate(user=self.userA)
+
+        new_first_name = 'Teh'
+        new_last_name = 'Devs'
+
+        self.userB.first_name = new_first_name
+        self.userB.last_name = new_last_name
+
+        response = self.client.put('/api/user/{}/'.format(self.userB.id),
+                self.userB.__dict__)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self.client.force_authenticate(user=self.userB)
+        response = self.client.get('/api/user/{}/'.format(self.userB.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        content = json.loads(response.content)
+        self.assertNotEqual(content.get('first_name'), new_first_name)
+        self.assertNotEqual(content.get('last_name'), new_last_name)
+
+        # Resync userB to default
+
+    def test_incomplete_modify_user(self):
+        # Test that you can modify without sending the entire dict across just
+        # the fields that should be modified. Also include a bad field that
+        # should not be used
+        temp_user = get_user_model().objects.create_user(**self.generate_user(6172))
+        self.client.force_authenticate(user=temp_user)
+
+        put_dict = {'bio': 'jsegaran@mit.edu', 'password': 'password'}
+        response = self.client.put('/api/user/{}/'.format(temp_user.id),
+                put_dict)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(response.content)
+
+        self.assertEqual(content.get('bio'), put_dict['bio'])
+        self.assertFalse('password' in content)

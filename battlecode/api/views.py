@@ -20,7 +20,7 @@ class UserCreate(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
 
 
-class UserDetail(generics.RetrieveAPIView):
+class UserDetail(generics.RetrieveUpdateAPIView):
     """
     Modify (TODO) or get the current user. GET returns private user info only of the
     currently authenticated user. Otherwise it returns public user info.
@@ -46,7 +46,43 @@ class UserDetail(generics.RetrieveAPIView):
         serializer = self.serializer_class(user, context={'request': request})
         private_fields = ['email', 'first_name', 'last_name', 'date_of_birth']
         data = serializer.data
+
         if not self.is_current_user(request, pk):
             for field in private_fields:
                 data.pop(field, None)
+
         return Response(data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk, format=None):
+
+        if not self.is_current_user(request, pk):
+            return Response(None, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = self.get_object(pk)
+
+        if user is None:
+            return Response(None, status=status.HTTP_404_NOT_FOUND)
+
+        # Get old data
+        old_serializer = self.serializer_class(user, context={'request': request})
+        data = old_serializer.data
+
+        not_modifiable = {'email', 'password'}
+        # update old data
+        for key in request.data.keys():
+            if key in not_modifiable:
+                continue
+            data[key] = request.data[key]
+
+        # reinsert data
+        update_serializer = self.serializer_class(user, data=data)
+
+        if not  update_serializer.is_valid():
+            return Response(update_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        update_serializer.save()
+
+        # create output data
+        output_serializer = self.serializer_class(user, context={'request': request})
+        output_data = output_serializer.data
+        return Response(output_data, status=status.HTTP_200_OK)
