@@ -9,6 +9,14 @@ Create a virtual environment.
 `cd frontend`
 `npm install`
 
+## Database
+
+Any time you start the backend, there must also be a Postgres instance up on `localhost:5432` (or whatever credentials are used in `battlecode/settings.py`) with a database named `battlecode`. You must make migrations and migrate the first time you start the website, or whenever you change the models. I like to run Postgres on Docker:
+
+`docker run -p 5432:5432 -e POSTGRES_DB=battlecode --name bcweb -d postgres`
+
+To stop or start the container: `docker stop bcweb` `docker start bcweb`
+
 ## Local Development
 
 Always work in your virtual environment.
