@@ -1,8 +1,13 @@
+"""
+The database schema, and any events that may need to happen before,
+during, or after saving objects in the database.
+"""
+
 import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-# from django.contrib.postgres import fields
+from django.contrib.postgres import fields
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -12,6 +17,7 @@ HIGHSCHOOL = 'HS'
 NEWBIE     = 'NE'
 COLLEGE    = 'CO'
 PRO        = 'PR'
+
 
 TOURNAMENT_DIVISION_CHOICES = (
     (HIGHSCHOOL, 'High School'),
@@ -32,26 +38,51 @@ class Tournament(models.Model):
         (DOUBLE_ELIM, 'Double Elimination'),
     )
 
-    name      = models.TextField()
-    date      = models.DateField()
-    style     = models.CharField(max_length=2, choices=TOURNAMENT_STYLE_CHOICES)
-    # divisions = fields.ArrayField(models.CharField(max_length=2, choices=TOURNAMENT_DIVISION_CHOICES))
-    hidden    = models.BooleanField(default=True)
+    name        = models.TextField()
+    divisions   = fields.ArrayField(models.CharField(max_length=2, choices=TOURNAMENT_DIVISION_CHOICES), default=list)
+    date        = models.DateField()
+    style       = models.CharField(max_length=2, choices=TOURNAMENT_STYLE_CHOICES)
+    details     = models.TextField(blank=True)
+    stream_link = models.TextField(blank=True)
+    maps        = fields.ArrayField(models.IntegerField(), default=list)
+    hidden      = models.BooleanField(default=True)
 
     def __str__(self):
-        return '{} {}'.format(self.name, self.date)
+        return '{} {} {}'.format(self.name, self.style, self.date)
+
+
+class Map(models.Model):
+    name     = models.TextField()
+    filename = models.TextField()
+
+    def __str__(self):
+        return '(#%d) %s'.format(self.id, self.name)
 
 
 class Team(models.Model):
-    name      = models.CharField(max_length=64, unique=True)
-    bio       = models.CharField(max_length=1000, blank=True)
-    avatar    = models.TextField(blank=True)
-    # divisions = fields.ArrayField(models.CharField(max_length=2, choices=TOURNAMENT_DIVISION_CHOICES))
-    mu        = models.FloatField(default=25)
-    sigma     = models.FloatField(default=8.333)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    name       = models.CharField(max_length=64, unique=True)
+    bio        = models.CharField(max_length=1000, blank=True)
+    avatar     = models.TextField(blank=True)
+    users      = fields.ArrayField(models.IntegerField(), size=4, default=list)
+    divisions  = fields.ArrayField(models.CharField(max_length=2, choices=TOURNAMENT_DIVISION_CHOICES), default=list)
+    mu         = models.FloatField(default=25)
+    sigma      = models.FloatField(default=8.333)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return '(#%d) %s'.format(self.id, self.name)
+
+
+class Submission(models.Model):
+    tournament   = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    team         = models.ForeignKey(Team, on_delete=models.CASCADE)
+    name         = models.TextField()
+    filename     = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '(#%d) %s'.format(self.id, self.name)
 
 
 class User(AbstractUser):

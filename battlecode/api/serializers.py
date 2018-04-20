@@ -1,3 +1,9 @@
+"""
+The medium between JSON and Python database objects. Also any
+events that need to happen before, during, or after serializing
+or deserializing objects.
+"""
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -40,7 +46,19 @@ class TournamentSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'name', 'date', 'style')
 
 
+class MapSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Map
+        fields = ('url', 'name', 'filename')
+
+
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Team
-        fields = ('url', 'name', 'bio', 'avatar')
+        fields = ('url', 'tournament', 'name', 'bio', 'avatar', 'users', 'divisions', 'updated_at')
+
+
+class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ('url', 'team', 'name', 'filename', 'submitted_at')
