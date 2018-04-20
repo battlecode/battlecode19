@@ -1,3 +1,7 @@
+"""
+The view that is returned in a request.
+"""
+
 from django.http import Http404
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
@@ -22,8 +26,7 @@ class UserCreate(generics.CreateAPIView):
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    Modify (TODO) or get the current user. GET returns private user info only of the
-    currently authenticated user. Otherwise it returns public user info.
+    Retrieve, update, or destroy a user, with limited permissions.
     """
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
@@ -39,6 +42,12 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
         return request.user.is_authenticated and request.user.id == pk
 
     def get(self, request, pk, format=None):
+        """
+        Returns profile info the requested user.
+
+        Also includes private info like email, name, and date of birth
+        if the requested user is the currently authenticated user.
+        """
         user = self.get_object(pk)
         if user is None:
             return Response(None, status=status.HTTP_404_NOT_FOUND)
@@ -105,5 +114,14 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
         output_data = output_serializer.data
         return Response(output_data, status=status.HTTP_200_OK)
 
-    def destroy(self, request, pk, format=None):
-        pass
+    def delete(self, request, pk, format=None):
+        """
+        Deletes this user only if it is the currently authenticated user.
+        It's what happens when you remove an account.
+        """
+        if not self.is_current_user(request, pk):
+            return Response(None, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = self.get_object(pk)
+        user.delete()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
