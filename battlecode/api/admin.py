@@ -22,7 +22,7 @@ class UserAdmin(DjangoUserAdmin):
 
 @admin.register(Tournament)
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'divisions', 'date', 'style', 'details', 'stream_link', 'maps', 'hidden')
+    list_display = ('id', 'name', 'divisions', 'style', 'stream_link', 'maps', 'hidden')
     list_display_links = ('name',)
 
 
@@ -34,11 +34,11 @@ class MapAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'tournament', 'users', 'divisions', 'mu', 'sigma')
+    list_display = ('id', 'name', 'league', 'users', 'divisions', 'mu', 'sigma')
     list_display_links = ('name',)
 
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'tournament', 'team', 'filename', 'submitted_at')
+    list_display = ('id', 'name', 'team', 'filename', 'submitted_at')
     list_display_links = ('name',)
