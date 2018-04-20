@@ -53,8 +53,8 @@ class Tournament(models.Model):
     name        = models.TextField()
     style       = models.TextField(choices=TOURNAMENT_STYLE_CHOICES)
     date_time   = models.DateTimeField()
-    divisions   = fields.ArrayField(models.TextField(choices=TOURNAMENT_DIVISION_CHOICES), default=list)
-    maps        = fields.ArrayField(models.IntegerField(), default=list)  # references Map
+    divisions   = fields.ArrayField(models.TextField(choices=TOURNAMENT_DIVISION_CHOICES), blank=True, default=list)
+    maps        = fields.ArrayField(models.IntegerField(), blank=True, default=list)  # references Map
     stream_link = models.TextField(blank=True)
     hidden      = models.BooleanField(default=True)
 
@@ -96,6 +96,7 @@ class Map(models.Model):
     league   = models.ForeignKey(League, on_delete=models.PROTECT)
     name     = models.TextField()
     filename = models.TextField()
+    hidden   = models.BooleanField(default=True)
 
     def __str__(self):
         return '(#{}) {}'.format(self.id, self.name)

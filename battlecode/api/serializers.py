@@ -40,25 +40,39 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return instance
 
 
+class LeagueSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = League
+        fields = ('url', 'name', 'year', 'start_date', 'end_date')
+
+
 class TournamentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Tournament
-        fields = ('url', 'name', 'date', 'style')
-
-
-class MapSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Map
-        fields = ('url', 'name', 'filename')
+        fields = ('url', 'league', 'name', 'style', 'date_time', 'divisions', 'maps', 'stream_link')
 
 
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Team
-        fields = ('url', 'tournament', 'name', 'bio', 'avatar', 'users', 'divisions', 'updated_at')
+        fields = ('url', 'league', 'name', 'bio', 'avatar', 'users', 'divisions', 'updated_at')
 
 
 class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Submission
         fields = ('url', 'team', 'name', 'filename', 'submitted_at')
+
+
+class MapSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Map
+        fields = ('url', 'league', 'name', 'filename')
+
+
+class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Scrimmage
+        fields = ('url', 'league', 'red_team', 'blue_team', 'red_submission', 'blue_submission', 'requested_at',
+            'started_at', 'updated_at', 'status', 'map', 'ranked', 'replay', 'red_logs', 'blue_logs',
+            'tournament', 'round', 'subround', 'index', 'winner_hidden')

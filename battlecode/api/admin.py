@@ -15,30 +15,47 @@ class UserAdmin(DjangoUserAdmin):
     fieldsets = DjangoUserAdmin.fieldsets + (
         ('Private', {'fields': ('date_of_birth', 'registration_key')}),
         ('User Profile', {
-            'fields': ('team', 'bio', 'avatar', 'country')
+            'fields': ('bio', 'avatar', 'country')
         }),
     )
 
 
+@admin.register(League)
+class LeagueAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'year', 'start_date', 'end_date', 'hidden')
+    list_display_links = ('id', 'name')
+
+
 @admin.register(Tournament)
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'divisions', 'style', 'stream_link', 'maps', 'hidden')
-    list_display_links = ('name',)
-
-
-@admin.register(Map)
-class MapAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'filename')
-    list_display_links = ('name',)
+    list_display = ('id', 'league', 'name', 'style', 'date_time', 'divisions', 'hidden')
+    list_display_links = ('id', 'name')
+    list_filter = ('league',)
 
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'league', 'users', 'divisions', 'mu', 'sigma')
-    list_display_links = ('name',)
+    list_display = ('id', 'league', 'name', 'users', 'divisions', 'mu', 'sigma', 'deleted')
+    list_display_links = ('id', 'name')
+    list_filter = ('league', 'divisions', 'deleted')
 
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'team', 'filename', 'submitted_at')
-    list_display_links = ('name',)
+    list_display = ('id', 'team', 'name', 'filename', 'submitted_at')
+    list_display_links = ('id', 'name')
+    list_filter = ('team',)
+
+
+@admin.register(Map)
+class MapAdmin(admin.ModelAdmin):
+    list_display = ('id', 'league', 'name', 'filename', 'hidden')
+    list_display_links = ('id', 'name')
+    list_filter = ('league',)
+
+
+@admin.register(Scrimmage)
+class ScrimmageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'league', 'red_team', 'blue_team', 'updated_at', 'status', 'map', 'ranked',
+        'tournament', 'round', 'subround', 'index', 'hidden', 'winner_hidden')
+    list_filter = ('red_team', 'blue_team', 'tournament')
