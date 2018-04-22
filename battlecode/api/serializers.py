@@ -10,19 +10,35 @@ from rest_framework import serializers
 from .models import *
 
 
+class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ('url', 'username', 'avatar', 'bio', 'country')
+        read_only_fields = ('avatar',)
+
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    userprofile = UserProfileSerializer()
+
     class Meta:
         model = get_user_model()
-        fields = ('url', 'username', 'email', 'first_name', 'last_name', 'date_of_birth', 'bio', 'country')
-        read_only_fields = ('id', 'avatar')
-        ordering = ('id',)
+        fields = ('url', 'email', 'first_name', 'last_name', 'date_of_birth', 'userprofile')
 
     def create(self, validated_data):
         """
         Create and return a new user, given the validated data.
         """
         try:
-            return get_user_model().objects.create_user(**validated_data)
+            user_profile_data = validated_data.pop('userprofile')
+            username = user_profile_data.get('username')
+            user = get_user_model().objects.create_user(username=username, **validated_data)
+
+            user.userprofile.username = username
+            if 'country' in user_profile_data:
+                user.userprofile.country = user_profile_data.get('country')
+
+            user.save()
+            return user
         except Exception as e:
             error = {'message': ','.join(e.args) if len(e.args) > 0 else 'Unknown Error'}
             raise serializers.ValidationError(error)
@@ -34,8 +50,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
-        instance.bio = validated_data.get('bio', instance.bio)
-        instance.country = validated_data.get('country', instance.country)
+
+        userprofile = validated_data.get('userprofile', None)
+        if userprofile:
+            instance.userprofile.bio = userprofile.get('bio', instance.userprofile.bio)
+            instance.userprofile.country = userprofile.get('country', instance.userprofile.country)
+
         instance.save()
         return instance
 
