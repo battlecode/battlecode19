@@ -63,7 +63,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class LeagueSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = League
-        fields = ('url', 'name', 'year', 'start_date', 'end_date')
+        fields = ('url', 'name', 'code', 'start_date', 'end_date', 'active')
 
 
 class TeamSerializer(serializers.HyperlinkedModelSerializer):

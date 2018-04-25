@@ -48,13 +48,21 @@ class UserProfileDetail(generics.RetrieveAPIView):
 
 
 class LeagueList(generics.ListAPIView):
-    queryset = League.objects.all()
+    """
+    Retrives a list of leagues, ordered by end date.
+    """
+    queryset = League.objects.exclude(hidden=True).order_by('end_date')
     serializer_class = LeagueSerializer
+    permission_classes = (permissions.AllowAny,)
 
 
 class LeagueDetail(generics.RetrieveAPIView):
-    queryset = League.objects.all()
+    """
+    Retrives a league.
+    """
+    queryset = League.objects.exclude(hidden=True)
     serializer_class = LeagueSerializer
+    permission_classes = (permissions.AllowAny,)
 
 
 class TeamListCreate(generics.ListCreateAPIView):

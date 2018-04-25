@@ -249,3 +249,55 @@ class UserTestCase(test.APITransactionTestCase):
         self.assertEqual(self.client.post('/api/user/profile/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertEqual(self.client.put('/api/user/profile/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertEqual(self.client.patch('/api/user/profile/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class LeagueTestCase(test.APITestCase):
+    def setUp(self):
+        self.client = test.APIClient()
+        self.bc16 = League.objects.create(id=1, **self.generate_league(2016, active=False, hidden=False))
+        self.bc17 = League.objects.create(id=2, **self.generate_league(2017, active=True, hidden=False))
+        self.bc18 = League.objects.create(id=3, **self.generate_league(2018, active=True, hidden=True))
+
+    def generate_league(self, year, active, hidden):
+        return {
+            'name': 'Battlecode {}'.format(year),
+            'code': 'bc{}'.format(str(year)[-2:]),
+            'start_date': '{}-01-01'.format(year),
+            'end_date': '{}-02-01'.format(year),
+            'active': active,
+            'hidden': hidden,
+        }
+
+    def test_list(self):
+        response = self.client.get('/api/league/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'GET /api/league/ is OK')
+        content = json.loads(response.content)
+        self.assertEqual(content['count'], 2, 'Expected 2 non-hidden leagues')
+
+        fields = ['name', 'code', 'start_date', 'end_date', 'active']
+        codes = ['bc16', 'bc17']
+        for league in content['results']:
+            for field in fields:
+                self.assertTrue(field in league, '{} {}'.format(field, league))
+            self.assertFalse('hidden' in league, league)
+            self.assertTrue(league['code'] in codes, league)
+
+        self.assertEqual(self.client.delete('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.post('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.put('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.patch('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_detail(self):
+        response = self.client.get('/api/league/1/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Can get inactive league')
+        response = self.client.get('/api/league/2/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Can get active league')
+        response = self.client.get('/api/league/3/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Cannot get hidden league')
+        response = self.client.get('/api/league/4/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Cannot get noexistent league')
+
+        self.assertEqual(self.client.delete('/api/league/1/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.post('/api/league/1/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.put('/api/league/1/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.patch('/api/league/1/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
