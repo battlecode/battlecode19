@@ -29,9 +29,10 @@ TOURNAMENT_DIVISION_CHOICES = (
 
 class League(models.Model):
     name       = models.TextField()
-    year       = models.IntegerField()
+    code       = models.TextField(unique=True)
     start_date = models.DateField()
     end_date   = models.DateField()
+    active     = models.BooleanField(default=False)
     hidden     = models.BooleanField(default=True)
 
     def __str__(self):
@@ -65,18 +66,22 @@ class Tournament(models.Model):
 class Team(models.Model):
     league    = models.ForeignKey(League, on_delete=models.PROTECT)
     name      = models.CharField(max_length=64, unique=True)
-    bio       = models.CharField(max_length=1000, blank=True)
+    team_key  = models.CharField(max_length=16, unique=True)
     avatar    = models.TextField(blank=True)
     users     = fields.ArrayField(models.IntegerField(), size=4, default=list)  # references User
+
+    # team profile
+    bio       = models.CharField(max_length=1000, blank=True)
     divisions = fields.ArrayField(models.TextField(choices=TOURNAMENT_DIVISION_CHOICES), default=list)
 
-    # scrimmage rankings
-    mu    = models.FloatField(default=25)
-    sigma = models.FloatField(default=8.333)
+    # scrimmages
+    mu                   = models.FloatField(default=25)
+    sigma                = models.FloatField(default=8.333)
+    auto_accept_ranked   = models.BooleanField(default=False)
+    auto_accept_unranked = models.BooleanField(default=False)
 
     # metadata
-    updated_at = models.DateTimeField(auto_now=True)
-    deleted    = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return '{}: (#{}) {}'.format(self.league, self.id, self.name)
@@ -114,24 +119,34 @@ class Scrimmage(models.Model):
         ('cancelled', 'Cancelled'),
     )
 
-    # Match-running
-    league          = models.ForeignKey(League, on_delete=models.PROTECT)
-    red_team        = models.ForeignKey(Team, null=True, on_delete=models.PROTECT, related_name='red_team')
-    blue_team       = models.ForeignKey(Team, null=True, on_delete=models.PROTECT, related_name='blue_team')
+    # Match-running (completed by requester)
+    league    = models.ForeignKey(League, on_delete=models.PROTECT)
+    red_team  = models.ForeignKey(Team, null=True, on_delete=models.PROTECT, related_name='red_team')
+    blue_team = models.ForeignKey(Team, null=True, on_delete=models.PROTECT, related_name='blue_team')
+    map       = models.ForeignKey(Map, on_delete=models.PROTECT)
+    ranked    = models.BooleanField(default=False)
+
+    # Match-running (completed by match runner)
     red_submission  = models.ForeignKey(Submission, null=True, on_delete=models.PROTECT, related_name='red_submission')
     blue_submission = models.ForeignKey(Submission, null=True, on_delete=models.PROTECT, related_name='blue_submission')
-    requested_at    = models.DateTimeField(auto_now_add=True)
-    started_at      = models.DateTimeField(null=True)
-    updated_at      = models.DateTimeField(auto_now=True)
     status          = models.TextField(choices=SCRIMMAGE_STATUS_CHOICES, default='pending')
-    map             = models.ForeignKey(Map, on_delete=models.PROTECT)
-    ranked          = models.BooleanField(default=False)
     replay          = models.TextField(blank=True)
     red_logs        = models.TextField(blank=True)
     blue_logs       = models.TextField(blank=True)
 
-    # Tournament match-making
-    tournament    = models.ForeignKey(Tournament, null=True, default=None, on_delete=models.SET_DEFAULT)
+    # Metadata
+    requested_by = models.ForeignKey(Team, null=True, on_delete=models.PROTECT, related_name='requested_by')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    started_at   = models.DateTimeField(null=True)
+    updated_at   = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '{}: (#{}) {} vs {}'.format(self.league, self.id, self.red_team, self.blue_team)
+
+
+class TournamentScrimmage(models.Model):
+    tournament    = models.ForeignKey(Tournament, on_delete=models.PROTECT)
+    scrimmage     = models.OneToOneField(Scrimmage, on_delete=models.PROTECT)
     round         = models.IntegerField(null=True)
     subround      = models.CharField(max_length=1, null=True)
     index         = models.IntegerField(null=True)
@@ -141,11 +156,8 @@ class Scrimmage(models.Model):
     winner_hidden = models.BooleanField(default=True)
 
     def __str__(self):
-        if self.tournament is None:
-            return '{}: (#{}) {} vs {}'.format(self.league, self.id, self.red_team, self.blue_team)
-        else:
-            return '{}: (#{}) {} vs {} Round {}{} Game {}'.format(
-                self.tournament, self.id, self.red_team, self.blue_team, self.round, self.subround, self.index)
+        return '{}: (#{}) {} vs {} Round {}{} Game {}'.format(
+            self.tournament, self.id, self.red_team, self.blue_team, self.round, self.subround, self.index)
 
 
 class User(AbstractUser):
@@ -154,6 +166,7 @@ class User(AbstractUser):
     last_name        = models.CharField(max_length=150)
     date_of_birth    = models.DateField()
     registration_key = models.CharField(max_length=32, null=True, unique=True)
+    verified         = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']

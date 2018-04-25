@@ -22,7 +22,7 @@ class UserAdmin(DjangoUserAdmin):
 
 @admin.register(League)
 class LeagueAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'year', 'start_date', 'end_date', 'hidden')
+    list_display = ('id', 'name', 'code', 'start_date', 'end_date', 'active', 'hidden')
     list_display_links = ('id', 'name')
 
 
@@ -35,7 +35,7 @@ class TournamentAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('id', 'league', 'name', 'users', 'divisions', 'mu', 'sigma', 'deleted')
+    list_display = ('id', 'league', 'name', 'users', 'divisions', 'mu', 'sigma', 'auto_accept_ranked', 'auto_accept_unranked', 'deleted')
     list_display_links = ('id', 'name')
     list_filter = ('league', 'divisions', 'deleted')
 
@@ -56,6 +56,12 @@ class MapAdmin(admin.ModelAdmin):
 
 @admin.register(Scrimmage)
 class ScrimmageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'league', 'red_team', 'blue_team', 'updated_at', 'status', 'map', 'ranked',
-        'tournament', 'round', 'subround', 'index', 'hidden', 'winner_hidden')
-    list_filter = ('red_team', 'blue_team', 'tournament')
+    list_display = ('id', 'league', 'red_team', 'blue_team', 'map', 'ranked', 'status',
+        'requested_by', 'requested_at', 'started_at', 'updated_at')
+    list_filter = ('league', 'red_team', 'blue_team')
+
+
+@admin.register(TournamentScrimmage)
+class TournamentScrimmageAdmin(admin.ModelAdmin):
+    list_display = ('tournament', 'scrimmage', 'round', 'subround', 'index', 'hidden', 'winner_hidden')
+    list_filter = ('tournament',)
