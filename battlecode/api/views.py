@@ -11,11 +11,6 @@ from .serializers import *
 from .permissions import *
 
 
-class TeamListCreate(generics.ListCreateAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
-
-
 class UserCreate(generics.CreateAPIView):
     """
     Create a new user.
@@ -50,3 +45,68 @@ class UserProfileDetail(generics.RetrieveAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = (permissions.AllowAny,)
+
+
+class LeagueList(generics.ListAPIView):
+    queryset = League.objects.all()
+    serializer_class = LeagueSerializer
+
+
+class LeagueDetail(generics.RetrieveAPIView):
+    queryset = League.objects.all()
+    serializer_class = LeagueSerializer
+
+
+class TeamListCreate(generics.ListCreateAPIView):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
+
+
+class TeamDetail(generics.RetrieveUpdateAPIView):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
+
+
+class SubmissionListCreate(generics.ListCreateAPIView):
+    queryset = Submission.objects.all()
+    serializer_class = SubmissionSerializer
+
+
+class SubmissionDetail(generics.RetrieveAPIView):
+    queryset = Submission.objects.all()
+    serializer_class = SubmissionSerializer
+
+
+class ScrimmageListCreate(generics.ListCreateAPIView):
+    queryset = Scrimmage.objects.all()
+    serializer_class = ScrimmageSerializer
+
+
+class ScrimmageDetail(generics.RetrieveAPIView):
+    queryset = Scrimmage.objects.all()
+    serializer_class = ScrimmageSerializer
+
+
+class MapList(generics.ListAPIView):
+    queryset = Map.objects.all()
+    serializer_class = MapSerializer
+
+
+class MapDetail(generics.RetrieveAPIView):
+    queryset = Map.objects.all()
+    serializer_class = MapSerializer
+
+
+class TournamentList(generics.ListAPIView):
+    queryset = Tournament.objects.all()
+    serializer_class = TournamentSerializer
+
+
+class TournamentDetail(generics.RetrieveAPIView):
+    queryset = Tournament.objects.all()
+    serializer_class = TournamentSerializer
+
+
+class BracketDetail(generics.RetrieveAPIView):
+    queryset = TournamentScrimmage.objects.all()
+    serializer_class = TournamentScrimmageSerializer
