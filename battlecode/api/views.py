@@ -4,11 +4,11 @@ The view that is returned in a request.
 
 from django.http import Http404
 from django.contrib.auth import get_user_model
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, serializers, viewsets
 from rest_framework.response import Response
 
-from .serializers import *
-from .permissions import *
+from battlecode.api.serializers import *
+from battlecode.api.permissions import *
 
 
 class UserCreate(generics.CreateAPIView):
@@ -29,38 +29,20 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticatedAsRequestedUser,)
 
 
-class UserProfileList(generics.ListAPIView):
+class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Retrieves a list of public profiles of users.
+    Read only view set for user profiles.
     """
     queryset = UserProfile.objects.all().order_by('user_id')
     serializer_class = UserProfileSerializer
     permission_classes = (permissions.AllowAny,)
 
 
-class UserProfileDetail(generics.RetrieveAPIView):
+class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Retrieves the public profile of a user.
-    """
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-    permission_classes = (permissions.AllowAny,)
-
-
-class LeagueList(generics.ListAPIView):
-    """
-    Retrives a list of leagues, ordered by end date.
+    Read only view set for leagues, lists ordered by end date.
     """
     queryset = League.objects.exclude(hidden=True).order_by('end_date')
-    serializer_class = LeagueSerializer
-    permission_classes = (permissions.AllowAny,)
-
-
-class LeagueDetail(generics.RetrieveAPIView):
-    """
-    Retrives a league.
-    """
-    queryset = League.objects.exclude(hidden=True)
     serializer_class = LeagueSerializer
     permission_classes = (permissions.AllowAny,)
 
@@ -70,7 +52,7 @@ class TeamListCreate(generics.ListCreateAPIView):
     serializer_class = TeamSerializer
 
 
-class TeamDetail(generics.RetrieveUpdateAPIView):
+class TeamDetail(generics.RetrieveUpdateAPIView, serializers.HyperlinkedRelatedField):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
 
