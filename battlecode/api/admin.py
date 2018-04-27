@@ -22,7 +22,7 @@ class UserAdmin(DjangoUserAdmin):
 
 @admin.register(League)
 class LeagueAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'code', 'start_date', 'end_date', 'active', 'hidden')
+    list_display = ('id', 'name', 'start_date', 'end_date', 'active', 'hidden')
     list_display_links = ('id', 'name')
 
 

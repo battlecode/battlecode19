@@ -6,8 +6,19 @@ or deserializing objects.
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from .models import *
+
+class LeagueHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
+    def get_url(self, obj, view_name, request, format):
+        if hasattr(obj, 'pk') and obj.pk is None:
+            return None
+
+        lookup_value = getattr(obj, self.lookup_field)
+        kwargs = {self.lookup_url_kwarg: lookup_value}
+        kwargs['league_id'] = self.context['league_id']
+        return reverse(view_name, kwargs=kwargs, request=request, format=format)
 
 
 class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
@@ -63,13 +74,26 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class LeagueSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = League
-        fields = ('url', 'name', 'code', 'start_date', 'end_date', 'active')
+        fields = ('url', 'id', 'name', 'start_date', 'end_date', 'active')
 
 
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
+    serializer_url_field = LeagueHyperlinkedIdentityField
+    league = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
+
     class Meta:
         model = Team
-        fields = ('url', 'league', 'name', 'bio', 'avatar', 'users', 'divisions', 'updated_at')
+        fields = ('url', 'id', 'league', 'name', 'avatar', 'users',
+            'bio', 'divisions', 'auto_accept_ranked', 'auto_accept_unranked')
+        read_only_fields = ('id', 'avatar',)
+
+    def update(self, instance, validated_data):
+        instance.bio = validated_data.get('bio', instance.bio)
+        instance.divisions = validated_data.get('divisions', instance.divisions)
+        instance.auto_accept_ranked = validated_data.get('auto_accept_ranked', instance.auto_accept_ranked)
+        instance.auto_accept_unranked = validated_data.get('auto_accept_unranked', instance.auto_accept_unranked)
+        instance.save()
+        return instance
 
 
 class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
@@ -81,9 +105,9 @@ class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
 class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Scrimmage
-        fields = ('url', 'league', 'red_team', 'blue_team', 'red_submission', 'blue_submission', 'requested_at',
-            'started_at', 'updated_at', 'status', 'map', 'ranked', 'replay', 'red_logs', 'blue_logs',
-            'tournament', 'round', 'subround', 'index', 'winner_hidden')
+        fields = ('url', 'league', 'red_team', 'blue_team', 'map', 'ranked',
+            'red_submission', 'blue_submission', 'status', 'replay', 'red_logs', 'blue_logs',
+            'requested_by', 'requested_at', 'started_at', 'updated_at')
 
 
 class MapSerializer(serializers.HyperlinkedModelSerializer):

@@ -28,8 +28,8 @@ TOURNAMENT_DIVISION_CHOICES = (
 
 
 class League(models.Model):
+    id         = models.TextField(primary_key=True)
     name       = models.TextField()
-    code       = models.TextField(unique=True)
     start_date = models.DateField()
     end_date   = models.DateField()
     active     = models.BooleanField(default=False)
@@ -65,7 +65,7 @@ class Tournament(models.Model):
 
 class Team(models.Model):
     league    = models.ForeignKey(League, on_delete=models.PROTECT)
-    name      = models.CharField(max_length=64, unique=True)
+    name      = models.CharField(max_length=64)
     team_key  = models.CharField(max_length=16, unique=True)
     avatar    = models.TextField(blank=True)
     users     = fields.ArrayField(models.IntegerField(), size=4, default=list)  # references User
@@ -200,3 +200,12 @@ def update_user_profile(sender, instance, created, update_fields, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
     instance.userprofile.save()
+
+
+@receiver(pre_save, sender=Team)
+def gen_team_key(sender, instance, raw, update_fields, **kwargs):
+    """
+    Generate a new team key.
+    """
+    if not raw and instance._state.adding:
+        instance.team_key = uuid.uuid4().hex[:16]

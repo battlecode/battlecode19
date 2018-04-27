@@ -5,8 +5,37 @@ import logging
 from django.contrib.auth import get_user_model
 from rest_framework import status, test
 
-from .views import *
-from .models import *
+from battlecode.api.views import *
+from battlecode.api.models import *
+
+
+def generate_user(id_num, **kwargs):
+    user = {
+        'email': 'user_{}@battlecode.org'.format(id_num),
+        'password': 'password',
+        'date_of_birth': '2018-01-01',
+        'first_name': 'battle',
+        'last_name': 'code',
+        'userprofile': {
+            'username': 'user_{}'.format(id_num),
+            'country': 'USA',
+        },
+    }
+
+    for key in kwargs:
+        user[key] = kwargs[key]
+    return user
+
+
+def generate_league(year, active=True, hidden=False):
+    return {
+        'id': 'bc{}'.format(str(year)[-2:]),
+        'name': 'Battlecode {}'.format(year),
+        'start_date': '{}-01-01'.format(year),
+        'end_date': '{}-02-01'.format(year),
+        'active': active,
+        'hidden': hidden,
+    }
 
 
 class UserTestCase(test.APITransactionTestCase):
@@ -14,31 +43,14 @@ class UserTestCase(test.APITransactionTestCase):
         self.client = test.APIClient()
 
         # Create two regular users
-        response = self.client.post('/api/user/', self.generate_user(6147), format='json')
-        self.client.post('/api/user/', self.generate_user(6370), format='json')
+        self.client.post('/api/user/', generate_user(6147), format='json')
+        self.client.post('/api/user/', generate_user(6370), format='json')
         self.userA = get_user_model().objects.get(email='user_6147@battlecode.org')
         self.userB = get_user_model().objects.get(email='user_6370@battlecode.org')
 
-    def generate_user(self, id_num, **kwargs):
-        user = {
-            'email': 'user_{}@battlecode.org'.format(id_num),
-            'password': 'password',
-            'date_of_birth': '2018-01-01',
-            'first_name': 'battle',
-            'last_name': 'code',
-            'userprofile': {
-                'username': 'user_{}'.format(id_num),
-                'country': 'USA',
-            },
-        }
-
-        for key in kwargs:
-            user[key] = kwargs[key]
-        return user
-
     def test_create_user_success(self):
         # Can create valid user even when not logged in
-        user = self.generate_user(0)
+        user = generate_user(0)
         response = self.client.post('/api/user/', user, format='json')
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -61,7 +73,7 @@ class UserTestCase(test.APITransactionTestCase):
 
     def test_cannot_override_some_fields_on_creation(self):
         # Cannot override registration key nor avatar on creation
-        user = self.generate_user(1, registration_key='FOOBAR')
+        user = generate_user(1, registration_key='FOOBAR')
         user['userprofile']['avatar'] = 'FOOBAR'
         response = self.client.post('/api/user/', user, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -71,23 +83,23 @@ class UserTestCase(test.APITransactionTestCase):
         self.assertNotEqual(db_user.userprofile.avatar, user['userprofile']['avatar'])
 
     def test_cannot_create_user_with_missing_fields(self):
-        user = self.generate_user(0)
+        user = generate_user(0)
         del user['userprofile']['username']
         response = self.client.post('/api/user/', user, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_cannot_create_duplicate_users(self):
-        user = self.generate_user(0)
+        user = generate_user(0)
         response = self.client.post('/api/user/', user, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Cannot create users with the same username
-        user = self.generate_user(0, email='robot@battlecode.org')
+        user = generate_user(0, email='robot@battlecode.org')
         response = self.client.post('/api/user/', user, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Nor with the same email
-        user = self.generate_user(0)
+        user = generate_user(0)
         user['userprofile']['username'] = 'robot'
         response = self.client.post('/api/user/', user, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -254,19 +266,9 @@ class UserTestCase(test.APITransactionTestCase):
 class LeagueTestCase(test.APITestCase):
     def setUp(self):
         self.client = test.APIClient()
-        self.bc16 = League.objects.create(id=1, **self.generate_league(2016, active=False, hidden=False))
-        self.bc17 = League.objects.create(id=2, **self.generate_league(2017, active=True, hidden=False))
-        self.bc18 = League.objects.create(id=3, **self.generate_league(2018, active=True, hidden=True))
-
-    def generate_league(self, year, active, hidden):
-        return {
-            'name': 'Battlecode {}'.format(year),
-            'code': 'bc{}'.format(str(year)[-2:]),
-            'start_date': '{}-01-01'.format(year),
-            'end_date': '{}-02-01'.format(year),
-            'active': active,
-            'hidden': hidden,
-        }
+        self.bc16 = League.objects.create(**generate_league(2016, active=False, hidden=False))
+        self.bc17 = League.objects.create(**generate_league(2017, active=True, hidden=False))
+        self.bc18 = League.objects.create(**generate_league(2018, active=True, hidden=True))
 
     def test_list(self):
         response = self.client.get('/api/league/')
@@ -274,13 +276,13 @@ class LeagueTestCase(test.APITestCase):
         content = json.loads(response.content)
         self.assertEqual(content['count'], 2, 'Expected 2 non-hidden leagues')
 
-        fields = ['name', 'code', 'start_date', 'end_date', 'active']
+        fields = ['name', 'id', 'start_date', 'end_date', 'active']
         codes = ['bc16', 'bc17']
         for league in content['results']:
             for field in fields:
                 self.assertTrue(field in league, '{} {}'.format(field, league))
             self.assertFalse('hidden' in league, league)
-            self.assertTrue(league['code'] in codes, league)
+            self.assertTrue(league['id'] in codes, league)
 
         self.assertEqual(self.client.delete('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertEqual(self.client.post('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -288,16 +290,105 @@ class LeagueTestCase(test.APITestCase):
         self.assertEqual(self.client.patch('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_detail(self):
-        response = self.client.get('/api/league/1/')
+        response = self.client.get('/api/league/bc16/')
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Can get inactive league')
-        response = self.client.get('/api/league/2/')
+        response = self.client.get('/api/league/bc17/')
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Can get active league')
-        response = self.client.get('/api/league/3/')
+        response = self.client.get('/api/league/bc18/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Cannot get hidden league')
-        response = self.client.get('/api/league/4/')
+        response = self.client.get('/api/league/bc19/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Cannot get noexistent league')
 
-        self.assertEqual(self.client.delete('/api/league/1/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        self.assertEqual(self.client.post('/api/league/1/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        self.assertEqual(self.client.put('/api/league/1/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        self.assertEqual(self.client.patch('/api/league/1/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.delete('/api/league/bc16/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.post('/api/league/bc16/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.put('/api/league/bc16/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.patch('/api/league/bc16/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class TeamTestCase(test.APITransactionTestCase):
+    def setUp(self):
+        self.client = test.APIClient()
+        self.bc17 = League.objects.create(**generate_league(2017))
+        self.bc18 = League.objects.create(**generate_league(2018))
+        self.bc19 = League.objects.create(**generate_league(2019, active=False))
+
+        self.client.post('/api/user/', generate_user(1), format='json')
+        self.client.post('/api/user/', generate_user(2), format='json')
+        self.client.post('/api/user/', generate_user(3), format='json')
+        self.userA = get_user_model().objects.get(email='user_1@battlecode.org')
+        self.userB = get_user_model().objects.get(email='user_2@battlecode.org')
+        self.userC = get_user_model().objects.get(email='user_3@battlecode.org')
+
+        self.client.force_authenticate(user=self.userC)
+        response = self.client.post('/api/bc17/team/', {'name': 'TestTeam1'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post('/api/bc18/team/', {'name': 'TestTeam2'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.team1 = Team.objects.get(name='TestTeam1')
+        self.team2 = Team.objects.get(name='TestTeam2')
+        self.team3 = Team.objects.create(league=self.bc17, name='TestTeam3', team_key='asdf', deleted=True)
+        self.client.force_authenticate(user=None)
+
+    def test_create_success(self):
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post('/api/bc18/team/', {'name': 'TeamName'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, 'Created team')
+        content = json.loads(response.content)
+
+        self.assertTrue('bc18' in content.get('league'), 'Expected parameters to be maintained')
+        self.assertEqual(content.get('name'), 'TeamName', 'Expected parameters to be maintained')
+        self.assertEqual(content.get('auto_accept_ranked'), False, 'Expected default value')
+        self.assertEqual(content.get('auto_accept_unranked'), False, 'Expected default value')
+
+        users = content.get('users')
+        self.assertTrue(self.userA.id in users, 'User A auto-joined team: {}'.format(users))
+
+        db_team = Team.objects.get(name='TeamName')
+        self.assertTrue(db_team.team_key, 'Team key should be auto-generated: {}'.format(db_team.team_key))
+
+        for field in ['id', 'avatar', 'bio', 'divisions']:
+            self.assertTrue(field in content, 'Field {} should be returned'.format(field))
+        for field in ['mu', 'sigma', 'deleted']:
+            self.assertFalse(field in content, 'Field {} should NOT be returned'.format(field))
+
+    def test_create_fail(self):
+        response = self.client.post('/api/bc18/team/', {'name': 'TeamName'})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, 'Must be logged in to create team')
+
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post('/api/bc18/team/', {'name': 'TeamName'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post('/api/bc18/team/', {'name': 'TeamNombre'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot create team when already on one')
+        response = self.client.post('/api/bc19/team/', {'name': 'TeamName'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot create team in inactive league')
+        response = self.client.post('/api/bc17/team/', {'name': 'TeamName'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, 'Can create a team in another active league')
+
+        self.client.force_authenticate(user=self.userB)
+        response = self.client.post('/api/bc18/team/', {'name': 'TeamName'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot create duplicate team name')
+
+    def test_list(self):
+        response = self.client.get('/api/bc17/team/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(response.content)
+        self.assertEqual(content['count'], 1, 'Expected 1 team, deleted teams not returned')
+
+    def test_detail(self):
+        response = self.client.get('/api/bc17/team/{}/'.format(self.team1.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/api/bc18/team/{}/'.format(self.team2.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # from nose.tools import set_trace; set_trace()
+        self.assertFalse('team_key' in json.loads(response.content), 'Team key not returned if not authenticated')
+
+        self.client.force_authenticate(user=self.userC)
+        response = self.client.get('/api/bc18/team/{}/'.format(self.team2.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('team_key' in json.loads(response.content), 'Team key returned if authenticated')
+
+        response = self.client.get('/api/bc17/team/{}/'.format(self.team2.id))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and team id mismatch')
+        response = self.client.get('/api/bc17/team/{}/'.format(self.team3.id))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Deleted team not returned')
