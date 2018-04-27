@@ -11,6 +11,13 @@ from battlecode.api.serializers import *
 from battlecode.api.permissions import *
 
 
+class PartialUpdateModelMixin(mixins.UpdateModelMixin):
+    def update(self, request, partial=False, league_id=None, pk=None):
+        if request.method == 'PUT':
+            return Response({}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().update(request, partial=partial, pk=pk)
+
+
 class UserCreate(generics.CreateAPIView):
     """
     Create a new user.
@@ -58,7 +65,8 @@ def validate_league(league_id):
 class TeamViewSet(viewsets.GenericViewSet,
                   mixins.CreateModelMixin,
                   mixins.ListModelMixin,
-                  mixins.RetrieveModelMixin):
+                  mixins.RetrieveModelMixin,
+                  PartialUpdateModelMixin):
     queryset = Team.objects.all().order_by('name').exclude(deleted=True)
     serializer_class = TeamSerializer
     permission_classes = (IsAuthenticatedOrUnsafeMethods,)
@@ -116,6 +124,53 @@ class TeamViewSet(viewsets.GenericViewSet,
         if res.status_code == status.HTTP_200_OK and request.user.id in res.data.get('users'):
             res.data['team_key'] = self.get_queryset().get(pk=pk).team_key
         return res
+
+    def partial_update(self, request, league_id, pk=None):
+        """
+        Updates the team. The authenticated user must be on the team to leave or update it.
+
+        Includes the following operations:
+        "join" - Joins the team. Fails if the team has the maximum number of members, or if the team key is incorrect.
+        "leave" - Leaves the team. Deletes the team if this is the last user to leave the team.
+        "update" - Updates the team bio, divisions, or auto-accepting for ranked and unranked scrimmages.
+        """
+        err = validate_league(league_id)
+        if err: return err
+
+        try:
+            team = self.get_queryset().get(pk=pk)
+        except Team.DoesNotExist:
+            return Response({'message': 'Team not found'}, status.HTTP_404_NOT_FOUND)
+
+        op = request.data.get('op', None)
+        if op not in ['join', 'leave', 'update']:
+            return Response({'message': 'Invalid op: "join", "leave", "update"'}, status.HTTP_400_BAD_REQUEST)
+
+        if op == 'join':
+            if len(self.get_queryset().filter(users__contains=[request.user.id])) > 0:
+                return Response({'message': 'Already on a team in this league'}, status.HTTP_400_BAD_REQUEST)
+            if team.team_key != request.data.get('team_key', None):
+                return Response({'message': 'Invalid team key'}, status.HTTP_400_BAD_REQUEST)
+            if len(team.users) == 4:
+                return Response({'message': 'Team has max number of users'}, status.HTTP_400_BAD_REQUEST)
+            team.users.append(request.user.id)
+            team.save()
+
+            serializer = self.get_serializer(team)
+            return Response(serializer.data, status.HTTP_200_OK)
+
+        if request.user.id not in team.users:
+            return Response({'message': 'User not on this team'}, status.HTTP_401_UNAUTHORIZED)
+
+        if op == 'leave':
+            team.users.remove(request.user.id)
+            team.deleted = len(team.users) == 0
+            team.save()
+
+            serializer = self.get_serializer(team)
+            return Response(serializer.data, status.HTTP_200_OK)
+
+        return super().partial_update(request)
 
 
 class SubmissionListCreate(generics.ListCreateAPIView):

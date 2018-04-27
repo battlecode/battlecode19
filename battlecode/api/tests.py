@@ -392,3 +392,90 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and team id mismatch')
         response = self.client.get('/api/bc17/team/{}/'.format(self.team3.id))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Deleted team not returned')
+
+    def test_join(self):
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post('/api/bc17/team/', {'name': 'TeamName'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, 'Created team in bc17')
+
+        # User A joins team 2
+        response = self.client.patch('/api/bc17/team/{}/'.format(self.team1.id), {'op': 'join', 'team_key': self.team1.team_key})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot join team when already on one')
+        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot join team without team key')
+        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': ':)'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot join team with the wrong team key')
+        response = self.client.patch('/api/bc17/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and team ID do not match')
+        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully joined team')
+        content = json.loads(response.content)
+        self.assertTrue(self.userA.id in content['users'], 'User A joins team 2')
+
+        # User B joins team 2
+        self.client.force_authenticate(user=self.userB)
+        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+
+        # User D joins team 2
+        self.client.post('/api/user/', generate_user(4), format='json')
+        userD = get_user_model().objects.get(email='user_4@battlecode.org')
+        self.client.force_authenticate(user=userD)
+        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'User D joins team 2')
+
+        # User E cannot join team 2
+        self.client.post('/api/user/', generate_user(5), format='json')
+        userE = get_user_model().objects.get(email='user_5@battlecode.org')
+        self.client.force_authenticate(user=userE)
+        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'User E fails join, team at max capacity')
+
+    def test_leave(self):
+        url = '/api/bc18/team/{}/'.format(self.team2.id)
+
+        # User A joins team
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.patch(url, {'op': 'join', 'team_key': self.team2.team_key})
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'User A joined team')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Team exists')
+        self.assertEqual(len(json.loads(response.content).get('users')), 2, 'Users A and C')
+
+        # User A leaves team
+        response = self.client.patch(url, {'op': 'leave'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'User A left team')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Team exists')
+        self.assertEqual(len(json.loads(response.content).get('users')), 1, 'User C')
+
+        # User C leaves team, team gets deleted
+        self.client.force_authenticate(user=self.userC)
+        response = self.client.patch(url, {'op': 'leave'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'User C left team')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Team deleted')
+
+    def test_update(self):
+        url = '/api/bc18/team/{}/'.format(self.team2.id)
+
+        update = {
+            'op': 'update',
+            'bio': 'hello world',
+            'divisions': ['highschool', 'newbie'],
+            'auto_accept_unranked': True,
+            'auto_accept_ranked': False,
+        }
+        response = self.client.patch(url, update)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, 'Unauthorized update')
+
+        self.client.force_authenticate(user=self.userC)
+        response = self.client.patch(url, update)
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successful update')
+        self.assertEqual(content['bio'], update['bio'])
+        self.assertEqual(content['divisions'], update['divisions'])
+        self.assertEqual(content['auto_accept_unranked'], update['auto_accept_unranked'])
+        self.assertEqual(content['auto_accept_ranked'], update['auto_accept_ranked'])
+
+        response = self.client.put(url, {})
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED, 'PUT not allowed')
