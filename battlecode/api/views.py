@@ -18,18 +18,14 @@ class PartialUpdateModelMixin(mixins.UpdateModelMixin):
         return super().update(request, partial=partial, pk=pk)
 
 
-class UserCreate(generics.CreateAPIView):
+class UserViewSet(viewsets.GenericViewSet,
+                  mixins.CreateModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin,
+                  mixins.DestroyModelMixin):
     """
-    Create a new user.
-    """
-    queryset = get_user_model().objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (permissions.AllowAny,)
-
-
-class UserDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Retrieve, update, or destroy the currently authenticated user.
+    Anyone is permitted to create a user.
+    An authenticated user can retrieve, update, or destroy themself.
     """
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
@@ -69,7 +65,7 @@ class TeamViewSet(viewsets.GenericViewSet,
                   PartialUpdateModelMixin):
     queryset = Team.objects.all().order_by('name').exclude(deleted=True)
     serializer_class = TeamSerializer
-    permission_classes = (IsAuthenticatedOrUnsafeMethods,)
+    permission_classes = (IsAuthenticatedOrSafeMethods,)
 
     def get_queryset(self):
         return super().get_queryset().filter(league_id=self.kwargs['league_id'])
@@ -173,46 +169,33 @@ class TeamViewSet(viewsets.GenericViewSet,
         return super().partial_update(request)
 
 
-class SubmissionListCreate(generics.ListCreateAPIView):
+class SubmissionViewSet(viewsets.GenericViewSet,
+                        mixins.ListModelMixin,
+                        mixins.CreateModelMixin,
+                        mixins.RetrieveModelMixin):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
 
 
-class SubmissionDetail(generics.RetrieveAPIView):
-    queryset = Submission.objects.all()
-    serializer_class = SubmissionSerializer
-
-
-class ScrimmageListCreate(generics.ListCreateAPIView):
+class ScrimmageViewSet(viewsets.GenericViewSet,
+                       mixins.ListModelMixin,
+                       mixins.CreateModelMixin,
+                       mixins.RetrieveModelMixin,
+                       mixins.UpdateModelMixin):
     queryset = Scrimmage.objects.all()
     serializer_class = ScrimmageSerializer
 
 
-class ScrimmageDetail(generics.RetrieveAPIView):
-    queryset = Scrimmage.objects.all()
-    serializer_class = ScrimmageSerializer
-
-
-class MapList(generics.ListAPIView):
+class MapViewSet(viewsets.GenericViewSet,
+                 mixins.ListModelMixin,
+                 mixins.RetrieveModelMixin):
     queryset = Map.objects.all()
     serializer_class = MapSerializer
 
 
-class MapDetail(generics.RetrieveAPIView):
-    queryset = Map.objects.all()
-    serializer_class = MapSerializer
-
-
-class TournamentList(generics.ListAPIView):
+class TournamentViewSet(viewsets.GenericViewSet,
+                        mixins.ListModelMixin,
+                        mixins.RetrieveModelMixin):
     queryset = Tournament.objects.all()
     serializer_class = TournamentSerializer
 
-
-class TournamentDetail(generics.RetrieveAPIView):
-    queryset = Tournament.objects.all()
-    serializer_class = TournamentSerializer
-
-
-class BracketDetail(generics.RetrieveAPIView):
-    queryset = TournamentScrimmage.objects.all()
-    serializer_class = TournamentScrimmageSerializer

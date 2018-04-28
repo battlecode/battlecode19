@@ -479,3 +479,28 @@ class TeamTestCase(test.APITransactionTestCase):
 
         response = self.client.put(url, {})
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED, 'PUT not allowed')
+
+
+class SubmissionTestCase(test.APITestCase):
+    def setUp(self):
+        self.client = test.APIClient()
+
+
+class ScrimmageTestCase(test.APITestCase):
+    def setUp(self):
+        self.client = test.APIClient()
+
+
+class MapTestCase(test.APITestCase):
+    def setUp(self):
+        self.client = test.APIClient()
+
+
+class TournamentTestCase(test.APITestCase):
+    def setUp(self):
+        self.client = test.APIClient()
+
+
+class BracketTestCase(test.APITestCase):
+    def setUp(self):
+        self.client = test.APIClient()

@@ -8,7 +8,7 @@ class IsAuthenticatedAsRequestedUser(permissions.BasePermission):
         return request.user.is_authenticated and request.user.id == obj.id
 
 
-class IsAuthenticatedOrUnsafeMethods(permissions.BasePermission):
+class IsAuthenticatedOrSafeMethods(permissions.BasePermission):
     message = 'Must be authenticated to perform unsafe methods. Otherwise, all are allowed.'
 
     def has_permission(self, request, view):
