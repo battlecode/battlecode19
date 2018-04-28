@@ -2,7 +2,8 @@
 The view that is returned in a request.
 """
 
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status, mixins, viewsets
 from rest_framework.response import Response
@@ -45,17 +46,9 @@ class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Read only view set for leagues, lists ordered by end date.
     """
-    queryset = League.objects.exclude(hidden=True).order_by('end_date')
+    queryset = League.objects.order_by('end_date')
     serializer_class = LeagueSerializer
     permission_classes = (permissions.AllowAny,)
-
-
-def validate_league(league_id):
-    league = League.objects.get(pk=league_id, hidden=False)
-    if league is None:
-        return Response({'message': 'League "{}" not found'.format(league)}, status.HTTP_404_NOT_FOUND)
-    if not league.active:
-        return Response({'message': 'League "{}" not active'.format(league)}, status.HTTP_400_BAD_REQUEST)
 
 
 class TeamViewSet(viewsets.GenericViewSet,
@@ -65,7 +58,14 @@ class TeamViewSet(viewsets.GenericViewSet,
                   PartialUpdateModelMixin):
     queryset = Team.objects.all().order_by('name').exclude(deleted=True)
     serializer_class = TeamSerializer
-    permission_classes = (IsAuthenticatedOrSafeMethods,)
+
+    def get_permissions(self):
+        league = League.objects.get(pk=self.kwargs.get('league_id'))
+        if league is None:
+            raise PermissionDenied
+        if self.request.method not in permissions.SAFE_METHODS and not league.active:
+            raise PermissionDenied
+        return [IsAuthenticatedOrSafeMethods()]
 
     def get_queryset(self):
         return super().get_queryset().filter(league_id=self.kwargs['league_id'])
@@ -81,9 +81,6 @@ class TeamViewSet(viewsets.GenericViewSet,
         Validates the request to make sure the user is not already on a team in this league.
         Creates a team in this league, where the authenticated user is the first to join the team.
         """
-        err = validate_league(league_id)
-        if err: return err
-
         name = request.data.get('name', None)
         if name is None:
             return Response({'message': 'Team name required'}, status.HTTP_400_BAD_REQUEST)
@@ -112,11 +109,7 @@ class TeamViewSet(viewsets.GenericViewSet,
         """
         Retrieves an active team in the league. Also gets the team key if the authenticated user is on this team.
         """
-        err = validate_league(league_id)
-        if err: return err
-
         res = super().retrieve(request, pk=pk)
-        # from nose.tools import set_trace; set_trace()
         if res.status_code == status.HTTP_200_OK and request.user.id in res.data.get('users'):
             res.data['team_key'] = self.get_queryset().get(pk=pk).team_key
         return res
@@ -130,9 +123,6 @@ class TeamViewSet(viewsets.GenericViewSet,
         "leave" - Leaves the team. Deletes the team if this is the last user to leave the team.
         "update" - Updates the team bio, divisions, or auto-accepting for ranked and unranked scrimmages.
         """
-        err = validate_league(league_id)
-        if err: return err
-
         try:
             team = self.get_queryset().get(pk=pk)
         except Team.DoesNotExist:

@@ -27,14 +27,13 @@ def generate_user(id_num, **kwargs):
     return user
 
 
-def generate_league(year, active=True, hidden=False):
+def generate_league(year, active=True):
     return {
         'id': 'bc{}'.format(str(year)[-2:]),
         'name': 'Battlecode {}'.format(year),
         'start_date': '{}-01-01'.format(year),
         'end_date': '{}-02-01'.format(year),
         'active': active,
-        'hidden': hidden,
     }
 
 
@@ -266,23 +265,22 @@ class UserTestCase(test.APITransactionTestCase):
 class LeagueTestCase(test.APITestCase):
     def setUp(self):
         self.client = test.APIClient()
-        self.bc16 = League.objects.create(**generate_league(2016, active=False, hidden=False))
-        self.bc17 = League.objects.create(**generate_league(2017, active=True, hidden=False))
-        self.bc18 = League.objects.create(**generate_league(2018, active=True, hidden=True))
+        self.bc16 = League.objects.create(**generate_league(2016, active=False))
+        self.bc17 = League.objects.create(**generate_league(2017, active=True))
 
     def test_list(self):
         response = self.client.get('/api/league/')
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'GET /api/league/ is OK')
         content = json.loads(response.content)
-        self.assertEqual(content['count'], 2, 'Expected 2 non-hidden leagues')
+        self.assertEqual(content['count'], 2, 'Expected 2 leagues')
 
-        fields = ['name', 'id', 'start_date', 'end_date', 'active']
-        codes = ['bc16', 'bc17']
+        fields = ['name', 'start_date', 'end_date', 'active']
+        ids = ['bc16', 'bc17']
         for league in content['results']:
             for field in fields:
                 self.assertTrue(field in league, '{} {}'.format(field, league))
-            self.assertFalse('hidden' in league, league)
-            self.assertTrue(league['id'] in codes, league)
+            url = league['url']
+            self.assertTrue('bc16' in url or 'bc17' in url, league)
 
         self.assertEqual(self.client.delete('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertEqual(self.client.post('/api/league/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -294,11 +292,10 @@ class LeagueTestCase(test.APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Can get inactive league')
         response = self.client.get('/api/league/bc17/')
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Can get active league')
-        response = self.client.get('/api/league/bc18/')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Cannot get hidden league')
         response = self.client.get('/api/league/bc19/')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Cannot get noexistent league')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Cannot get nonexistent league')
 
+    def test_methods_not_allowed(self):
         self.assertEqual(self.client.delete('/api/league/bc16/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertEqual(self.client.post('/api/league/bc16/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.assertEqual(self.client.put('/api/league/bc16/').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -310,7 +307,7 @@ class TeamTestCase(test.APITransactionTestCase):
         self.client = test.APIClient()
         self.bc17 = League.objects.create(**generate_league(2017))
         self.bc18 = League.objects.create(**generate_league(2018))
-        self.bc19 = League.objects.create(**generate_league(2019, active=False))
+        self.bc19 = League.objects.create(**generate_league(2019))
 
         self.client.post('/api/user/', generate_user(1), format='json')
         self.client.post('/api/user/', generate_user(2), format='json')
@@ -324,9 +321,15 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response = self.client.post('/api/bc18/team/', {'name': 'TestTeam2'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post('/api/bc19/team/', {'name': 'TestTeam3'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.team1 = Team.objects.get(name='TestTeam1')
         self.team2 = Team.objects.get(name='TestTeam2')
-        self.team3 = Team.objects.create(league=self.bc17, name='TestTeam3', team_key='asdf', deleted=True)
+        self.team3 = Team.objects.get(name='TestTeam3')
+        self.team4 = Team.objects.create(league=self.bc17, name='TestTeam4', team_key='asdf', deleted=True)
+
+        self.bc19.active = False
+        self.bc19.save()
         self.client.force_authenticate(user=None)
 
     def test_create_success(self):
@@ -361,7 +364,7 @@ class TeamTestCase(test.APITransactionTestCase):
         response = self.client.post('/api/bc18/team/', {'name': 'TeamNombre'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot create team when already on one')
         response = self.client.post('/api/bc19/team/', {'name': 'TeamName'})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot create team in inactive league')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Cannot create team in inactive league')
         response = self.client.post('/api/bc17/team/', {'name': 'TeamName'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, 'Can create a team in another active league')
 
@@ -374,6 +377,9 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(response.content)
         self.assertEqual(content['count'], 1, 'Expected 1 team, deleted teams not returned')
+
+        response = self.client.get('/api/bc19/team/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'RO methods of team from inactive league allowed')
 
     def test_detail(self):
         response = self.client.get('/api/bc17/team/{}/'.format(self.team1.id))
@@ -390,8 +396,11 @@ class TeamTestCase(test.APITransactionTestCase):
 
         response = self.client.get('/api/bc17/team/{}/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and team id mismatch')
-        response = self.client.get('/api/bc17/team/{}/'.format(self.team3.id))
+        response = self.client.get('/api/bc17/team/{}/'.format(self.team4.id))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Deleted team not returned')
+
+        response = self.client.get('/api/bc19/team/{}/'.format(self.team3.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'RO methods of team from inactive league allowed')
 
     def test_join(self):
         self.client.force_authenticate(user=self.userA)
@@ -405,6 +414,8 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot join team without team key')
         response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': ':)'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot join team with the wrong team key')
+        response = self.client.patch('/api/bc19/team/{}/'.format(self.team3.id), {'op': 'join', 'team_key': self.team3.team_key})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Cannot join team in inactive league')
         response = self.client.patch('/api/bc17/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and team ID do not match')
         response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
@@ -442,6 +453,8 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(len(json.loads(response.content).get('users')), 2, 'Users A and C')
 
         # User A leaves team
+        response = self.client.patch('/api/bc17/team/{}/'.format(self.team1.id), {'op': 'leave'})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, 'Cannot leave team I am not on')
         response = self.client.patch(url, {'op': 'leave'})
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'User A left team')
         response = self.client.get(url)
@@ -450,6 +463,8 @@ class TeamTestCase(test.APITransactionTestCase):
 
         # User C leaves team, team gets deleted
         self.client.force_authenticate(user=self.userC)
+        response = self.client.patch('/api/bc19/team/{}/'.format(self.team3.id), {'op': 'leave'})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Cannot leave team in inactive league')
         response = self.client.patch(url, {'op': 'leave'})
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'User C left team')
         response = self.client.get(url)
@@ -477,8 +492,13 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(content['auto_accept_unranked'], update['auto_accept_unranked'])
         self.assertEqual(content['auto_accept_ranked'], update['auto_accept_ranked'])
 
+        response = self.client.patch('/api/bc19/team/{}/'.format(self.team3.id), update)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Cannot update team in inactive league')
         response = self.client.put(url, {})
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED, 'PUT not allowed')
+
+    def test_readonly_inactive_league(self):
+        self.client.get('/api/bcteam/')
 
 
 class SubmissionTestCase(test.APITestCase):

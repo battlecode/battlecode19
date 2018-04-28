@@ -33,7 +33,6 @@ class League(models.Model):
     start_date = models.DateField()
     end_date   = models.DateField()
     active     = models.BooleanField(default=False)
-    hidden     = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

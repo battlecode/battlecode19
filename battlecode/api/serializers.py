@@ -74,7 +74,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class LeagueSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = League
-        fields = ('url', 'id', 'name', 'start_date', 'end_date', 'active')
+        fields = '__all__'
 
 
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
