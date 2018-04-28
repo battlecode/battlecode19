@@ -27,6 +27,29 @@ TOURNAMENT_DIVISION_CHOICES = (
 )
 
 
+class User(AbstractUser):
+    email            = models.EmailField(unique=True)
+    first_name       = models.CharField(max_length=30)
+    last_name        = models.CharField(max_length=150)
+    date_of_birth    = models.DateField()
+    registration_key = models.CharField(max_length=32, null=True, unique=True)
+    verified         = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
+
+
+class UserProfile(models.Model):
+    user     = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    username = models.CharField(max_length=30)
+    bio      = models.CharField(max_length=1000, blank=True)
+    avatar   = models.TextField(blank=True)
+    country  = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.username
+
+
 class League(models.Model):
     id         = models.TextField(primary_key=True)
     name       = models.TextField()
@@ -36,6 +59,16 @@ class League(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Map(models.Model):
+    league   = models.ForeignKey(League, on_delete=models.PROTECT)
+    name     = models.TextField()
+    filename = models.TextField()
+    hidden   = models.BooleanField(default=True)
+
+    def __str__(self):
+        return '(#{}) {}'.format(self.id, self.name)
 
 
 class Tournament(models.Model):
@@ -54,7 +87,7 @@ class Tournament(models.Model):
     style       = models.TextField(choices=TOURNAMENT_STYLE_CHOICES)
     date_time   = models.DateTimeField()
     divisions   = fields.ArrayField(models.TextField(choices=TOURNAMENT_DIVISION_CHOICES), blank=True, default=list)
-    maps        = fields.ArrayField(models.IntegerField(), blank=True, default=list)  # references Map
+    maps        = models.ManyToManyField(Map, default=list)
     stream_link = models.TextField(blank=True)
     hidden      = models.BooleanField(default=True)
 
@@ -67,7 +100,7 @@ class Team(models.Model):
     name      = models.CharField(max_length=64)
     team_key  = models.CharField(max_length=16, unique=True)
     avatar    = models.TextField(blank=True)
-    users     = fields.ArrayField(models.IntegerField(), size=4, default=list)  # references User
+    users     = models.ManyToManyField(UserProfile, default=list)
 
     # team profile
     bio       = models.CharField(max_length=1000, blank=True)
@@ -94,16 +127,6 @@ class Submission(models.Model):
 
     def __str__(self):
         return '{}: (#{}) {}'.format(self.team, self.id, self.name)
-
-
-class Map(models.Model):
-    league   = models.ForeignKey(League, on_delete=models.PROTECT)
-    name     = models.TextField()
-    filename = models.TextField()
-    hidden   = models.BooleanField(default=True)
-
-    def __str__(self):
-        return '(#{}) {}'.format(self.id, self.name)
 
 
 class Scrimmage(models.Model):
@@ -157,29 +180,6 @@ class TournamentScrimmage(models.Model):
     def __str__(self):
         return '{}: (#{}) {} vs {} Round {}{} Game {}'.format(
             self.tournament, self.id, self.red_team, self.blue_team, self.round, self.subround, self.index)
-
-
-class User(AbstractUser):
-    email            = models.EmailField(unique=True)
-    first_name       = models.CharField(max_length=30)
-    last_name        = models.CharField(max_length=150)
-    date_of_birth    = models.DateField()
-    registration_key = models.CharField(max_length=32, null=True, unique=True)
-    verified         = models.BooleanField(default=False)
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
-
-
-class UserProfile(models.Model):
-    user     = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    username = models.CharField(max_length=30)
-    bio      = models.CharField(max_length=1000, blank=True)
-    avatar   = models.TextField(blank=True)
-    country  = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.username
 
 
 @receiver(pre_save, sender=settings.AUTH_USER_MODEL)

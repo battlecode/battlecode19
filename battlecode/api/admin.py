@@ -35,7 +35,7 @@ class TournamentAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('id', 'league', 'name', 'users', 'divisions', 'mu', 'sigma', 'auto_accept_ranked', 'auto_accept_unranked', 'deleted')
+    list_display = ('id', 'league', 'name', 'divisions', 'mu', 'sigma', 'auto_accept_ranked', 'auto_accept_unranked', 'deleted')
     list_display_links = ('id', 'name')
     list_filter = ('league', 'divisions', 'deleted')
 

@@ -80,6 +80,7 @@ class LeagueSerializer(serializers.HyperlinkedModelSerializer):
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     serializer_url_field = LeagueHyperlinkedIdentityField
     league = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
+    users = serializers.SlugRelatedField(queryset=UserProfile.objects.all(), slug_field='user_id', many=True)
 
     class Meta:
         model = Team

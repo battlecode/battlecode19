@@ -85,7 +85,7 @@ class TeamViewSet(viewsets.GenericViewSet,
         if name is None:
             return Response({'message': 'Team name required'}, status.HTTP_400_BAD_REQUEST)
 
-        if len(self.get_queryset().filter(users__contains=[request.user.id])) > 0:
+        if len(self.get_queryset().filter(users__user_id=request.user.id)) > 0:
             return Response({'message': 'Already on a team in this league'}, status.HTTP_400_BAD_REQUEST)
         if len(self.get_queryset().filter(name=name)) > 0:
             return Response({'message': 'Team with this name already exists'}, status.HTTP_400_BAD_REQUEST)
@@ -133,24 +133,24 @@ class TeamViewSet(viewsets.GenericViewSet,
             return Response({'message': 'Invalid op: "join", "leave", "update"'}, status.HTTP_400_BAD_REQUEST)
 
         if op == 'join':
-            if len(self.get_queryset().filter(users__contains=[request.user.id])) > 0:
+            if len(self.get_queryset().filter(users__user_id=request.user.id)) > 0:
                 return Response({'message': 'Already on a team in this league'}, status.HTTP_400_BAD_REQUEST)
             if team.team_key != request.data.get('team_key', None):
                 return Response({'message': 'Invalid team key'}, status.HTTP_400_BAD_REQUEST)
-            if len(team.users) == 4:
+            if team.users.count() == 4:
                 return Response({'message': 'Team has max number of users'}, status.HTTP_400_BAD_REQUEST)
-            team.users.append(request.user.id)
+            team.users.add(request.user.id)
             team.save()
 
             serializer = self.get_serializer(team)
             return Response(serializer.data, status.HTTP_200_OK)
 
-        if request.user.id not in team.users:
+        if len(team.users.filter(user_id=request.user.id)) == 0:
             return Response({'message': 'User not on this team'}, status.HTTP_401_UNAUTHORIZED)
 
         if op == 'leave':
             team.users.remove(request.user.id)
-            team.deleted = len(team.users) == 0
+            team.deleted = team.users.count() == 0
             team.save()
 
             serializer = self.get_serializer(team)

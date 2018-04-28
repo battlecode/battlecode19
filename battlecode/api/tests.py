@@ -497,9 +497,6 @@ class TeamTestCase(test.APITransactionTestCase):
         response = self.client.put(url, {})
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED, 'PUT not allowed')
 
-    def test_readonly_inactive_league(self):
-        self.client.get('/api/bcteam/')
-
 
 class SubmissionTestCase(test.APITestCase):
     def setUp(self):
