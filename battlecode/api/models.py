@@ -123,7 +123,7 @@ class Team(models.Model):
 class Submission(models.Model):
     team         = models.ForeignKey(Team, on_delete=models.PROTECT)
     name         = models.CharField(max_length=150)
-    filename     = models.TextField()
+    filename     = models.TextField(null=True, default=None)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -209,3 +209,15 @@ def gen_team_key(sender, instance, raw, update_fields, **kwargs):
     """
     if not raw and instance._state.adding:
         instance.team_key = uuid.uuid4().hex[:16]
+
+@receiver(post_save, sender=Submission)
+def gen_filename(sender, instance, created, **kwargs):
+    """
+    Saves the filename in the format "/league_id/team_id/submission_id.zip".
+    """
+    if created:
+        league_id = instance.team.league.id
+        team_id = instance.team.id
+        filename = '/{}/{}/{}.zip'.format(league_id, team_id, instance.id)
+        instance.filename = filename
+        instance.save()

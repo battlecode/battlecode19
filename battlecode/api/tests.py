@@ -27,13 +27,21 @@ def generate_user(id_num, **kwargs):
     return user
 
 
-def generate_league(year, active=True):
+def generate_league(year, active=True, submissions_enabled=True):
     return {
         'id': 'bc{}'.format(str(year)[-2:]),
         'name': 'Battlecode {}'.format(year),
         'start_date': '{}-01-01'.format(year),
         'end_date': '{}-02-01'.format(year),
         'active': active,
+        'submissions_enabled': submissions_enabled,
+    }
+
+
+def generate_submission(submission_num):
+    return {
+        'name': 'Submission {}'.format(submission_num),
+        'data': 'attack(enemy)',
     }
 
 
@@ -386,7 +394,6 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.get('/api/bc18/team/{}/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # from nose.tools import set_trace; set_trace()
         self.assertFalse('team_key' in json.loads(response.content), 'Team key not returned if not authenticated')
 
         self.client.force_authenticate(user=self.userC)
@@ -501,6 +508,126 @@ class TeamTestCase(test.APITransactionTestCase):
 class SubmissionTestCase(test.APITestCase):
     def setUp(self):
         self.client = test.APIClient()
+
+        # Create a league
+        self.bc17 = League.objects.create(**generate_league(2017))
+        self.bc18 = League.objects.create(**generate_league(2018))
+        self.client.post('/api/user/', generate_user(1), format='json')
+        self.client.post('/api/user/', generate_user(2), format='json')
+
+        # Create a user
+        self.userA = get_user_model().objects.get(email='user_1@battlecode.org')
+        self.userB = get_user_model().objects.get(email='user_2@battlecode.org')
+
+        # Create a team in the league
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post('/api/bc17/team/', {'name': 'TestTeam1'})
+        self.teamA = Team.objects.get(name='TestTeam1')
+        self.client.force_authenticate(user=self.userB)
+        response = self.client.post('/api/bc17/team/', {'name': 'TestTeam2'})
+        self.teamB = Team.objects.get(name='TestTeam2')
+        self.client.force_authenticate(user=None)
+
+    def test_create(self):
+        # Authentication
+        submission = generate_submission(1)
+        response = self.client.post('/api/bc17/submission/', submission)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, 'Must be logged in')
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post('/api/bc18/submission/', submission)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Must have a team in the league')
+        response = self.client.post('/api/bc17/submission/', submission)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, 'Successfully submit')
+
+        # Test correct fields returns
+        fields = ['id', 'team', 'name', 'filename', 'submitted_at']
+        content = json.loads(response.content)
+        for field in fields:
+            self.assertTrue(field in content, 'Field exists: {}'.format(field))
+
+        # Test content of fields matches data submitted
+        self.assertEqual(content['team'], self.teamA.id, 'Associated the correct team with the submission')
+        self.assertEqual(content['name'], submission['name'], 'Submission name preserved')
+        filename = '/{}/{}/1.zip'.format(self.bc17.id, self.teamA.id)
+        self.assertEqual(content['filename'], filename, 'Correct filename format')
+
+        # Test disabling submissions
+        self.bc17.submissions_enabled = False
+        self.bc17.save()
+        response = self.client.post('/api/bc17/submission/', submission)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Submissions disabled')
+
+    def test_retrieve(self):
+        # Create a submission
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post('/api/bc17/submission/', generate_submission(1))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        submission_id = json.loads(response.content)['id']
+
+        url17 = '/api/bc17/submission/{}/'.format(submission_id)
+        url18 = '/api/bc18/submission/{}/'.format(submission_id)
+
+        # Authentication
+        self.client.force_authenticate(user=None)
+        response = self.client.get(url17)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, 'Must be logged in')
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.get(url18)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Must have a team in the league')
+        response = self.client.get('/api/bc17/submission/{}/'.format(submission_id + 1))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and submission id mismatch')
+
+        # Normal retrieve
+        response = self.client.get(url17)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully retrieve')
+        fields = ['id', 'team', 'name', 'filename', 'submitted_at']
+        content = json.loads(response.content)
+        for field in fields:
+            self.assertTrue(field in content, 'Field exists: {}'.format(field))
+
+        # Change properties of the league
+        self.bc17.submissions_enabled = False
+        self.bc17.save()
+        response = self.client.get(url17)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully retrieve when submissions disabled')
+        self.bc17.active = False
+        self.bc17.save()
+        response = self.client.get(url17)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully retrieve when league inactive')
+
+    def test_list(self):
+        url17 = '/api/bc17/submission/'
+        url18 = '/api/bc18/submission/'
+
+        # Authentication
+        response = self.client.get(url17)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, 'Must be logged in')
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.get(url18)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Must have a team in the league')
+
+        # Create some submissions
+        response = self.client.post(url17, generate_submission(1))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(url17, generate_submission(2))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(url17, generate_submission(3))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Normal listing
+        response = self.client.get(url17)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully list')
+        self.assertEqual(json.loads(response.content)['count'], 3, 'Expected 3 submissions')
+
+        # Change properties of the league
+        self.bc17.submissions_enabled = False
+        self.bc17.save()
+        response = self.client.get(url17)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully list when submissions disabled')
+        self.bc17.active = False
+        self.bc17.save()
+        response = self.client.get(url17)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully list when league inactive')
 
 
 class ScrimmageTestCase(test.APITestCase):

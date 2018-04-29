@@ -103,7 +103,7 @@ class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Submission
-        fields = ('url', 'team', 'name', 'filename', 'submitted_at')
+        fields = ('url', 'id', 'team', 'name', 'filename', 'submitted_at')
 
 
 class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):

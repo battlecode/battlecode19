@@ -3,6 +3,7 @@ The view that is returned in a request.
 """
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
+from django.db import InternalError
 from rest_framework import permissions, status, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -173,31 +174,54 @@ class SubmissionViewSet(viewsets.GenericViewSet,
                         mixins.ListModelMixin,
                         mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin):
-    queryset = Submission.objects.all()
+    queryset = Submission.objects.all().order_by('id')
     serializer_class = SubmissionSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_permissions(self):
         """
         Requests are forbidden if the league does not exist. If the league exists but submissions are
-        not enabled, read-only requests are permitted only.
+        not enabled, or if the league is inactive, read-only requests are permitted only.
 
         Finally, the user must be authenticated and on a team in this league.
         """
         league = League.objects.get(pk=self.kwargs.get('league_id'))
         if league is None:
             raise PermissionDenied
-        if self.request.method not in permissions.SAFE_METHODS and not league.active:
-            raise PermissionDenied
-        return [IsAuthenticated()]
+        if self.request.method not in permissions.SAFE_METHODS:
+            if not (league.active and league.submissions_enabled):
+                raise PermissionDenied
 
-    def list(self):
+        if self.request.user.is_authenticated:
+            teams = Team.objects.filter(league_id=self.kwargs['league_id'], users__user_id=self.request.user.id)
+            if len(teams) == 0:
+                raise PermissionDenied
+            if len(teams) > 1:
+                raise InternalError
+            self.kwargs['team'] = teams[0]
+
+        return [permissions.IsAuthenticated()]
+
+    def get_queryset(self):
+        """
+        Only submissions belonging to the user's team in this league are visible.
+        """
+        return super().get_queryset().filter(team=self.kwargs['team'])
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        context['league_id'] = self.kwargs.get('league_id', None)
+        return context
+
+    def list(self, request, league_id, team):
         """
         Lists the submissions for the authenticated user's team in this league, in chronological order
         of submission.
         """
-        pass
+        return super().list(request)
 
-    def create(self):
+    def create(self, request, league_id, team):
         """
         Uploads a submission for the authenticated user's team in this league. The file contents
         are uploaded to Google Cloud Storage in the format "/league_id/team_id/submission_id.zip".
@@ -205,20 +229,25 @@ class SubmissionViewSet(viewsets.GenericViewSet,
 
         The league must be active in order to accept submissions.
         """
-        # TODO: Handle file upload
-        # filename = '/league/team/id.zip'
-        # data = {
-        #     'team':
-        #     'name': request.data.get('name'),
-        #     'filename': filename,
-        # }
-        pass
+        submission_num = self.get_queryset().count() + 1
+        data = {
+            'team': team.id,
+            'name': request.data.get('name'),
+        }
 
-    def retrieve(self):
+        serializer = self.get_serializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+
+        # TODO: Handle file upload
+        return Response(serializer.data, status.HTTP_201_CREATED)
+
+    def retrieve(self, request, league_id, team, pk=None):
         """
         Retrieves the submission for the authenticated user's team in this league.
         """
-        pass
+        return super().retrieve(request)
 
 
 class ScrimmageViewSet(viewsets.GenericViewSet,
