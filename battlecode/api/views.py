@@ -61,13 +61,13 @@ class TeamViewSet(viewsets.GenericViewSet,
 
     def get_permissions(self):
         """
-        Requests are forbidden if the league does not exist. If the league exists but is currently
+        Requests are not found if the league does not exist. If the league exists but is currently
         inactive, read-only requests are permitted only. Otherwise, authentication is required.
         """
         try:
             league = League.objects.get(pk=self.kwargs.get('league_id'))
         except League.DoesNotExist:
-            raise PermissionDenied
+            raise NotFound
         if self.request.method not in permissions.SAFE_METHODS and not league.active:
             raise PermissionDenied
         return [IsAuthenticatedOrSafeMethods()]
@@ -184,7 +184,7 @@ class SubmissionViewSet(viewsets.GenericViewSet,
 
     def get_permissions(self):
         """
-        Requests are forbidden if the league does not exist. If the league exists but submissions are
+        Requests are not found if the league does not exist. If the league exists but submissions are
         not enabled, or if the league is inactive, read-only requests are permitted only.
 
         Finally, the user must be authenticated and on a team in this league.
@@ -192,7 +192,7 @@ class SubmissionViewSet(viewsets.GenericViewSet,
         try:
             league = League.objects.get(pk=self.kwargs.get('league_id'))
         except League.DoesNotExist:
-            raise PermissionDenied
+            raise NotFound
         if self.request.method not in permissions.SAFE_METHODS:
             if not (league.active and league.submissions_enabled):
                 raise PermissionDenied
@@ -250,9 +250,8 @@ class MapViewSet(viewsets.GenericViewSet,
 
     def get_permissions(self):
         """
-        Requests are forbidden if the league does not exist.
+        Requests are not found if the league does not exist.
         """
-        print(self.kwargs)
         try:
             league = League.objects.get(pk=self.kwargs.get('league_id'))
         except League.DoesNotExist:
@@ -281,7 +280,7 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
 
     def get_permissions(self):
         """
-        Requests are forbidden if the league does not exist. If the league exists but submissions are
+        Requests are not found if the league does not exist. If the league exists but submissions are
         not enabled, read-only requests are permitted only.
 
         Finally, the user must be authenticated and on a team in this league. This team must have at least
