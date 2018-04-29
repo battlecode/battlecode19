@@ -98,6 +98,9 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
+    serializer_url_field = LeagueHyperlinkedIdentityField
+    team = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='id')
+
     class Meta:
         model = Submission
         fields = ('url', 'team', 'name', 'filename', 'submitted_at')

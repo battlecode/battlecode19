@@ -1,11 +1,10 @@
 """
 The view that is returned in a request.
 """
-
-from django.http import Http404, HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
-from rest_framework import generics, permissions, status, mixins, viewsets
+from rest_framework import permissions, status, mixins, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from battlecode.api.serializers import *
@@ -60,6 +59,10 @@ class TeamViewSet(viewsets.GenericViewSet,
     serializer_class = TeamSerializer
 
     def get_permissions(self):
+        """
+        Requests are forbidden if the league does not exist. If the league exists but is currently
+        inactive, read-only requests are permitted only. Otherwise, authentication is required.
+        """
         league = League.objects.get(pk=self.kwargs.get('league_id'))
         if league is None:
             raise PermissionDenied
@@ -68,6 +71,9 @@ class TeamViewSet(viewsets.GenericViewSet,
         return [IsAuthenticatedOrSafeMethods()]
 
     def get_queryset(self):
+        """
+        Only teams within the league are visible.
+        """
         return super().get_queryset().filter(league_id=self.kwargs['league_id'])
 
     def get_serializer_context(self):
@@ -78,8 +84,11 @@ class TeamViewSet(viewsets.GenericViewSet,
 
     def create(self, request, league_id):
         """
-        Validates the request to make sure the user is not already on a team in this league.
-        Creates a team in this league, where the authenticated user is the first to join the team.
+        Creates a team in this league, where the authenticated user is the first user to join the team.
+        The user must not already be on a team in this league. The team must have a unique name, and can
+        have a maximum of four members.
+
+        Additionally, the league must be currently active to create a team.
         """
         name = request.data.get('name', None)
         if name is None:
@@ -117,6 +126,7 @@ class TeamViewSet(viewsets.GenericViewSet,
     def partial_update(self, request, league_id, pk=None):
         """
         Updates the team. The authenticated user must be on the team to leave or update it.
+        Additionally, the league must be active to update the team.
 
         Includes the following operations:
         "join" - Joins the team. Fails if the team has the maximum number of members, or if the team key is incorrect.
@@ -166,26 +176,179 @@ class SubmissionViewSet(viewsets.GenericViewSet,
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
 
+    def get_permissions(self):
+        """
+        Requests are forbidden if the league does not exist. If the league exists but submissions are
+        not enabled, read-only requests are permitted only.
+
+        Finally, the user must be authenticated and on a team in this league.
+        """
+        league = League.objects.get(pk=self.kwargs.get('league_id'))
+        if league is None:
+            raise PermissionDenied
+        if self.request.method not in permissions.SAFE_METHODS and not league.active:
+            raise PermissionDenied
+        return [IsAuthenticated()]
+
+    def list(self):
+        """
+        Lists the submissions for the authenticated user's team in this league, in chronological order
+        of submission.
+        """
+        pass
+
+    def create(self):
+        """
+        Uploads a submission for the authenticated user's team in this league. The file contents
+        are uploaded to Google Cloud Storage in the format "/league_id/team_id/submission_id.zip".
+        The relative filename is stored in the database and routed through the website.
+
+        The league must be active in order to accept submissions.
+        """
+        # TODO: Handle file upload
+        # filename = '/league/team/id.zip'
+        # data = {
+        #     'team':
+        #     'name': request.data.get('name'),
+        #     'filename': filename,
+        # }
+        pass
+
+    def retrieve(self):
+        """
+        Retrieves the submission for the authenticated user's team in this league.
+        """
+        pass
+
 
 class ScrimmageViewSet(viewsets.GenericViewSet,
                        mixins.ListModelMixin,
                        mixins.CreateModelMixin,
-                       mixins.RetrieveModelMixin,
-                       mixins.UpdateModelMixin):
+                       mixins.RetrieveModelMixin):
     queryset = Scrimmage.objects.all()
     serializer_class = ScrimmageSerializer
+
+
+    def get_permissions(self):
+        """
+        Requests are forbidden if the league does not exist. If the league exists but submissions are
+        not enabled, read-only requests are permitted only.
+
+        Finally, the user must be authenticated and on a team in this league. This team must have at least
+        one submission to create a scrimmage or be requested in a scrimmage created by another team.
+        """
+        pass
+
+    def create(self):
+        """
+        Creates a scrimmage in the league, where the authenticated user is on one of the participating teams.
+        The map and each team must also be in the league. If the requested team auto accepts this scrimmage,
+        then the scrimmage is automatically queued with each team's most recent submission.
+        """
+        pass
+
+    def list(self):
+        """
+        Lists the scrimmages in the league, where the authenticated user is on one of the participating teams.
+        The scrimmages are returned in descending order of the time of request. Optionally filters the scrimmages
+        to only include those with the requested "statuses" (pending, queued, running, redwon, bluewon, rejected
+        failed, cancelled), or from the requested tournament. If the "tournament" parameter is not given, only
+        lists non-tournament scrimmages.
+        """
+        pass
+
+    def retrieve(self):
+        """
+        Retrieves a scrimmage in the league, where the authenticated user is on one of the participating teams.
+        """
+        pass
+
+    @action(methods=['patch'], detail=True)
+    def accept(self):
+        """
+        Accepts an incoming scrimmage in the league, where the authenticated user is on the participating team
+        that did not request the scrimmage. Queues the game with each team's most recent submissions.
+        """
+        pass
+
+    @action(methods=['patch'], detail=True)
+    def reject(self):
+        """
+        Rejects an incoming scrimmage in the league, where the authenticated user is on the participating team
+        that did not request the scrimmage.
+        """
+        pass
+
+    @action(methods=['patch'], detail=True)
+    def cancel(self):
+        """
+        Cancels an outgoing scrimmage in the league, where the authenticated user is on the participating team
+        that requested the scrimmage.
+        """
+        pass
 
 
 class MapViewSet(viewsets.GenericViewSet,
                  mixins.ListModelMixin,
                  mixins.RetrieveModelMixin):
-    queryset = Map.objects.all()
+    queryset = Map.objects.all().exclude(hidden=True)
     serializer_class = MapSerializer
 
 
 class TournamentViewSet(viewsets.GenericViewSet,
                         mixins.ListModelMixin,
                         mixins.RetrieveModelMixin):
-    queryset = Tournament.objects.all()
+    queryset = Tournament.objects.all().exclude(hidden=True)
     serializer_class = TournamentSerializer
 
+    @action(methods=['get'], detail=True)
+    def bracket(self):
+        """
+        Retrieves the bracket for a tournament in this league. Formatted as a list of rounds, where each round
+        is a list of games, and each game consists of a list of at most 3 matches. Can be formatted either as a
+        "replay" file for the client or for display on the "website". Defaults to "website" format.
+
+        Formats:
+         - "replay": Returns the minimum number of games to ensure the winning team has a majority of wins
+            in the order each match was played i.e. 2 games if the team wins the first 2 games out of 3.
+         - "website": Includes all 3 matches regardless of results. Does not return avatars or list of winner IDs.
+
+        {
+            "tournament": {...},
+            "rounds": [{
+                "round": "3A",
+                "games": [{
+                    "index": 0",
+                    "red_team": {
+                        "id": 1,
+                        "name": "asdf",
+                        "avatar": "avatar/1.gif"
+                    },
+                    "blue_team": {
+                        "id": 2,
+                        "name": "asdfasdfasf",
+                        "avatar": "avatar/2.gif"
+                    },
+                    "replays": ["replay/1.bc18", "replay/2.bc18"],
+                    "winner_ids": [2, 2],
+                    "winner_id": 2
+                }, {
+                    "index": 1,
+                    "red_team": {
+                        "id": 3,
+                        "name": "assdfdf",
+                        "avatar": "avatar/3.jpg"
+                    },
+                    "blue_team": {
+                        "id": 4,
+                        "name": "asdfasdfasf",
+                        "avatar": "avatar/4.png"
+                    },
+                    "replays": ["replay/3.bc18", "replay/4.bc18", "replay/5.bc18"],
+                    "winner_ids": [3, 4, 4],
+                    "winner_id": 4
+                }]
+            }]
+        }
+        """
+        pass

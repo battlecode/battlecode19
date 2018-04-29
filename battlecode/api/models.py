@@ -51,11 +51,12 @@ class UserProfile(models.Model):
 
 
 class League(models.Model):
-    id         = models.TextField(primary_key=True)
-    name       = models.TextField()
-    start_date = models.DateField()
-    end_date   = models.DateField()
-    active     = models.BooleanField(default=False)
+    id                  = models.TextField(primary_key=True)
+    name                = models.TextField()
+    start_date          = models.DateField()
+    end_date            = models.DateField()
+    active              = models.BooleanField(default=False)
+    submissions_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
