@@ -45,6 +45,16 @@ def generate_submission(submission_num):
     }
 
 
+def generate_map(id_num, league, hidden=False):
+    return {
+        'id': id_num,
+        'league_id': league,
+        'name': 'Map{} ({})'.format(id_num, league),
+        'filename': '/{}/map/{}.json'.format(league, id_num),
+        'hidden': hidden,
+    }
+
+
 class UserTestCase(test.APITransactionTestCase):
     def setUp(self):
         self.client = test.APIClient()
@@ -630,12 +640,55 @@ class SubmissionTestCase(test.APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully list when league inactive')
 
 
-class ScrimmageTestCase(test.APITestCase):
+class MapTestCase(test.APITestCase):
     def setUp(self):
         self.client = test.APIClient()
+        self.bc17 = League.objects.create(**generate_league(2017))
+        self.bc18 = League.objects.create(**generate_league(2018))
+
+        Map.objects.create(**generate_map(1, 'bc17'))
+        Map.objects.create(**generate_map(2, 'bc17'))
+        Map.objects.create(**generate_map(3, 'bc17'))
+        Map.objects.create(**generate_map(4, 'bc18'))
+        Map.objects.create(**generate_map(5, 'bc18', hidden=True))
+
+    def test_retrieve(self):
+        response = self.client.get('/api/bc17/map/1/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully retrieve')
+
+        fields = ['id', 'league', 'name', 'filename']
+        no_fields = ['hidden']
+        content = json.loads(response.content)
+        for field in fields:
+            self.assertTrue(field in content, 'Field exists: {}'.format(field))
+        for field in no_fields:
+            self.assertFalse(field in content, 'Field does not exist: {}'.format(field))
+
+        self.bc18.active = False
+        self.bc18.save()
+        response = self.client.get('/api/bc18/map/4/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully retrieve when league inactive')
+
+        response = self.client.get('/api/bc18/map/1/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and map id mismatch')
+        response = self.client.get('/api/bc19/map/4/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Nonexistent league')
+        response = self.client.get('/api/bc18/map/5/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Hidden map not found')
+
+    def test_list(self):
+        response = self.client.get('/api/bc17/map/')
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(content['count'], 3, 'Expected 3 maps, deleted teams not returned')
+
+        response = self.client.get('/api/bc18/map/')
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(content['count'], 1, 'Expected 1 map, hidden maps not returned')
 
 
-class MapTestCase(test.APITestCase):
+class ScrimmageTestCase(test.APITestCase):
     def setUp(self):
         self.client = test.APIClient()
 

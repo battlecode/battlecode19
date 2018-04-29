@@ -115,9 +115,12 @@ class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class MapSerializer(serializers.HyperlinkedModelSerializer):
+    serializer_url_field = LeagueHyperlinkedIdentityField
+    league = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
+
     class Meta:
         model = Map
-        fields = ('url', 'league', 'name', 'filename')
+        fields = ('url', 'id', 'league', 'name', 'filename')
 
 
 class TournamentSerializer(serializers.HyperlinkedModelSerializer):

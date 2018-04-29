@@ -149,13 +149,15 @@ class Scrimmage(models.Model):
     map       = models.ForeignKey(Map, on_delete=models.PROTECT)
     ranked    = models.BooleanField(default=False)
 
-    # Match-running (completed by match runner)
+    # Completed when the scrimmage is queued
     red_submission  = models.ForeignKey(Submission, null=True, on_delete=models.PROTECT, related_name='red_submission')
     blue_submission = models.ForeignKey(Submission, null=True, on_delete=models.PROTECT, related_name='blue_submission')
-    status          = models.TextField(choices=SCRIMMAGE_STATUS_CHOICES, default='pending')
-    replay          = models.TextField(blank=True)
-    red_logs        = models.TextField(blank=True)
-    blue_logs       = models.TextField(blank=True)
+
+    # Match-running (completed by match runner)
+    status    = models.TextField(choices=SCRIMMAGE_STATUS_CHOICES, default='pending')
+    replay    = models.TextField(blank=True)
+    red_logs  = models.TextField(blank=True)
+    blue_logs = models.TextField(blank=True)
 
     # Metadata
     requested_by = models.ForeignKey(Team, null=True, on_delete=models.PROTECT, related_name='requested_by')

@@ -1,11 +1,11 @@
 """
 The view that is returned in a request.
 """
-from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
 from django.db import InternalError
 from rest_framework import permissions, status, mixins, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 
 from battlecode.api.serializers import *
@@ -64,8 +64,9 @@ class TeamViewSet(viewsets.GenericViewSet,
         Requests are forbidden if the league does not exist. If the league exists but is currently
         inactive, read-only requests are permitted only. Otherwise, authentication is required.
         """
-        league = League.objects.get(pk=self.kwargs.get('league_id'))
-        if league is None:
+        try:
+            league = League.objects.get(pk=self.kwargs.get('league_id'))
+        except League.DoesNotExist:
             raise PermissionDenied
         if self.request.method not in permissions.SAFE_METHODS and not league.active:
             raise PermissionDenied
@@ -174,6 +175,9 @@ class SubmissionViewSet(viewsets.GenericViewSet,
                         mixins.ListModelMixin,
                         mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin):
+    """
+    List and retrieve submissions for the authenticated user's team in this league, in chronological order.
+    """
     queryset = Submission.objects.all().order_by('id')
     serializer_class = SubmissionSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -185,8 +189,9 @@ class SubmissionViewSet(viewsets.GenericViewSet,
 
         Finally, the user must be authenticated and on a team in this league.
         """
-        league = League.objects.get(pk=self.kwargs.get('league_id'))
-        if league is None:
+        try:
+            league = League.objects.get(pk=self.kwargs.get('league_id'))
+        except League.DoesNotExist:
             raise PermissionDenied
         if self.request.method not in permissions.SAFE_METHODS:
             if not (league.active and league.submissions_enabled):
@@ -214,13 +219,6 @@ class SubmissionViewSet(viewsets.GenericViewSet,
         context['league_id'] = self.kwargs.get('league_id', None)
         return context
 
-    def list(self, request, league_id, team):
-        """
-        Lists the submissions for the authenticated user's team in this league, in chronological order
-        of submission.
-        """
-        return super().list(request)
-
     def create(self, request, league_id, team):
         """
         Uploads a submission for the authenticated user's team in this league. The file contents
@@ -243,20 +241,43 @@ class SubmissionViewSet(viewsets.GenericViewSet,
         # TODO: Handle file upload
         return Response(serializer.data, status.HTTP_201_CREATED)
 
-    def retrieve(self, request, league_id, team, pk=None):
+
+class MapViewSet(viewsets.GenericViewSet,
+                 mixins.ListModelMixin,
+                 mixins.RetrieveModelMixin):
+    queryset = Map.objects.all().exclude(hidden=True).order_by('id')
+    serializer_class = MapSerializer
+
+    def get_permissions(self):
         """
-        Retrieves the submission for the authenticated user's team in this league.
+        Requests are forbidden if the league does not exist.
         """
-        return super().retrieve(request)
+        print(self.kwargs)
+        try:
+            league = League.objects.get(pk=self.kwargs.get('league_id'))
+        except League.DoesNotExist:
+            raise NotFound
+        return [permissions.AllowAny()]
+
+    def get_queryset(self):
+        return super().get_queryset().filter(league=self.kwargs['league_id'])
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        context['league_id'] = self.kwargs.get('league_id', None)
+        return context
 
 
 class ScrimmageViewSet(viewsets.GenericViewSet,
                        mixins.ListModelMixin,
                        mixins.CreateModelMixin,
                        mixins.RetrieveModelMixin):
+    """
+    List and retrieve submissions for the authenticated user's team in this league, in chronological order.
+    """
     queryset = Scrimmage.objects.all()
     serializer_class = ScrimmageSerializer
-
 
     def get_permissions(self):
         """
@@ -315,13 +336,6 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
         that requested the scrimmage.
         """
         pass
-
-
-class MapViewSet(viewsets.GenericViewSet,
-                 mixins.ListModelMixin,
-                 mixins.RetrieveModelMixin):
-    queryset = Map.objects.all().exclude(hidden=True)
-    serializer_class = MapSerializer
 
 
 class TournamentViewSet(viewsets.GenericViewSet,
