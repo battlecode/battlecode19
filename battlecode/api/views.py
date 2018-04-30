@@ -128,13 +128,8 @@ class TeamViewSet(viewsets.GenericViewSet,
 
     def partial_update(self, request, league_id, pk=None):
         """
-        Updates the team. The authenticated user must be on the team to leave or update it.
-        Additionally, the league must be active to update the team.
-
-        Includes the following operations:
-        "join" - Joins the team. Fails if the team has the maximum number of members, or if the team key is incorrect.
-        "leave" - Leaves the team. Deletes the team if this is the last user to leave the team.
-        "update" - Updates the team bio, divisions, or auto-accepting for ranked and unranked scrimmages.
+        Updates the team bio, divisions, or auto-accepting for ranked and unranked scrimmages.
+        The authenticated user must be on the team, and the league must be active.
         """
         try:
             team = self.get_queryset().get(pk=pk)
@@ -145,31 +140,54 @@ class TeamViewSet(viewsets.GenericViewSet,
         if op not in ['join', 'leave', 'update']:
             return Response({'message': 'Invalid op: "join", "leave", "update"'}, status.HTTP_400_BAD_REQUEST)
 
-        if op == 'join':
-            if len(self.get_queryset().filter(users__user_id=request.user.id)) > 0:
-                return Response({'message': 'Already on a team in this league'}, status.HTTP_400_BAD_REQUEST)
-            if team.team_key != request.data.get('team_key', None):
-                return Response({'message': 'Invalid team key'}, status.HTTP_400_BAD_REQUEST)
-            if team.users.count() == 4:
-                return Response({'message': 'Team has max number of users'}, status.HTTP_400_BAD_REQUEST)
-            team.users.add(request.user.id)
-            team.save()
+        if len(team.users.filter(user_id=request.user.id)) == 0:
+            return Response({'message': 'User not on this team'}, status.HTTP_401_UNAUTHORIZED)
 
-            serializer = self.get_serializer(team)
-            return Response(serializer.data, status.HTTP_200_OK)
+        return super().partial_update(request)
+
+    @action(methods=['patch'], detail=True)
+    def join(self, request, league_id, pk=None):
+        """
+        Joins the team. The league must be active.
+        Fails if the team has the maximum number of members, or if the team key is incorrect.
+        """
+        try:
+            team = self.get_queryset().get(pk=pk)
+        except Team.DoesNotExist:
+            return Response({'message': 'Team not found'}, status.HTTP_404_NOT_FOUND)
+
+        if len(self.get_queryset().filter(users__user_id=request.user.id)) > 0:
+            return Response({'message': 'Already on a team in this league'}, status.HTTP_400_BAD_REQUEST)
+        if team.team_key != request.data.get('team_key', None):
+            return Response({'message': 'Invalid team key'}, status.HTTP_400_BAD_REQUEST)
+        if team.users.count() == 4:
+            return Response({'message': 'Team has max number of users'}, status.HTTP_400_BAD_REQUEST)
+        team.users.add(request.user.id)
+        team.save()
+
+        serializer = self.get_serializer(team)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    @action(methods=['patch'], detail=True)
+    def leave(self, request, league_id, pk=None):
+        """
+        Leaves the team. The authenticated user must be on the team, and the league must be active.
+        Deletes the team if this is the last user to leave the team.
+        """
+        try:
+            team = self.get_queryset().get(pk=pk)
+        except Team.DoesNotExist:
+            return Response({'message': 'Team not found'}, status.HTTP_404_NOT_FOUND)
 
         if len(team.users.filter(user_id=request.user.id)) == 0:
             return Response({'message': 'User not on this team'}, status.HTTP_401_UNAUTHORIZED)
 
-        if op == 'leave':
-            team.users.remove(request.user.id)
-            team.deleted = team.users.count() == 0
-            team.save()
+        team.users.remove(request.user.id)
+        team.deleted = team.users.count() == 0
+        team.save()
 
-            serializer = self.get_serializer(team)
-            return Response(serializer.data, status.HTTP_200_OK)
-
-        return super().partial_update(request)
+        serializer = self.get_serializer(team)
+        return Response(serializer.data, status.HTTP_200_OK)
 
 
 class SubmissionViewSet(viewsets.GenericViewSet,

@@ -434,37 +434,37 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, 'Created team in bc17')
 
         # User A joins team 2
-        response = self.client.patch('/api/bc17/team/{}/'.format(self.team1.id), {'op': 'join', 'team_key': self.team1.team_key})
+        response = self.client.patch('/api/bc17/team/{}/join/'.format(self.team1.id), {'team_key': self.team1.team_key})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot join team when already on one')
-        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join'})
+        response = self.client.patch('/api/bc18/team/{}/join/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot join team without team key')
-        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': ':)'})
+        response = self.client.patch('/api/bc18/team/{}/join/'.format(self.team2.id), {'team_key': ':)'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Cannot join team with the wrong team key')
-        response = self.client.patch('/api/bc19/team/{}/'.format(self.team3.id), {'op': 'join', 'team_key': self.team3.team_key})
+        response = self.client.patch('/api/bc19/team/{}/join/'.format(self.team3.id), {'team_key': self.team3.team_key})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Cannot join team in inactive league')
-        response = self.client.patch('/api/bc17/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        response = self.client.patch('/api/bc17/team/{}/join/'.format(self.team2.id), {'team_key': self.team2.team_key})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and team ID do not match')
-        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        response = self.client.patch('/api/bc18/team/{}/join/'.format(self.team2.id), {'team_key': self.team2.team_key})
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully joined team')
         content = json.loads(response.content)
         self.assertTrue(self.userA.id in content['users'], 'User A joins team 2')
 
         # User B joins team 2
         self.client.force_authenticate(user=self.userB)
-        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        response = self.client.patch('/api/bc18/team/{}/join/'.format(self.team2.id), {'team_key': self.team2.team_key})
 
         # User D joins team 2
         self.client.post('/api/user/', generate_user(4), format='json')
         userD = get_user_model().objects.get(email='user_4@battlecode.org')
         self.client.force_authenticate(user=userD)
-        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        response = self.client.patch('/api/bc18/team/{}/join/'.format(self.team2.id), {'team_key': self.team2.team_key})
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'User D joins team 2')
 
         # User E cannot join team 2
         self.client.post('/api/user/', generate_user(5), format='json')
         userE = get_user_model().objects.get(email='user_5@battlecode.org')
         self.client.force_authenticate(user=userE)
-        response = self.client.patch('/api/bc18/team/{}/'.format(self.team2.id), {'op': 'join', 'team_key': self.team2.team_key})
+        response = self.client.patch('/api/bc18/team/{}/join/'.format(self.team2.id), {'team_key': self.team2.team_key})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'User E fails join, team at max capacity')
 
     def test_leave(self):
@@ -472,16 +472,16 @@ class TeamTestCase(test.APITransactionTestCase):
 
         # User A joins team
         self.client.force_authenticate(user=self.userA)
-        response = self.client.patch(url, {'op': 'join', 'team_key': self.team2.team_key})
+        response = self.client.patch('/api/bc18/team/{}/join/'.format(self.team2.id), {'team_key': self.team2.team_key})
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'User A joined team')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Team exists')
         self.assertEqual(len(json.loads(response.content).get('users')), 2, 'Users A and C')
 
         # User A leaves team
-        response = self.client.patch('/api/bc17/team/{}/'.format(self.team1.id), {'op': 'leave'})
+        response = self.client.patch('/api/bc17/team/{}/leave/'.format(self.team1.id))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, 'Cannot leave team I am not on')
-        response = self.client.patch(url, {'op': 'leave'})
+        response = self.client.patch('/api/bc18/team/{}/leave/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'User A left team')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Team exists')
@@ -489,11 +489,11 @@ class TeamTestCase(test.APITransactionTestCase):
 
         # User C leaves team, team gets deleted
         self.client.force_authenticate(user=self.userC)
-        response = self.client.patch('/api/bc19/team/{}/'.format(self.team3.id), {'op': 'leave'})
+        response = self.client.patch('/api/bc19/team/{}/leave/'.format(self.team3.id))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Cannot leave team in inactive league')
-        response = self.client.patch(url, {'op': 'leave'})
+        response = self.client.patch('/api/bc18/team/{}/leave/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'User C left team')
-        response = self.client.get(url)
+        response = self.client.get('/api/bc18/team/{}/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Team deleted')
 
     def test_update(self):
