@@ -106,14 +106,6 @@ class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'team', 'name', 'filename', 'submitted_at')
 
 
-class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Scrimmage
-        fields = ('url', 'league', 'red_team', 'blue_team', 'map', 'ranked',
-            'red_submission', 'blue_submission', 'status', 'replay', 'red_logs', 'blue_logs',
-            'requested_by', 'requested_at', 'started_at', 'updated_at')
-
-
 class MapSerializer(serializers.HyperlinkedModelSerializer):
     serializer_url_field = LeagueHyperlinkedIdentityField
     league = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
@@ -121,6 +113,24 @@ class MapSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Map
         fields = ('url', 'id', 'league', 'name', 'filename')
+
+
+class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):
+    serializer_url_field = LeagueHyperlinkedIdentityField
+    league          = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
+    map             = serializers.SlugRelatedField(queryset=Map.objects.all(), slug_field='id')
+    red_team        = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='id')
+    blue_team       = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='id')
+    red_submission  = serializers.SlugRelatedField(queryset=Submission.objects.all(), slug_field='id', required=False)
+    blue_submission = serializers.SlugRelatedField(queryset=Submission.objects.all(), slug_field='id', required=False)
+    requested_by    = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='id')
+
+    class Meta:
+        model = Scrimmage
+        fields = ('url', 'id', 'league', 'red_team', 'blue_team', 'map', 'ranked',
+            'red_submission', 'blue_submission', 'status', 'replay', 'red_logs', 'blue_logs',
+            'requested_by', 'requested_at', 'started_at', 'updated_at')
+        read_only_fields = ('url', 'replay', 'red_logs', 'blue_logs', 'requested_at', 'started_at', 'updated_at')
 
 
 class TournamentSerializer(serializers.HyperlinkedModelSerializer):

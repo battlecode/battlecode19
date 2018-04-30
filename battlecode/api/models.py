@@ -150,8 +150,10 @@ class Scrimmage(models.Model):
     ranked    = models.BooleanField(default=False)
 
     # Completed when the scrimmage is queued
-    red_submission  = models.ForeignKey(Submission, null=True, on_delete=models.PROTECT, related_name='red_submission')
-    blue_submission = models.ForeignKey(Submission, null=True, on_delete=models.PROTECT, related_name='blue_submission')
+    red_submission  = models.ForeignKey(Submission, null=True, default=None,
+        on_delete=models.PROTECT, related_name='red_submission')
+    blue_submission = models.ForeignKey(Submission, null=True, default=None,
+        on_delete=models.PROTECT, related_name='blue_submission')
 
     # Match-running (completed by match runner)
     status    = models.TextField(choices=SCRIMMAGE_STATUS_CHOICES, default='pending')

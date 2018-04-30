@@ -3,6 +3,7 @@ The view that is returned in a request.
 """
 from django.contrib.auth import get_user_model
 from django.db import InternalError
+from django.db.models import Q
 from rest_framework import permissions, status, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, NotFound
@@ -178,7 +179,7 @@ class SubmissionViewSet(viewsets.GenericViewSet,
     """
     List and retrieve submissions for the authenticated user's team in this league, in chronological order.
     """
-    queryset = Submission.objects.all().order_by('id')
+    queryset = Submission.objects.all().order_by('-submitted_at')
     serializer_class = SubmissionSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -241,6 +242,15 @@ class SubmissionViewSet(viewsets.GenericViewSet,
         # TODO: Handle file upload
         return Response(serializer.data, status.HTTP_201_CREATED)
 
+    @action(methods=['get'], detail=False)
+    def latest(self, request, league_id, team):
+        submissions = self.get_queryset()
+        if submissions.count() == 0:
+            return Response({'message': 'Team does not have any submissions'}, status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(submissions[0])
+        return Response(serializer.data, status.HTTP_200_OK)
+
 
 class MapViewSet(viewsets.GenericViewSet,
                  mixins.ListModelMixin,
@@ -275,66 +285,205 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
     """
     List and retrieve submissions for the authenticated user's team in this league, in chronological order.
     """
-    queryset = Scrimmage.objects.all()
+    queryset = Scrimmage.objects.all().order_by('-requested_at')
     serializer_class = ScrimmageSerializer
+
+    def get_team(self, league_id, user_id):
+        teams = Team.objects.filter(league_id=league_id, users__user_id=user_id)
+        if len(teams) == 0:
+            return None
+        if len(teams) > 1:
+            raise InternalError
+        return teams[0]
+
+    def get_map(self, league_id, map_id):
+        try:
+            return Map.objects.filter(league_id=league_id, hidden=False).get(pk=map_id)
+        except Map.DoesNotExist:
+            return None
+
+    def get_submission(self, team_id):
+        submissions = Submission.objects.all().filter(team_id=team_id).order_by('-submitted_at')
+        if submissions.count() == 0:
+            return None
+        return submissions[0]
 
     def get_permissions(self):
         """
         Requests are not found if the league does not exist. If the league exists but submissions are
         not enabled, read-only requests are permitted only.
 
-        Finally, the user must be authenticated and on a team in this league. This team must have at least
-        one submission to create a scrimmage or be requested in a scrimmage created by another team.
+        Finally, the user must be authenticated and on a team in this league.
         """
-        pass
+        try:
+            league = League.objects.get(pk=self.kwargs.get('league_id'))
+        except League.DoesNotExist:
+            raise NotFound
 
-    def create(self):
+        if self.request.method not in permissions.SAFE_METHODS:
+            if not (league.active and league.submissions_enabled):
+                raise PermissionDenied
+
+        if self.request.user.is_authenticated:
+            team = self.get_team(self.kwargs['league_id'], self.request.user.id)
+            if team is None:
+                raise PermissionDenied
+            self.kwargs['team'] = team
+
+        return [permissions.IsAuthenticated()]
+
+    def get_queryset(self):
+        team = self.kwargs['team']
+        return super().get_queryset().filter(Q(red_team=team) | Q(blue_team=team))
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        context['league_id'] = self.kwargs.get('league_id', None)
+        return context
+
+    def create(self, request, league_id, team):
         """
         Creates a scrimmage in the league, where the authenticated user is on one of the participating teams.
         The map and each team must also be in the league. If the requested team auto accepts this scrimmage,
         then the scrimmage is automatically queued with each team's most recent submission.
-        """
-        pass
 
-    def list(self):
+        Each team in the scrimmage must have at least one submission.
+        """
+        try:
+            red_team_id = int(request.data['red_team'])
+            blue_team_id = int(request.data['blue_team'])
+            map_id = int(request.data['map'])
+            ranked = request.data['ranked'] == 'True'
+
+            # Validate teams
+            team = self.kwargs['team']
+            if team.id == blue_team_id:
+                red_team, blue_team = (self.get_team(league_id, red_team_id), team)
+                this_team, that_team = (blue_team, red_team)
+            elif team.id == red_team_id:
+                red_team, blue_team = (team, self.get_team(league_id, blue_team_id))
+                this_team, that_team = (red_team, blue_team)
+            else:
+                return Response({'message': 'Scrimmage does not include my team'}, status.HTTP_400_BAD_REQUEST)
+            if that_team is None:
+                return Response({'message': 'Requested team does not exist'}, status.HTTP_404_NOT_FOUND)
+
+            # Validate map
+            scrim_map = self.get_map(league_id, map_id)
+            if scrim_map is None:
+                return Response({'message': 'Requested map does not exist'}, status.HTTP_404_NOT_FOUND)
+
+            data = {
+                'league': league_id,
+                'red_team': red_team.id,
+                'blue_team': blue_team.id,
+                'map': scrim_map.id,
+                'ranked': ranked,
+                'requested_by': this_team.id,
+            }
+
+            # Validate submissions
+            red_submission = self.get_submission(red_team_id)
+            blue_submission = self.get_submission(blue_team_id)
+            if red_submission is None or blue_submission is None:
+                return Response({'message': 'Teams do not have submissions'}, status.HTTP_400_BAD_REQUEST)
+
+            # Check auto accept
+            if (ranked and that_team.auto_accept_ranked) or (not ranked and that_team.auto_accept_unranked):
+                data['red_submission'] = red_submission.id
+                data['blue_submission'] = blue_submission.id
+                data['status'] = 'queued'
+
+            # Create scrimmage
+            serializer = self.get_serializer(data=data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(serializer.data, status.HTTP_201_CREATED)
+        except Exception as e:
+            error = {'message': ','.join(e.args) if len(e.args) > 0 else 'Unknown Error'}
+            return Response(error, status.HTTP_400_BAD_REQUEST)
+
+    def list(self, request, league_id, team):
         """
         Lists the scrimmages in the league, where the authenticated user is on one of the participating teams.
-        The scrimmages are returned in descending order of the time of request. Optionally filters the scrimmages
-        to only include those with the requested "statuses" (pending, queued, running, redwon, bluewon, rejected
-        failed, cancelled), or from the requested tournament. If the "tournament" parameter is not given, only
-        lists non-tournament scrimmages.
-        """
-        pass
+        The scrimmages are returned in descending order of the time of request.
 
-    def retrieve(self):
+        TODO: If the "tournament" parameter accepts a tournament ID to filter, otherwise lists non-tournament scrimmages.
+        """
+        return super().list(request)
+
+    def retrieve(self, request, league_id, team, pk=None):
         """
         Retrieves a scrimmage in the league, where the authenticated user is on one of the participating teams.
         """
-        pass
+        return super().retrieve(request)
 
     @action(methods=['patch'], detail=True)
-    def accept(self):
+    def accept(self, request, league_id, team, pk=None):
         """
         Accepts an incoming scrimmage in the league, where the authenticated user is on the participating team
         that did not request the scrimmage. Queues the game with each team's most recent submissions.
         """
-        pass
+        try:
+            scrimmage = self.get_queryset().get(pk=pk)
+            if scrimmage.requested_by == team:
+                return Response({'message': 'Cannot accept an outgoing scrimmage.'}, status.HTTP_400_BAD_REQUEST)
+            if scrimmage.status != 'pending':
+                return Response({'message': 'Scrimmage is not pending.'}, status.HTTP_400_BAD_REQUEST)
+            scrimmage.status = 'queued'
+
+            red_submission = self.get_submission(scrimmage.red_team.id)
+            blue_submission = self.get_submission(scrimmage.blue_team.id)
+            if red_submission is None or blue_submission is None:
+                return Response({'message': 'Teams should have submissions if queued'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            scrimmage.red_submission = red_submission
+            scrimmage.blue_submission = blue_submission
+            scrimmage.save()
+
+            serializer = self.get_serializer(scrimmage)
+            return Response(serializer.data, status.HTTP_200_OK)
+        except Scrimmage.DoesNotExist:
+            return Response({'message': 'Scrimmage does not exist.'}, status.HTTP_404_NOT_FOUND)
 
     @action(methods=['patch'], detail=True)
-    def reject(self):
+    def reject(self, request, league_id, team, pk=None):
         """
         Rejects an incoming scrimmage in the league, where the authenticated user is on the participating team
         that did not request the scrimmage.
         """
-        pass
+        try:
+            scrimmage = self.get_queryset().get(pk=pk)
+            if scrimmage.requested_by == team:
+                return Response({'message': 'Cannot reject an outgoing scrimmage.'}, status.HTTP_400_BAD_REQUEST)
+            if scrimmage.status != 'pending':
+                return Response({'message': 'Scrimmage is not pending.'}, status.HTTP_400_BAD_REQUEST)
+            scrimmage.status = 'rejected'
+
+            serializer = self.get_serializer(scrimmage)
+            return Response(serializer.data, status.HTTP_200_OK)
+        except Scrimmage.DoesNotExist:
+            return Response({'message': 'Scrimmage does not exist.'}, status.HTTP_404_NOT_FOUND)
 
     @action(methods=['patch'], detail=True)
-    def cancel(self):
+    def cancel(self, request, league_id, team, pk=None):
         """
         Cancels an outgoing scrimmage in the league, where the authenticated user is on the participating team
         that requested the scrimmage.
         """
-        pass
+        try:
+            scrimmage = self.get_queryset().get(pk=pk)
+            if scrimmage.requested_by != team:
+                return Response({'message': 'Cannot cancel an incoming scrimmage.'}, status.HTTP_400_BAD_REQUEST)
+            if scrimmage.status != 'pending':
+                return Response({'message': 'Scrimmage is not pending.'}, status.HTTP_400_BAD_REQUEST)
+            scrimmage.status = 'cancelled'
+
+            serializer = self.get_serializer(scrimmage)
+            return Response(serializer.data, status.HTTP_200_OK)
+        except Scrimmage.DoesNotExist:
+            return Response({'message': 'Scrimmage does not exist.'}, status.HTTP_404_NOT_FOUND)
 
 
 class TournamentViewSet(viewsets.GenericViewSet,

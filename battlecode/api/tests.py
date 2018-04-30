@@ -55,6 +55,15 @@ def generate_map(id_num, league, hidden=False):
     }
 
 
+def generate_scrimmage(red_team_id, blue_team_id, map_id, ranked=True):
+    return {
+        'red_team': red_team_id,
+        'blue_team': blue_team_id,
+        'map': map_id,
+        'ranked': ranked,
+    }
+
+
 class UserTestCase(test.APITransactionTestCase):
     def setUp(self):
         self.client = test.APIClient()
@@ -558,7 +567,7 @@ class SubmissionTestCase(test.APITestCase):
         # Test content of fields matches data submitted
         self.assertEqual(content['team'], self.teamA.id, 'Associated the correct team with the submission')
         self.assertEqual(content['name'], submission['name'], 'Submission name preserved')
-        filename = '/{}/{}/1.zip'.format(self.bc17.id, self.teamA.id)
+        filename = '/{}/{}/{}.zip'.format(self.bc17.id, self.teamA.id, content['id'])
         self.assertEqual(content['filename'], filename, 'Correct filename format')
 
         # Test disabling submissions
@@ -639,6 +648,26 @@ class SubmissionTestCase(test.APITestCase):
         response = self.client.get(url17)
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully list when league inactive')
 
+    def test_latest(self):
+        self.client.force_authenticate(user=self.userA)
+        url = '/api/bc17/submission/latest/'
+        create_url = '/api/bc17/submission/'
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'No submissions found')
+
+        response = self.client.post(create_url, generate_submission(1))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(create_url, generate_submission(2))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(create_url, generate_submission(3))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        submission_id = json.loads(response.content)['id']
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, 'Submission found')
+        self.assertEqual(json.loads(response.content).get('id'), submission_id, 'Submission is latest submission')
+
 
 class MapTestCase(test.APITestCase):
     def setUp(self):
@@ -691,6 +720,252 @@ class MapTestCase(test.APITestCase):
 class ScrimmageTestCase(test.APITestCase):
     def setUp(self):
         self.client = test.APIClient()
+
+        # Create league and maps
+        self.bc17 = League.objects.create(**generate_league(2017))
+        self.bc18 = League.objects.create(**generate_league(2018))
+        self.map1 = Map.objects.create(**generate_map(1, 'bc17'))
+        self.map2 = Map.objects.create(**generate_map(2, 'bc18'))
+        self.map3 = Map.objects.create(**generate_map(3, 'bc17', hidden=True))
+
+        # Create users
+        self.client.post('/api/user/', generate_user(1), format='json')
+        self.client.post('/api/user/', generate_user(2), format='json')
+        self.userA = get_user_model().objects.get(email='user_1@battlecode.org')
+        self.userB = get_user_model().objects.get(email='user_2@battlecode.org')
+
+        # Create teams and submissions
+        self.client.force_authenticate(user=self.userA)
+        self.client.post('/api/bc17/team/', {'name': 'TestTeam1'})
+        self.teamA = Team.objects.get(name='TestTeam1')
+        self.client.post('/api/bc17/submission/', generate_submission('A1'))
+        self.client.post('/api/bc17/submission/', generate_submission('A2'))
+        response = self.client.post('/api/bc17/submission/', generate_submission('A3'))
+
+        self.submissionA = Submission.objects.get(id=json.loads(response.content).get('id'))
+
+        self.client.force_authenticate(user=self.userB)
+        self.client.post('/api/bc17/team/', {'name': 'TestTeam2'})
+        response = self.client.post('/api/bc17/submission/', generate_submission('B1'))
+        self.submissionB = Submission.objects.get(id=json.loads(response.content).get('id'))
+        self.teamB = Team.objects.get(name='TestTeam2')
+        self.client.force_authenticate(user=None)
+
+    def test_permissions(self):
+        url = '/api/bc17/scrimmage/'
+        data = generate_scrimmage(self.teamA.id, self.teamB.id, self.map1.id)
+
+        # Not logged in or not on a team
+        self.assertEqual(self.client.get(url).status_code, status.HTTP_401_UNAUTHORIZED, 'Not logged in')
+        self.client.force_authenticate(user=self.userA)
+        self.assertEqual(self.client.get('/api/bc18/scrimmage/').status_code, status.HTTP_403_FORBIDDEN, 'No team')
+        self.assertEqual(self.client.get('/api/bc18/scrimmage/1/').status_code, status.HTTP_403_FORBIDDEN, 'No team')
+
+        # Active league: all endpoints allowed
+        response = self.client.post(url, data)
+        scrimmage_id = json.loads(response.content).get('id')
+        url_detail = '/api/bc17/scrimmage/{}/'.format(scrimmage_id)
+        self.assertEqual(self.client.post(url, data).status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.client.get(url).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get(url_detail).status_code, status.HTTP_200_OK)
+        self.assertNotEqual(self.client.patch(url_detail + 'accept/').status_code, status.HTTP_403_FORBIDDEN)
+        self.assertNotEqual(self.client.patch(url_detail + 'reject/').status_code, status.HTTP_403_FORBIDDEN)
+        self.assertNotEqual(self.client.patch(url_detail + 'cancel/').status_code, status.HTTP_403_FORBIDDEN)
+
+        # Inactive league: read-only endpoints only
+        self.bc17.active = False
+        self.bc17.save()
+        self.assertEqual(self.client.get(url).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get(url_detail).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.post(url, data).status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self.client.patch(url_detail + 'accept/').status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self.client.patch(url_detail + 'reject/').status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self.client.patch(url_detail + 'cancel/').status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_success(self):
+        url = '/api/bc17/scrimmage/'
+
+        # Request a scrimmage
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post(url, generate_scrimmage(self.teamA.id, self.teamA.id, self.map1.id))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        content = json.loads(response.content)
+
+        # Test that the right content is returned
+        self.assertEqual(content.get('red_team'), self.teamA.id)
+        self.assertEqual(content.get('blue_team'), self.teamA.id)
+        self.assertEqual(content.get('map'), self.map1.id)
+        self.assertEqual(content.get('ranked'), True)
+
+        fields = ['id', 'status', 'red_submission', 'blue_submission', 'replay', 'red_logs', 'blue_logs',
+            'requested_by', 'requested_at', 'started_at', 'updated_at']
+        for field in fields:
+            self.assertTrue(field in content, 'Field exists: {}'.format(field))
+
+    def test_requested_by(self):
+        url = '/api/bc17/scrimmage/'
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post(url, generate_scrimmage(self.teamA.id, self.teamB.id, self.map1.id))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        content = json.loads(response.content)
+        self.assertEqual(content['requested_by'], self.teamA.id)
+        response = self.client.post(url, generate_scrimmage(self.teamB.id, self.teamA.id, self.map1.id))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        content = json.loads(response.content)
+        self.assertEqual(content['requested_by'], self.teamA.id)
+
+    def test_auto_accept_scrimmage(self):
+        url = '/api/bc17/scrimmage/'
+        ranked = generate_scrimmage(self.teamA.id, self.teamB.id, self.map1.id, ranked=True)
+        unranked = generate_scrimmage(self.teamA.id, self.teamB.id, self.map1.id, ranked=False)
+        self.client.force_authenticate(user=self.userA)
+
+        self.assertEqual(json.loads(self.client.post(url, ranked).content).get('status'), 'pending')
+        self.assertEqual(json.loads(self.client.post(url, unranked).content).get('status'), 'pending')
+
+        self.teamB.auto_accept_ranked = True
+        self.teamB.save()
+        self.assertEqual(json.loads(self.client.post(url, ranked).content).get('status'), 'queued')
+        self.assertEqual(json.loads(self.client.post(url, unranked).content).get('status'), 'pending')
+
+        self.teamB.auto_accept_unranked = True
+        self.teamB.save()
+        self.assertEqual(json.loads(self.client.post(url, ranked).content).get('status'), 'queued')
+        self.assertEqual(json.loads(self.client.post(url, unranked).content).get('status'), 'queued')
+
+        self.teamB.auto_accept_ranked = False
+        self.teamB.save()
+        self.assertEqual(json.loads(self.client.post(url, ranked).content).get('status'), 'pending')
+        self.assertEqual(json.loads(self.client.post(url, unranked).content).get('status'), 'queued')
+
+    def test_most_recent_submission(self):
+        url = '/api/bc17/scrimmage/'
+        scrimmage = generate_scrimmage(self.teamB.id, self.teamA.id, self.map1.id, ranked=True)
+        self.client.force_authenticate(user=self.userA)
+
+        response = self.client.post(url, scrimmage)
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(content.get('status'), 'pending', 'Scrimmage was not auto accepted')
+        self.assertIsNone(content.get('red_submission'), 'Red submission not set')
+        self.assertIsNone(content.get('blue_submission'), 'Blue submission not set')
+
+        self.teamB.auto_accept_ranked = True
+        self.teamB.save()
+        response = self.client.post(url, scrimmage)
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(content.get('status'), 'queued', 'Scrimmage was auto accepted')
+        self.assertEqual(content.get('red_submission'), self.submissionB.id, 'Red submission set to only entry')
+        self.assertEqual(content.get('blue_submission'), self.submissionA.id, 'Blue submission set to latest entry')
+
+    def test_create_fail(self):
+        url = '/api/bc17/scrimmage/'
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.post(url, generate_scrimmage(self.teamA.id, self.teamB.id, self.map2.id))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Map in different league')
+        response = self.client.post(url, generate_scrimmage(self.teamA.id, self.teamB.id, self.map3.id))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Map is hidden')
+
+        # Generate a new team without any submissions
+        self.client.post('/api/user/', generate_user(3), format='json')
+        userC = get_user_model().objects.get(email='user_3@battlecode.org')
+        self.client.force_authenticate(user=userC)
+        self.client.post('/api/bc17/team/', {'name': 'TestTeam3'})
+        teamC = Team.objects.get(name='TestTeam3')
+
+        # Canont send nor receive scrimmage requests
+        scrimmage = generate_scrimmage(self.teamA.id, teamC.id, self.map1.id)
+        self.assertEqual(self.client.post('/api/bc17/scrimmage/', scrimmage).status_code, status.HTTP_400_BAD_REQUEST)
+        self.client.force_authenticate(user=self.userA)
+        self.assertEqual(self.client.post('/api/bc17/scrimmage/', scrimmage).status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Other failed requests
+        response = self.client.post(url, generate_scrimmage(self.teamA.id, self.teamA.id + self.teamB.id, self.map1.id))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Team does not exist')
+        response = self.client.post(url, generate_scrimmage(self.teamB.id, self.teamB.id, self.map1.id))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'Scrimmage does not involve my team')
+
+        self.teamB.league = self.bc18
+        self.teamB.save()
+        response = self.client.post(url, generate_scrimmage(self.teamA.id, self.teamB.id, self.map1.id))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Team in diferent league')
+
+    def test_accept_reject_cancel(self):
+        url = '/api/bc17/scrimmage/'
+        scrimmage = generate_scrimmage(self.teamA.id, self.teamB.id, self.map1.id, ranked=True)
+
+        # Send user B some scrimmages
+        self.client.force_authenticate(user=self.userA)
+        id_1 = json.loads(self.client.post(url, scrimmage).content).get('id')
+        id_2 = json.loads(self.client.post(url, scrimmage).content).get('id')
+        id_3 = json.loads(self.client.post(url, scrimmage).content).get('id')
+
+        # User A tries to accept/reject/cancel outgoing scrimmages
+        self.assertEqual(self.client.patch('{}{}/accept/'.format(url, id_1)).status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self.client.patch('{}{}/reject/'.format(url, id_1)).status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.patch('{}{}/cancel/'.format(url, id_1))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json.loads(response.content).get('status'), 'cancelled')
+
+        # User B tries to accept/reject/cancel incoming scrimmages
+        self.client.force_authenticate(user=self.userB)
+        self.assertEqual(self.client.patch('{}{}/cancel/'.format(url, id_2)).status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.patch('{}{}/reject/'.format(url, id_2))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json.loads(response.content).get('status'), 'rejected')
+        response = self.client.patch('{}{}/accept/'.format(url, id_3))
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(content.get('status'), 'queued')
+        self.assertEqual(content.get('red_submission'), self.submissionA.id)
+        self.assertEqual(content.get('blue_submission'), self.submissionB.id)
+
+    def test_list_retrieve(self):
+        # Create team C
+        self.client.post('/api/user/', generate_user(3), format='json')
+        userC = get_user_model().objects.get(email='user_3@battlecode.org')
+        self.client.force_authenticate(user=userC)
+        self.client.post('/api/bc17/team/', {'name': 'TestTeam3'})
+        response = self.client.post('/api/bc17/submission/', generate_submission('C1'))
+        submissionC = Submission.objects.get(id=json.loads(response.content).get('id'))
+        teamC = Team.objects.get(name='TestTeam3')
+
+        # Send some scrimmages as user A
+        self.client.force_authenticate(user=self.userA)
+        url = '/api/bc17/scrimmage/'
+        data = generate_scrimmage(self.teamA.id, self.teamB.id, self.map1.id)
+        id_1 = json.loads(self.client.post(url, data).content).get('id')
+        data = generate_scrimmage(self.teamB.id, self.teamA.id, self.map1.id)
+        id_2 = json.loads(self.client.post(url, data).content).get('id')
+        data = generate_scrimmage(teamC.id, self.teamA.id, self.map1.id)
+        id_3 = json.loads(self.client.post(url, data).content).get('id')
+
+        # User A list/retrieve
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json.loads(response.content).get('count'), 3)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_1)).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_2)).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_3)).status_code, status.HTTP_200_OK)
+
+        # User B list/retrieve
+        self.client.force_authenticate(user=self.userB)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json.loads(response.content).get('count'), 2)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_1)).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_2)).status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_3)).status_code, status.HTTP_404_NOT_FOUND)
+
+        # User C list/retrieve
+        self.client.force_authenticate(user=userC)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json.loads(response.content).get('count'), 1)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_1)).status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_2)).status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.client.get('{}{}/'.format(url, id_3)).status_code, status.HTTP_200_OK)
 
 
 class TournamentTestCase(test.APITestCase):
