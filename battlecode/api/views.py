@@ -2,11 +2,9 @@
 The view that is returned in a request.
 """
 from django.contrib.auth import get_user_model
-from django.db import InternalError
 from django.db.models import Q
 from rest_framework import permissions, status, mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 
 from battlecode.api.serializers import *
@@ -59,19 +57,7 @@ class TeamViewSet(viewsets.GenericViewSet,
                   PartialUpdateModelMixin):
     queryset = Team.objects.all().order_by('name').exclude(deleted=True)
     serializer_class = TeamSerializer
-
-    def get_permissions(self):
-        """
-        Requests are not found if the league does not exist. If the league exists but is currently
-        inactive, read-only requests are permitted only. Otherwise, authentication is required.
-        """
-        try:
-            league = League.objects.get(pk=self.kwargs.get('league_id'))
-        except League.DoesNotExist:
-            raise NotFound
-        if self.request.method not in permissions.SAFE_METHODS and not league.active:
-            raise PermissionDenied
-        return [IsAuthenticatedOrSafeMethods()]
+    permission_classes = (LeagueActiveOrSafeMethods, IsAuthenticatedOrSafeMethods)
 
     def get_queryset(self):
         """
@@ -199,32 +185,7 @@ class SubmissionViewSet(viewsets.GenericViewSet,
     """
     queryset = Submission.objects.all().order_by('-submitted_at')
     serializer_class = SubmissionSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_permissions(self):
-        """
-        Requests are not found if the league does not exist. If the league exists but submissions are
-        not enabled, or if the league is inactive, read-only requests are permitted only.
-
-        Finally, the user must be authenticated and on a team in this league.
-        """
-        try:
-            league = League.objects.get(pk=self.kwargs.get('league_id'))
-        except League.DoesNotExist:
-            raise NotFound
-        if self.request.method not in permissions.SAFE_METHODS:
-            if not (league.active and league.submissions_enabled):
-                raise PermissionDenied
-
-        if self.request.user.is_authenticated:
-            teams = Team.objects.filter(league_id=self.kwargs['league_id'], users__user_id=self.request.user.id)
-            if len(teams) == 0:
-                raise PermissionDenied
-            if len(teams) > 1:
-                raise InternalError
-            self.kwargs['team'] = teams[0]
-
-        return [permissions.IsAuthenticated()]
+    permission_classes = (SubmissionsEnabledOrSafeMethods, IsAuthenticatedOnTeam)
 
     def get_queryset(self):
         """
@@ -275,16 +236,7 @@ class MapViewSet(viewsets.GenericViewSet,
                  mixins.RetrieveModelMixin):
     queryset = Map.objects.all().exclude(hidden=True).order_by('id')
     serializer_class = MapSerializer
-
-    def get_permissions(self):
-        """
-        Requests are not found if the league does not exist.
-        """
-        try:
-            league = League.objects.get(pk=self.kwargs.get('league_id'))
-        except League.DoesNotExist:
-            raise NotFound
-        return [permissions.AllowAny()]
+    permission_classes = (LeagueActiveOrSafeMethods,)
 
     def get_queryset(self):
         return super().get_queryset().filter(league=self.kwargs['league_id'])
@@ -305,6 +257,7 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
     """
     queryset = Scrimmage.objects.all().order_by('-requested_at')
     serializer_class = ScrimmageSerializer
+    permission_classes = (SubmissionsEnabledOrSafeMethods, IsAuthenticatedOnTeam)
 
     def get_team(self, league_id, user_id):
         teams = Team.objects.filter(league_id=league_id, users__user_id=user_id)
@@ -325,30 +278,6 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
         if submissions.count() == 0:
             return None
         return submissions[0]
-
-    def get_permissions(self):
-        """
-        Requests are not found if the league does not exist. If the league exists but submissions are
-        not enabled, read-only requests are permitted only.
-
-        Finally, the user must be authenticated and on a team in this league.
-        """
-        try:
-            league = League.objects.get(pk=self.kwargs.get('league_id'))
-        except League.DoesNotExist:
-            raise NotFound
-
-        if self.request.method not in permissions.SAFE_METHODS:
-            if not (league.active and league.submissions_enabled):
-                raise PermissionDenied
-
-        if self.request.user.is_authenticated:
-            team = self.get_team(self.kwargs['league_id'], self.request.user.id)
-            if team is None:
-                raise PermissionDenied
-            self.kwargs['team'] = team
-
-        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
         team = self.kwargs['team']

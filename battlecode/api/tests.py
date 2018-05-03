@@ -701,7 +701,7 @@ class MapTestCase(test.APITestCase):
         response = self.client.get('/api/bc18/map/1/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and map id mismatch')
         response = self.client.get('/api/bc19/map/4/')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Nonexistent league')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Nonexistent league')
         response = self.client.get('/api/bc18/map/5/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Hidden map not found')
 
