@@ -24,8 +24,20 @@ class UserViewSet(viewsets.GenericViewSet,
                   mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin):
     """
-    Anyone is permitted to create a user.
-    An authenticated user can retrieve, update, or destroy themself.
+    create:
+    Creates a new user.
+
+    retrieve:
+    Returns a new user with the given username.
+
+    update:
+    Updates a user.
+
+    partial_update:
+    Partial updates a user.
+
+    destroy:
+    Destroys a user.
     """
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
@@ -34,7 +46,11 @@ class UserViewSet(viewsets.GenericViewSet,
 
 class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Read only view set for user profiles.
+    list:
+    Returns a list of public user profiles.
+
+    retrieve:
+    Returns a public user profile given the user ID.
     """
     queryset = UserProfile.objects.all().order_by('user_id')
     serializer_class = UserProfileSerializer
@@ -43,7 +59,11 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Read only view set for leagues, lists ordered by end date.
+    list:
+    Returns a list of leagues, ordered by end date.
+
+    retrieve:
+    Returns a league from its id e.g. bc18.
     """
     queryset = League.objects.order_by('end_date')
     serializer_class = LeagueSerializer
@@ -55,6 +75,32 @@ class TeamViewSet(viewsets.GenericViewSet,
                   mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
                   PartialUpdateModelMixin):
+    """
+    create:
+    Creates a team in this league, where the authenticated user is the first user to join the team.
+    The user must not already be on a team in this league. The team must have a unique name, and can
+    have a maximum of four members.
+
+    Additionally, the league must be currently active to create a team.
+
+    list:
+    Returns a list of active teams in the league, ordered alphabetically by name.
+
+    retrieve:
+    Returns an active team in the league. Also gets the team key if the authenticated user is on this team.
+
+    partial_update:
+    Updates the team bio, divisions, or auto-accepting for ranked and unranked scrimmages.
+    The authenticated user must be on the team, and the league must be active.
+
+    join:
+    Joins the team. The league must be active.
+    Fails if the team has the maximum number of members, or if the team key is incorrect.
+
+    leave:
+    Leaves the team. The authenticated user must be on the team, and the league must be active.
+    Deletes the team if this is the last user to leave the team.
+    """
     queryset = Team.objects.all().order_by('name').exclude(deleted=True)
     serializer_class = TeamSerializer
     permission_classes = (LeagueActiveOrSafeMethods, IsAuthenticatedOrSafeMethods)
@@ -72,13 +118,6 @@ class TeamViewSet(viewsets.GenericViewSet,
         return context
 
     def create(self, request, league_id):
-        """
-        Creates a team in this league, where the authenticated user is the first user to join the team.
-        The user must not already be on a team in this league. The team must have a unique name, and can
-        have a maximum of four members.
-
-        Additionally, the league must be currently active to create a team.
-        """
         name = request.data.get('name', None)
         if name is None:
             return Response({'message': 'Team name required'}, status.HTTP_400_BAD_REQUEST)
@@ -104,19 +143,12 @@ class TeamViewSet(viewsets.GenericViewSet,
             return Response(error, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def retrieve(self, request, league_id, pk=None):
-        """
-        Retrieves an active team in the league. Also gets the team key if the authenticated user is on this team.
-        """
         res = super().retrieve(request, pk=pk)
         if res.status_code == status.HTTP_200_OK and request.user.id in res.data.get('users'):
             res.data['team_key'] = self.get_queryset().get(pk=pk).team_key
         return res
 
     def partial_update(self, request, league_id, pk=None):
-        """
-        Updates the team bio, divisions, or auto-accepting for ranked and unranked scrimmages.
-        The authenticated user must be on the team, and the league must be active.
-        """
         try:
             team = self.get_queryset().get(pk=pk)
         except Team.DoesNotExist:
@@ -133,10 +165,6 @@ class TeamViewSet(viewsets.GenericViewSet,
 
     @action(methods=['patch'], detail=True)
     def join(self, request, league_id, pk=None):
-        """
-        Joins the team. The league must be active.
-        Fails if the team has the maximum number of members, or if the team key is incorrect.
-        """
         try:
             team = self.get_queryset().get(pk=pk)
         except Team.DoesNotExist:
@@ -156,10 +184,6 @@ class TeamViewSet(viewsets.GenericViewSet,
 
     @action(methods=['patch'], detail=True)
     def leave(self, request, league_id, pk=None):
-        """
-        Leaves the team. The authenticated user must be on the team, and the league must be active.
-        Deletes the team if this is the last user to leave the team.
-        """
         try:
             team = self.get_queryset().get(pk=pk)
         except Team.DoesNotExist:
@@ -181,7 +205,21 @@ class SubmissionViewSet(viewsets.GenericViewSet,
                         mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin):
     """
-    List and retrieve submissions for the authenticated user's team in this league, in chronological order.
+    list:
+    Returns a list of submissions for the authenticated user's team in this league, in chronological order.
+
+    create:
+    Uploads a submission for the authenticated user's team in this league. The file contents
+    are uploaded to Google Cloud Storage in the format "/league_id/team_id/submission_id.zip".
+    The relative filename is stored in the database and routed through the website.
+
+    The league must be active in order to accept submissions.
+
+    retrieve:
+    Returns a submission for the authenticated user's team in this league.
+
+    latest:
+    Returns the latest submission for the authenticated user's team in this league.
     """
     queryset = Submission.objects.all().order_by('-submitted_at')
     serializer_class = SubmissionSerializer
@@ -200,13 +238,6 @@ class SubmissionViewSet(viewsets.GenericViewSet,
         return context
 
     def create(self, request, league_id, team):
-        """
-        Uploads a submission for the authenticated user's team in this league. The file contents
-        are uploaded to Google Cloud Storage in the format "/league_id/team_id/submission_id.zip".
-        The relative filename is stored in the database and routed through the website.
-
-        The league must be active in order to accept submissions.
-        """
         submission_num = self.get_queryset().count() + 1
         data = {
             'team': team.id,
@@ -234,12 +265,19 @@ class SubmissionViewSet(viewsets.GenericViewSet,
 class MapViewSet(viewsets.GenericViewSet,
                  mixins.ListModelMixin,
                  mixins.RetrieveModelMixin):
-    queryset = Map.objects.all().exclude(hidden=True).order_by('id')
+    """
+    list:
+    Returns a list of maps, ordered alphabetically.
+
+    retrieve:
+    Returns a map from its id.
+    """
+    queryset = Map.objects.all().exclude(hidden=True).order_by('name')
     serializer_class = MapSerializer
     permission_classes = (LeagueActiveOrSafeMethods,)
 
     def get_queryset(self):
-        return super().get_queryset().filter(league=self.kwargs['league_id'])
+        return super().get_queryset().filter(league=self.kwargs.get('league_id', None))
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -253,7 +291,33 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
                        mixins.CreateModelMixin,
                        mixins.RetrieveModelMixin):
     """
-    List and retrieve submissions for the authenticated user's team in this league, in chronological order.
+    list:
+    Returns a list of scrimmages in the league, where the authenticated user is on one of the participating teams.
+    The scrimmages are returned in descending order of the time of request.
+
+    TODO: If the "tournament" parameter accepts a tournament ID to filter, otherwise lists non-tournament scrimmages.
+
+    create:
+    Creates a scrimmage in the league, where the authenticated user is on one of the participating teams.
+    The map and each team must also be in the league. If the requested team auto accepts this scrimmage,
+    then the scrimmage is automatically queued with each team's most recent submission.
+
+    Each team in the scrimmage must have at least one submission.
+
+    retrieve:
+    Retrieves a scrimmage in the league, where the authenticated user is on one of the participating teams.
+
+    accept:
+    Accepts an incoming scrimmage in the league, where the authenticated user is on the participating team
+    that did not request the scrimmage. Queues the game with each team's most recent submissions.
+
+    reject:
+    Rejects an incoming scrimmage in the league, where the authenticated user is on the participating team
+    that did not request the scrimmage.
+
+    cancel:
+    Cancels an outgoing scrimmage in the league, where the authenticated user is on the participating team
+    that requested the scrimmage.
     """
     queryset = Scrimmage.objects.all().order_by('-requested_at')
     serializer_class = ScrimmageSerializer
@@ -290,13 +354,6 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
         return context
 
     def create(self, request, league_id, team):
-        """
-        Creates a scrimmage in the league, where the authenticated user is on one of the participating teams.
-        The map and each team must also be in the league. If the requested team auto accepts this scrimmage,
-        then the scrimmage is automatically queued with each team's most recent submission.
-
-        Each team in the scrimmage must have at least one submission.
-        """
         try:
             red_team_id = int(request.data['red_team'])
             blue_team_id = int(request.data['blue_team'])
@@ -352,27 +409,8 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
             error = {'message': ','.join(e.args) if len(e.args) > 0 else 'Unknown Error'}
             return Response(error, status.HTTP_400_BAD_REQUEST)
 
-    def list(self, request, league_id, team):
-        """
-        Lists the scrimmages in the league, where the authenticated user is on one of the participating teams.
-        The scrimmages are returned in descending order of the time of request.
-
-        TODO: If the "tournament" parameter accepts a tournament ID to filter, otherwise lists non-tournament scrimmages.
-        """
-        return super().list(request)
-
-    def retrieve(self, request, league_id, team, pk=None):
-        """
-        Retrieves a scrimmage in the league, where the authenticated user is on one of the participating teams.
-        """
-        return super().retrieve(request)
-
     @action(methods=['patch'], detail=True)
     def accept(self, request, league_id, team, pk=None):
-        """
-        Accepts an incoming scrimmage in the league, where the authenticated user is on the participating team
-        that did not request the scrimmage. Queues the game with each team's most recent submissions.
-        """
         try:
             scrimmage = self.get_queryset().get(pk=pk)
             if scrimmage.requested_by == team:
@@ -396,10 +434,6 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
 
     @action(methods=['patch'], detail=True)
     def reject(self, request, league_id, team, pk=None):
-        """
-        Rejects an incoming scrimmage in the league, where the authenticated user is on the participating team
-        that did not request the scrimmage.
-        """
         try:
             scrimmage = self.get_queryset().get(pk=pk)
             if scrimmage.requested_by == team:
@@ -415,10 +449,6 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
 
     @action(methods=['patch'], detail=True)
     def cancel(self, request, league_id, team, pk=None):
-        """
-        Cancels an outgoing scrimmage in the league, where the authenticated user is on the participating team
-        that requested the scrimmage.
-        """
         try:
             scrimmage = self.get_queryset().get(pk=pk)
             if scrimmage.requested_by != team:
