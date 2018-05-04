@@ -1,6 +1,7 @@
 body {
     font-family: Roboto;
     background-color: #fefefe;
+    overflow-x: hidden;
 }
 
 * {
@@ -403,6 +404,141 @@ header button {
     margin-top:10px;
 }
 
+/************** SEC FIVE *****************/
+
+.sec-five {
+    color:#fefefe;
+    background-color:rgb(214,68,35);
+    width:100%;
+    height:500px;
+
+    margin-top:4em;
+}
+
+.sec-five .left {
+    height:100%;
+}
+
+.sec-five .trunk {
+    background-color:#fefefe;
+    width:20px;
+    height:500px;
+
+    position:absolute;
+    left:340px;
+}
+
+.sec-five .item h3.up {
+    margin-top:-23px;
+    text-align:center;
+}
+
+.sec-five .item h3.down {
+    margin-top:23px;
+    text-align:center;
+}
+
+.sec-five .item .branch {
+    width:65px;
+    height:20px;
+    background-color:#fefefe;
+
+    position:absolute;
+}
+
+.sec-five .item .leaf {
+    position:absolute;
+    width:200px;
+    padding:15px;
+
+    background-color:#fefefe;
+    color:rgb(214,68,35);
+    font-weight:300;
+}
+
+.sec-five .item.lefta .leaf {
+    left:45px;
+}
+
+.sec-five .item.righta .leaf {
+    left:425px;
+}
+
+.sec-five .item.lefta .branch {
+    left:calc(340px - 65px);
+}
+
+.sec-five .item.righta .branch {
+    left:calc(340px + 20px);
+}
+
+.sec-five .item.one .branch {
+    margin-top:100px;
+}
+
+.sec-five .item.two .branch {
+    margin-top:150px;
+}
+
+.sec-five .item.three .branch {
+    margin-top:210px;
+}
+
+.sec-five .item.four .branch {
+    margin-top:270px;
+}
+
+.sec-five .item.five .branch {
+    margin-top:350px;
+}
+
+.sec-five .item.six .branch {
+    margin-top:370px;
+}
+
+.sec-five .item.one .leaf {
+    margin-top:50px;
+}
+
+.sec-five .item.two .leaf {
+    margin-top:95px;
+}
+
+.sec-five .item.three .leaf {
+    margin-top:195px;
+}
+
+.sec-five .item.four .leaf {
+    margin-top:220px;
+}
+
+.sec-five .item.five .leaf {
+    margin-top:330px;
+}
+
+.sec-five .item.six .leaf {
+    margin-top:330px;
+}
+
+.sec-five .right {
+    margin-left:660px;
+    width: calc(100% - 660px);
+    text-align:center;
+}
+
+.sec-five .right h3 {
+    font-size: 2.5em;
+    margin-bottom:-10px;
+}
+
+.sec-five .right h2 {
+    font-size: 3em;
+    font-weight:700;
+    font-style: italic;
+}
+
+
+
 /************ RESPONSIVE STUFF ***************/
 
 @media (max-width: 900px) {
@@ -457,6 +593,102 @@ header button {
     .sec-four canvas {
         height: calc(100vw - 90px);
     }
+
+    .sec-five {
+        display:block;
+    }
+
+    .sec-five .item.two .leaf {
+        margin-top:120px;
+    }
+
+    .sec-five .item.four .leaf {
+        margin-top:230px;
+    }
+
+    .sec-five .item.six .leaf {
+        margin-top:350px;
+    }
+
+    .sec-five .right {
+        margin-left:0px;
+        width:130px;
+
+        position:absolute;
+        margin-top:-480px;
+        left:430px;
+    }
+
+
+}
+
+
+@media (max-width: 700px) {
+    .sec-five .right {
+        margin-top:-540px;
+        left:100px;
+    }
+
+    .sec-five .item.righta .leaf {
+        left:45px;
+    }
+
+    .sec-five .item .leaf {
+        padding:10px;
+    }
+
+
+    .sec-five .item.righta .branch, .sec-five .item.lefta .branch {
+        left:calc(330px - 65px);
+    }
+
+    .sec-five .trunk {
+        left:330px;
+        height:550px;
+        margin-top:-50px;
+    }
+
+    .sec-five {
+        margin-top:50px;
+        padding-top:50px;
+    }
+
+    .sec-five .item.one .branch {
+        margin-top:85px;
+    }
+
+    .sec-five .item.two .leaf {
+        margin-top:130px;
+    }
+
+    .sec-five .item.two .branch {
+        margin-top:150px;
+    }
+
+    .sec-five .item.four .branch {
+        margin-top:290px;
+    }
+
+    .sec-five .item.four .leaf {
+        margin-top:270px;
+    }
+
+    .sec-five .item.five .leaf {
+        margin-top:350px;
+    }
+
+    .sec-five .item.five .branch {
+        margin-top:360px;
+    }
+
+    .sec-five .item.six .branch {
+        margin-top:420px;
+    }
+
+    .sec-five .item.six .leaf {
+        margin-top:410px;
+    }
+
 }
 
 @media (max-width: 600px) {
@@ -492,7 +724,6 @@ header button {
     .sec-two .left img {
         margin-top:3em;
     }
-
 }
 
 @media (max-width: 400px) {
