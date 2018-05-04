@@ -1,4 +1,4 @@
-baseurl             = "http://blog.battlecode.org/"
+baseurl             = "https://blog.battlecode.org/"
 builddrafts         = false
 canonifyurls        = true
 contentdir          = "content"
