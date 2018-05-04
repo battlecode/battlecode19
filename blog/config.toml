@@ -1,0 +1,65 @@
+baseurl             = "https://battlecode.github.io/"
+builddrafts         = false
+canonifyurls        = true
+contentdir          = "content"
+languageCode        = "en-US"
+layoutdir           = "layouts"
+publishdir          = "public"
+theme               = "cocoa"
+title               = "Battlecode Blog"
+pygmentsuseclasses  = true
+#disqusshortname     = "cocoaexamplesite"
+pluralizelisttitles = false
+#googleAnalytics     = "UA-123-45"
+
+[permalinks]
+blog  = ":slug/"
+
+[[menu.main]]
+name                   = "Home"
+weight                 = -110
+identifier             = "home"
+url                    = "https://battlecode.org/"
+
+[[menu.main]]
+name                   = "Blog"
+weight                 = -110
+identifier             = "about"
+url                    = "/"
+
+
+[params]
+include_rss            = true                          # include RSS <link> tag in <head> and show RSS icon
+latestpostscount       = 10                             # how many posts to display on the home page
+i18n_flags             = false                         # whether to display small country flags for available translations
+author                 = "Battlecode Dev Blog"
+cachebuster            = true                          # add the current unix timestamp in query string for cache busting css assets
+dateform               = "Jan 2, 2006"
+dateformfull           = "Mon Jan 2 2006 15:04:05 MST"
+description            = "Don't panic"
+email                  = "battlecode@mit.edu"
+extracssfiles          = [ "/css/override.css" ]       # In your `static` directory, add/remove files as necessary.
+faviconfile            = "img/leaf.ico"
+github                 = "//github.com/battlecode"
+lang                   = "en"
+noshowreadtime         = false                         # if true, don't show "<x> minutes read" in posts
+selfintro              = ""                            # appears in the site header when set to a non-empty string
+
+highlightjs            = true
+# highlightjslanguages = ["go"]                        # additional languages not included in the "common" set
+# highlightjsStyle     = "darcula"
+
+piwik                  = false                         # If true, Piwik integration is enabled
+# piwik_url            = "//www.example.com/piwik/"    # URL to your Piwik installation. Must End with a slash
+# piwik_id             = 2                             # Id of your site in Piwik
+
+gitalk                 = false
+# if gitalk is true, the following params should be set. These parameters could be retrieved from github OAuth
+gitalk_clientID        = "your client id"
+gitalk_clientSecret    = "your client secret"
+gitalk_repo            = "your repo url"
+gitalk_owner           = "the owner of this repo"
+gitalk_admin           = ['a', 'list', 'of', 'administrator']
+
+avatar                 = "img/battlecode.png" # path to image in static dir e.g img/avatar.png (do not use in the same time as gravatar)
+# gravatar             = ""                # gravatar hash. see https://en.gravatar.com/site/implement/hash/. do not use in the same time as avatar

@@ -1,0 +1,3 @@
+[submodule "blog/blog/public"]
+	path = blog/blog/public
+	url = https://github.com/battlecode/battlecode.github.io.git

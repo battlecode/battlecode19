@@ -1,0 +1,11 @@
+body {
+    background-color: rgb(247,239,227);
+}
+
+.nav-about a,  a {
+    color:rgb(214,68,35);
+}
+
+a:hover {
+    color:rgb(200,81,50);
+}
