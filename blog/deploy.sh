@@ -8,6 +8,7 @@ hugo -t cocoa
 # Go To Public folder
 cd public
 # Add changes to git.
+echo "blog.battlecode.org" > CNAME 
 git add .
 
 # Commit changes.

@@ -1,4 +1,4 @@
-baseurl             = "https://battlecode.github.io/"
+baseurl             = "http://blog.battlecode.org/"
 builddrafts         = false
 canonifyurls        = true
 contentdir          = "content"
@@ -24,7 +24,7 @@ url                    = "https://battlecode.org/"
 [[menu.main]]
 name                   = "Blog"
 weight                 = -110
-identifier             = "about"
+identifier             = "blog"
 url                    = "/"
 
 
