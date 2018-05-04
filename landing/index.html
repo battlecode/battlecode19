@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Battlecode</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,500,500italic,700&" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+    <link href="index.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="header-bar"></div>
+<header>
+    <ul>
+        <li>
+            <button>Login</button>
+        </li>
+
+        <li>
+            <button>Register</button>
+        </li>
+    </ul>
+</header>
+
+<div class="hero">
+    <div class="bg-image"></div>
+    <h1>battlecode</h1>
+    <div class="holder">
+        <a href="#" class="dev">DEV</a>
+        <a href="#" class="pro">PRO</a>
+    </div>
+</div>
+
+<section class="sec-one">
+    <div class="left">
+        <h2>program <span class="highlight">virtual robots</span> to victory</h2>
+        <p>Battlecode is a programming competition unlike any other, where participants write code that controls an army of virtual robots.  Compete for eternal glory and $50,000 in prizes, or use Battlecode in your classroom to teach programming to the next generation of innovators.</p>
+        <table class="calls"><tr>
+            <td>
+                <i class="fa fa-gamepad"></i><br />
+                <a href="#">for players</a>
+            </td>
+            <td>
+                <i class="fa fa-graduation-cap"></i><br />
+                <a href="#">for educators</a>
+            </td>
+            <td>
+                <i class="fa fa-users"></i><br />
+                <a href="#">for recruiters</a>
+            </td>
+        </tr></table>
+    </div>
+    <div class="right">
+        <div class="rect">
+            <div class="head">pro league starts</div>
+            <div class="date">1/08/2019</div>
+            <div class="circle"></div>
+        </div>
+        <div class="rect">
+            <div class="head">dev league starts</div>
+            <div class="date">3/14/2019</div>
+            <div class="circle"></div>
+        </div>
+    </div>
+</section>
+
+<hr>
+
+<section class="sec-two">
+    <div class="right">
+        <h2>write bots in <span class="highlight">any language</span> to gain territory and defeat the enemy.</h2>
+        <p>Battlecode is a real-time strategy game played by code instead of people.  Teams of virtual robots roam the screen, managing resources and executing different strategies.</p>
+    </div>
+    <div class="left">
+        <img src="example2.png" />
+    </div>
+</section>
+
+<section class="sec-three">
+    <div class="left">
+        <p>Compete in the <span class="blue">pro league</span> for a $40,000 prize pool, and get recruited to work at top companies.  Or, compete in the high-school only <span class="red">dev league</span> for a longer season and the chance to impress the world's best colleges.</p>
+    </div>
+    <div class="right">
+        <div class="box">
+            <div class="header dev">DEV</div>
+            <ul class="content">
+                <li>six month season in Fall</li>
+                <li>teams of 2-6</li>
+                <li>interact with colleges</li>
+                <li>$10,000 prize pool</li>
+                <li>open to grades 7-12</li>
+                <button class="cta">learn more</button>
+            </ul>
+        </div>
+        <div class="box">
+            <div class="header pro">PRO</div>
+            <ul class="content">
+                <li>1 month season in January</li>
+                <li>teams of 1-4</li>
+                <li>interact with sponsors</li>
+                <li>$40,000 prize pool</li>
+                <li>open to all</li>
+                <button class="cta">learn more</button>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<hr />
+
+<section class="sec-four">
+    <div class="left">
+        <div id="code-editor"></div>
+        <div id="lang-select">
+            <div class="option py">Python</div>
+            <div class="option js">Javascript</div>
+        </div>
+
+    </div>
+    <div class="right">
+        <h2>Live sandbox</h2>
+        <button id="play-button">
+            <i class="fa fa-play"></i>
+        </button><br />
+        <canvas id="visualizer"></canvas>
+    </div>
+</section>
+
+<hr />
+
+
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.1/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="index.js"></script>
+</body>
+</html>
