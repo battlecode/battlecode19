@@ -14,9 +14,6 @@ class UserAdmin(DjangoUserAdmin):
     model = User
     fieldsets = DjangoUserAdmin.fieldsets + (
         ('Private', {'fields': ('date_of_birth', 'registration_key')}),
-        ('User Profile', {
-            'fields': ('bio', 'avatar', 'country')
-        }),
     )
 
 

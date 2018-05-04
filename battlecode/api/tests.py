@@ -97,6 +97,9 @@ class UserTestCase(test.APITransactionTestCase):
         self.assertNotEqual(db_user.password, user['password'])
         self.assertTrue(db_user.registration_key)
 
+        # Login
+        self.assertTrue(self.client.login(username='user_0@battlecode.org', password='password'))
+
     def test_cannot_override_some_fields_on_creation(self):
         # Cannot override registration key nor avatar on creation
         user = generate_user(1, registration_key='FOOBAR')

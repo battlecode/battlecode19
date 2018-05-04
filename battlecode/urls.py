@@ -19,13 +19,13 @@ from django.views import generic
 
 from rest_framework import routers, serializers
 from rest_framework.documentation import include_docs_urls
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 
 urlpatterns = [
-    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('auth/token/obtain/', TokenObtainPairView.as_view()),
+    path('auth/token/', TokenObtainPairView.as_view()),
     path('auth/token/refresh/', TokenRefreshView.as_view()),
+    path('auth/token/verify/', TokenVerifyView.as_view()),
     path('api/', include('battlecode.api.urls')),
     path('admin/', admin.site.urls, name='admin'),
     path('docs/', include_docs_urls(title='Battlecode API')),
