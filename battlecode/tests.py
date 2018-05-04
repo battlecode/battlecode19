@@ -8,13 +8,11 @@ class TokenTestCase(test.APITestCase):
     def setUp(self):
         user = {
             'email': 'hello@battlecode.org',
+            'username': 'hello',
             'password': 'password',
             'date_of_birth': '2018-01-01',
             'first_name': 'battle',
             'last_name': 'code',
-            'userprofile': {
-                'username': 'hello',
-            },
         }
 
         self.client = test.APIClient()

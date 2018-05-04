@@ -16,10 +16,8 @@ def generate_user(id_num, **kwargs):
         'date_of_birth': '2018-01-01',
         'first_name': 'battle',
         'last_name': 'code',
-        'userprofile': {
-            'username': 'user_{}'.format(id_num),
-            'country': 'USA',
-        },
+        'username': 'user_{}'.format(id_num),
+        'country': 'USA',
     }
 
     for key in kwargs:
@@ -70,9 +68,9 @@ class UserTestCase(test.APITransactionTestCase):
 
         # Create two regular users
         self.client.post('/api/user/', generate_user(6147), format='json')
-        self.client.post('/api/user/', generate_user(6370), format='json')
-        self.userA = get_user_model().objects.get(email='user_6147@battlecode.org')
-        self.userB = get_user_model().objects.get(email='user_6370@battlecode.org')
+        res = self.client.post('/api/user/', generate_user(6370), format='json')
+        self.userA = get_user_model().objects.get(username='user_6147')
+        self.userB = get_user_model().objects.get(username='user_6370')
 
     def test_create_user_success(self):
         # Can create valid user even when not logged in
@@ -84,10 +82,8 @@ class UserTestCase(test.APITransactionTestCase):
         self.assertEqual(content.get('date_of_birth'), user['date_of_birth'])
         self.assertEqual(content.get('first_name'), user['first_name'])
         self.assertEqual(content.get('last_name'), user['last_name'])
-
-        # Recursive user profile data was updated
-        self.assertEqual(content.get('userprofile').get('country'), user['userprofile']['country'])
-        self.assertEqual(content.get('userprofile').get('username'), user['userprofile']['username'])
+        self.assertEqual(content.get('country'), user['country'])
+        self.assertEqual(content.get('username'), user['username'])
 
         # Password and token are not returned to the user.
         # In the db, password is hashed, token is auto-generated
@@ -103,17 +99,17 @@ class UserTestCase(test.APITransactionTestCase):
     def test_cannot_override_some_fields_on_creation(self):
         # Cannot override registration key nor avatar on creation
         user = generate_user(1, registration_key='FOOBAR')
-        user['userprofile']['avatar'] = 'FOOBAR'
+        user['avatar'] = 'FOOBAR'
         response = self.client.post('/api/user/', user, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         db_user = get_user_model().objects.get(email=user['email'])
         self.assertNotEqual(db_user.registration_key, user['registration_key'])
-        self.assertNotEqual(db_user.userprofile.avatar, user['userprofile']['avatar'])
+        self.assertNotEqual(db_user.avatar, user['avatar'])
 
     def test_cannot_create_user_with_missing_fields(self):
         user = generate_user(0)
-        del user['userprofile']['username']
+        del user['username']
         response = self.client.post('/api/user/', user, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -129,7 +125,7 @@ class UserTestCase(test.APITransactionTestCase):
 
         # Nor with the same email
         user = generate_user(0)
-        user['userprofile']['username'] = 'robot'
+        user['username'] = 'robot'
         response = self.client.post('/api/user/', user, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -150,11 +146,10 @@ class UserTestCase(test.APITransactionTestCase):
         self.assertTrue('password' not in content)
 
         # And also public user info about user A
-        self.assertTrue('userprofile' in content)
-        self.assertEqual(content.get('userprofile').get('country'), self.userA.userprofile.country)
-        self.assertEqual(content.get('userprofile').get('bio'), self.userA.userprofile.bio)
-        self.assertEqual(content.get('userprofile').get('username'), self.userA.userprofile.username)
-        self.assertEqual(content.get('userprofile').get('avatar'), '')
+        self.assertEqual(content.get('country'), self.userA.country)
+        self.assertEqual(content.get('bio'), self.userA.bio)
+        self.assertEqual(content.get('username'), self.userA.username)
+        self.assertEqual(content.get('avatar'), '')
 
         # But User A is not allowed to access private user info about user B
         response = self.client.get('/api/user/{}/'.format(self.userB.id))
@@ -172,9 +167,9 @@ class UserTestCase(test.APITransactionTestCase):
 
         user['first_name'] = 'Teh'
         user['last_name'] = 'Devs'
-        user['userprofile']['avatar'] = 'FOOBAR'
-        user['userprofile']['bio'] = 'Hello'
-        user['userprofile']['country'] = 'Canada'
+        user['avatar'] = 'FOOBAR'
+        user['bio'] = 'Hello'
+        user['country'] = 'Canada'
         user['email'] = 'jsegaran@mit.edu'
         user['password'] = 'FOOBAR'
 
@@ -185,13 +180,13 @@ class UserTestCase(test.APITransactionTestCase):
         content = json.loads(response.content)
         self.assertEqual(content.get('first_name'), user['first_name'])
         self.assertEqual(content.get('last_name'), user['last_name'])
-        self.assertEqual(content.get('userprofile').get('bio'), user['userprofile']['bio'])
-        self.assertEqual(content.get('userprofile').get('country'), user['userprofile']['country'])
+        self.assertEqual(content.get('bio'), user['bio'])
+        self.assertEqual(content.get('country'), user['country'])
 
         # Cannot modify email, password, avatar
         self.assertNotEqual(content.get('email'), user['email'])
         self.assertNotEqual(content.get('password'), user['password'])
-        self.assertNotEqual(content.get('userprofile').get('avatar'), user['userprofile']['avatar'])
+        self.assertNotEqual(content.get('avatar'), user['avatar'])
 
     def test_put_user_fail(self):
         self.client.force_authenticate(user=self.userB)
@@ -229,12 +224,12 @@ class UserTestCase(test.APITransactionTestCase):
         # should not be used
         self.client.force_authenticate(user=self.userA)
 
-        patch_dict = { 'userprofile': { 'bio': 'jsegaran@mit.edu' }, 'password': 'password'}
+        patch_dict = { 'bio': 'jsegaran@mit.edu', 'password': 'password'}
         response = self.client.patch('/api/user/{}/'.format(self.userA.id), patch_dict, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         db_user = get_user_model().objects.get(pk=self.userA.id)
-        self.assertEqual(db_user.userprofile.bio, patch_dict['userprofile']['bio'])
+        self.assertEqual(db_user.bio, patch_dict['bio'])
         self.assertNotEqual(db_user.password, patch_dict['password'])
 
     def test_patch_user_fail(self):
@@ -250,27 +245,27 @@ class UserTestCase(test.APITransactionTestCase):
         # Cannot delete users when I am not logged in.
         response = self.client.delete('/api/user/{}/'.format(self.userB.id))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        response = self.client.get('/api/user/profile/{}/'.format(self.userB.id))
+        response = self.client.get('/api/user/profile/{}/'.format(self.userB.username))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Nor can I delete users that are not myself.
         self.client.force_authenticate(user=self.userA)
         response = self.client.delete('/api/user/{}/'.format(self.userB.id))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        response = self.client.get('/api/user/profile/{}/'.format(self.userB.id))
+        response = self.client.get('/api/user/profile/{}/'.format(self.userB.username))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Can delete myself.
         response = self.client.delete('/api/user/{}/'.format(self.userA.id))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        response = self.client.get('/api/user/profile/{}/'.format(self.userA.id))
+        response = self.client.get('/api/user/profile/{}/'.format(self.userA.username))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_list_detail_user_profile(self):
         # Can detail anyone's user profile, but only if it exists
-        response = self.client.get('/api/user/profile/{}/'.format(self.userA.id + self.userB.id))
+        response = self.client.get('/api/user/profile/{}/'.format('asdf'))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        response = self.client.get('/api/user/profile/{}/'.format(self.userA.id))
+        response = self.client.get('/api/user/profile/{}/'.format(self.userA.username))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # A user profile contains the following fields
@@ -374,7 +369,7 @@ class TeamTestCase(test.APITransactionTestCase):
         self.assertEqual(content.get('auto_accept_unranked'), False, 'Expected default value')
 
         users = content.get('users')
-        self.assertTrue(self.userA.id in users, 'User A auto-joined team: {}'.format(users))
+        self.assertEqual([self.userA.username], users, 'User A auto-joined team: {}'.format(users))
 
         db_team = Team.objects.get(name='TeamName')
         self.assertTrue(db_team.team_key, 'Team key should be auto-generated: {}'.format(db_team.team_key))
@@ -450,7 +445,7 @@ class TeamTestCase(test.APITransactionTestCase):
         response = self.client.patch('/api/bc18/team/{}/join/'.format(self.team2.id), {'team_key': self.team2.team_key})
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successfully joined team')
         content = json.loads(response.content)
-        self.assertTrue(self.userA.id in content['users'], 'User A joins team 2')
+        self.assertTrue(self.userA.username in content['users'], 'User A joins team 2')
 
         # User B joins team 2
         self.client.force_authenticate(user=self.userB)

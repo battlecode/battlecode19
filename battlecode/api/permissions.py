@@ -47,7 +47,7 @@ class IsAuthenticatedOnTeam(LeagueActiveOrSafeMethods):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
-        teams = Team.objects.filter(league_id=view.kwargs.get('league_id'), users__user_id=request.user.id)
+        teams = Team.objects.filter(league_id=view.kwargs.get('league_id'), users__username=request.user.username)
         if len(teams) == 0:
             raise PermissionDenied
         if len(teams) > 1:

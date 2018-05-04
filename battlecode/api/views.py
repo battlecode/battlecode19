@@ -40,7 +40,7 @@ class UserViewSet(viewsets.GenericViewSet,
     Destroys a user.
     """
     queryset = get_user_model().objects.all()
-    serializer_class = UserSerializer
+    serializer_class = FullUserSerializer
     permission_classes = (IsAuthenticatedAsRequestedUser,)
 
 
@@ -50,11 +50,13 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     Returns a list of public user profiles.
 
     retrieve:
-    Returns a public user profile given the user ID.
+    Returns a public user profile given the username.
     """
-    queryset = UserProfile.objects.all().order_by('user_id')
-    serializer_class = UserProfileSerializer
+    queryset = get_user_model().objects.all().order_by('id')
+    serializer_class = BasicUserSerializer
     permission_classes = (permissions.AllowAny,)
+    lookup_field = 'username'
+    lookup_url_kwarg = 'username'
 
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
@@ -122,7 +124,7 @@ class TeamViewSet(viewsets.GenericViewSet,
         if name is None:
             return Response({'message': 'Team name required'}, status.HTTP_400_BAD_REQUEST)
 
-        if len(self.get_queryset().filter(users__user_id=request.user.id)) > 0:
+        if len(self.get_queryset().filter(users__username=request.user.username)) > 0:
             return Response({'message': 'Already on a team in this league'}, status.HTTP_400_BAD_REQUEST)
         if len(self.get_queryset().filter(name=name)) > 0:
             return Response({'message': 'Team with this name already exists'}, status.HTTP_400_BAD_REQUEST)
@@ -131,7 +133,7 @@ class TeamViewSet(viewsets.GenericViewSet,
             team = {}
             team['league'] = league_id
             team['name'] = request.data.get('name', None)
-            team['users'] = [request.user.id]
+            team['users'] = [request.user.username]
 
             serializer = self.get_serializer(data=team)
             if serializer.is_valid():
@@ -144,7 +146,7 @@ class TeamViewSet(viewsets.GenericViewSet,
 
     def retrieve(self, request, league_id, pk=None):
         res = super().retrieve(request, pk=pk)
-        if res.status_code == status.HTTP_200_OK and request.user.id in res.data.get('users'):
+        if res.status_code == status.HTTP_200_OK and request.user.username in res.data.get('users'):
             res.data['team_key'] = self.get_queryset().get(pk=pk).team_key
         return res
 
@@ -153,12 +155,7 @@ class TeamViewSet(viewsets.GenericViewSet,
             team = self.get_queryset().get(pk=pk)
         except Team.DoesNotExist:
             return Response({'message': 'Team not found'}, status.HTTP_404_NOT_FOUND)
-
-        op = request.data.get('op', None)
-        if op not in ['join', 'leave', 'update']:
-            return Response({'message': 'Invalid op: "join", "leave", "update"'}, status.HTTP_400_BAD_REQUEST)
-
-        if len(team.users.filter(user_id=request.user.id)) == 0:
+        if len(team.users.filter(username=request.user.username)) == 0:
             return Response({'message': 'User not on this team'}, status.HTTP_401_UNAUTHORIZED)
 
         return super().partial_update(request)
@@ -170,7 +167,7 @@ class TeamViewSet(viewsets.GenericViewSet,
         except Team.DoesNotExist:
             return Response({'message': 'Team not found'}, status.HTTP_404_NOT_FOUND)
 
-        if len(self.get_queryset().filter(users__user_id=request.user.id)) > 0:
+        if len(self.get_queryset().filter(users__username=request.user.username)) > 0:
             return Response({'message': 'Already on a team in this league'}, status.HTTP_400_BAD_REQUEST)
         if team.team_key != request.data.get('team_key', None):
             return Response({'message': 'Invalid team key'}, status.HTTP_400_BAD_REQUEST)
@@ -189,7 +186,7 @@ class TeamViewSet(viewsets.GenericViewSet,
         except Team.DoesNotExist:
             return Response({'message': 'Team not found'}, status.HTTP_404_NOT_FOUND)
 
-        if len(team.users.filter(user_id=request.user.id)) == 0:
+        if len(team.users.filter(username=request.user.username)) == 0:
             return Response({'message': 'User not on this team'}, status.HTTP_401_UNAUTHORIZED)
 
         team.users.remove(request.user.id)
@@ -323,8 +320,8 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
     serializer_class = ScrimmageSerializer
     permission_classes = (SubmissionsEnabledOrSafeMethods, IsAuthenticatedOnTeam)
 
-    def get_team(self, league_id, user_id):
-        teams = Team.objects.filter(league_id=league_id, users__user_id=user_id)
+    def get_team(self, league_id, team_id):
+        teams = Team.objects.filter(league_id=league_id, id=team_id)
         if len(teams) == 0:
             return None
         if len(teams) > 1:

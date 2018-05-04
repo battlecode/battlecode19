@@ -16,14 +16,6 @@ class UserAdmin(DjangoUserAdmin):
         ('Private', {'fields': ('date_of_birth', 'registration_key')}),
     )
 
-
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'username', 'country')
-    list_display_links = ('user', 'username')
-    list_filter = ('country',)
-
-
 @admin.register(League)
 class LeagueAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'start_date', 'end_date', 'active')

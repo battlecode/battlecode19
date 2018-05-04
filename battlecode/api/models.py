@@ -29,25 +29,19 @@ TOURNAMENT_DIVISION_CHOICES = (
 
 class User(AbstractUser):
     email            = models.EmailField(unique=True)
+    username         = models.CharField(max_length=30, unique=True)
     first_name       = models.CharField(max_length=30)
     last_name        = models.CharField(max_length=150)
     date_of_birth    = models.DateField()
     registration_key = models.CharField(max_length=32, null=True, unique=True)
     verified         = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
-
-
-class UserProfile(models.Model):
-    user     = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    username = models.CharField(max_length=30)
     bio      = models.CharField(max_length=1000, blank=True)
     avatar   = models.TextField(blank=True)
     country  = models.TextField(blank=True)
 
-    def __str__(self):
-        return self.username
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
 
 
 class League(models.Model):
@@ -101,7 +95,7 @@ class Team(models.Model):
     name      = models.CharField(max_length=64)
     team_key  = models.CharField(max_length=16, unique=True)
     avatar    = models.TextField(blank=True)
-    users     = models.ManyToManyField(UserProfile, default=list)
+    users     = models.ManyToManyField(User, default=list)
 
     # team profile
     bio       = models.CharField(max_length=1000, blank=True)
@@ -194,16 +188,6 @@ def gen_registration_key(sender, instance, raw, update_fields, **kwargs):
     """
     if not raw and instance._state.adding:
         instance.registration_key = uuid.uuid4().hex
-
-
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def update_user_profile(sender, instance, created, update_fields, **kwargs):
-    """
-    Save the user profile after saving the user.
-    """
-    if created:
-        UserProfile.objects.create(user=instance)
-    instance.userprofile.save()
 
 
 @receiver(pre_save, sender=Team)
