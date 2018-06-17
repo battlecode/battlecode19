@@ -38,20 +38,19 @@ class Api {
 	}
 
 	static getUserTeam(callback) {
-	  var state = {
-      team_name:'Teh Devs',
-      team_id:2342,
-      secret_key:'3f8wgugf',
-      auto_accept:true,
-      auto_run:false,
-      division:'newbie',
-      bio:'Isn\'t this a cool bio?',
-      img:'',
-      users:['jgru', 'oiheb', 'oedgg']
-  	};
+		var state = {
+			team_name:'Teh Devs',
+			team_id:2342,
+			secret_key:'3f8wgugf',
+			auto_accept:true,
+			auto_run:false,
+			division:'newbie',
+			bio:'Isn\'t this a cool bio?',
+			img:'',
+			users:['jgru', 'oiheb', 'oedgg']
+		};
 
-  	callback(state);
-
+	  	callback(state);
 	}
 
 	static updateTeam(params, callback) {
@@ -92,6 +91,18 @@ class Api {
 		]
 
 		callback(tournaments);
+	}
+
+	static getGitHead(callback) {
+		var source = "// this is source code"
+
+		callback(source);
+	}
+
+	static pushToGitHead(src, callback) {
+		// do stuff with src
+
+		callback(true); // no errors
 	}
 }
 

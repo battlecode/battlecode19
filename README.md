@@ -6,7 +6,7 @@ Create a virtual environment.
 `mkvirtualenv web -p python3`
 `workon web`
 `pip3 install -r requirements.txt`
-`cd frontend`
+`cd app`
 `npm install`
 
 ## Database
