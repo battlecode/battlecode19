@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
+import Api from './api';
+
 
 class NLink extends Component {
     render() {
@@ -10,6 +12,17 @@ class NLink extends Component {
 }
 
 class SideBar extends Component {
+    constructor() {
+        super();
+        this.state = {on_team:null};
+    }
+
+    componentDidMount() {
+        Api.getUserTeam(function(e) {
+            this.setState({on_team:(e !== null)});
+        }.bind(this));
+    }
+
     render() {
         return (
             <div className="sidebar" data-color="orange">
@@ -26,9 +39,9 @@ class SideBar extends Component {
                         <br />
                         
                         <NLink to="/team"><i className="pe-7s-users" />Team</NLink>
-                        <NLink to="/ide"><i className="pe-7s-pen" />IDE</NLink>
-                        <NLink to="/scrimmaging"><i className="pe-7s-joy" />Scrimmaging</NLink>
-                        <NLink to="/tournaments"><i className="pe-7s-cup" />Tournaments</NLink>
+                        { this.state.on_team && <NLink to="/ide"><i className="pe-7s-pen" />IDE</NLink> }
+                        { this.state.on_team && <NLink to="/scrimmaging"><i className="pe-7s-joy" />Scrimmaging</NLink> }
+                        { this.state.on_team && <NLink to="/tournaments"><i className="pe-7s-cup" />Tournaments</NLink> }
                     </ul>
                 </div>
             </div>

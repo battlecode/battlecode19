@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom';
+import Api from './api';
 
 class NavBar extends Component {
+    logout() {
+        Api.logout(function(e) {
+            window.location.reload();
+        });
+    }
+
     render() {
         return (
             <nav className="navbar navbar-default navbar-fixed">
@@ -17,10 +25,10 @@ class NavBar extends Component {
                     <div className="collapse navbar-collapse">
                         <ul className="nav navbar-nav navbar-right">
                             <li>
-                                <a href="/account">Account</a>
+                                <NavLink to="/account">Account</NavLink>
                             </li>
                             <li>
-                                <a href="/logout">Log out</a>
+                                <a onClick={ this.logout }>Log out</a>
                             </li>
                         </ul>
                     </div>

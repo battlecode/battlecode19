@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
 import Api from '../api';
+import { NavLink } from 'react-router-dom';
 
 
 class UpdateCard extends Component {
@@ -150,8 +151,19 @@ class DateCard extends UpdateCard {
 }
 
 class Home extends Component {
+    constructor() {
+        super();
+        this.state = {on_team:null};
+    }
+
+    componentDidMount() {
+        Api.getUserTeam(function(e) {
+            this.setState({on_team:(e !== null)});
+        }.bind(this));
+    }
+
     render() {
-        return (
+        if (this.state.on_team) return (
             <div className="content">
                 <div className="container-fluid">
                     <div className="row">
@@ -169,7 +181,26 @@ class Home extends Component {
                     </div>
                 </div>
             </div>
-        );
+        ); else if (this.state.on_team === false) return (
+            <div className="content">
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <div className="card">
+                                <div className="header">
+                                    <h4 className="title">Welcome to Battlecode 2019: Oceana!</h4>
+                                </div>
+                                <div className="content">
+                                    <div className="typo-line">
+                                        <p>To compete in Battlecode, you must be on a team.  To join or create a team, simply click the <NavLink to="/team">Team</NavLink> link in the sidebar.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        ); else return (<div></div>);
     }
 }
 

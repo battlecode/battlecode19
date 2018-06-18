@@ -12,20 +12,25 @@ import Updates from './views/updates';
 import Search from './views/search';
 import Team from './views/team';
 import IDE from './views/ide';
+import Account from './views/account';
+import LoginRegister from './views/login_register';
+
 
 import Footer from './footer';
 import NavBar from './navbar';
 import SideBar from './sidebar';
+import Api from './api';
+
 
 
 class App extends Component {
     render() {
-        return (
+        if (Api.loginCheck()) return (
             <div className="wrapper">
                 <SideBar />
                 <div className="main-panel">
                     <NavBar />
-                    <Switch >
+                    <Switch>
                         <Route exact path="/" component={ Home }/>
                         <Route path="/home" component={ Home }/>
                         <Route path="/docs" component={ Docs }/>
@@ -34,13 +39,14 @@ class App extends Component {
                         <Route path="/search" component={ Search }/>
                         <Route path="/team" component={ Team }/>
                         <Route path="/ide" component={ IDE }/>
+                        <Route path="/account" component={ Account }/>
                         <Route path="/tournaments" component={ Tournaments }/>
                         <Route path="*" component={ NotFound }/>
                     </Switch>
                     <Footer />
                 </div>
             </div>
-        );
+        ); else return <LoginRegister />;
     }
 }
 

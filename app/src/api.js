@@ -50,7 +50,8 @@ class Api {
             users:['jgru', 'oiheb', 'oedgg']
         };
 
-        callback(state);
+        // return null if no team
+        callback(null);
     }
 
     static updateTeam(params, callback) {
@@ -103,6 +104,65 @@ class Api {
         // do stuff with src
 
         callback(true); // no errors
+    }
+
+    static createTeam(team_name, callback) {
+        // create the team
+
+        callback(true);
+    }
+
+    static joinTeam(secret_key, callback) {
+        // join the team
+
+        callback(true);
+    }
+
+    static logout(callback) {
+        // logout
+
+        callback(true);
+    }
+
+    static getUserProfile(callback) {
+        var user = {
+            username:'nanogru',
+            email:'jgru@mit.edu',
+            first:'Josh',
+            last:'Gruenstein',
+            dob:'5/13/1999',
+            bio:'This is a sweg bio.',
+            img:'',
+            country:''
+        }
+
+        callback(user);
+    }
+
+    static updateUser(profile, callback) {
+        // do stuff with profile
+
+        callback(true);
+    }
+
+    static loginCheck() {
+        // ideally this should not require a backend call.
+
+        return true;
+    }
+
+    static login(email, password, callback) {
+        // callback true if success, false otherwise
+
+        callback(false);
+    }
+
+    static register(email, username, password, callback) {
+        callback(true);
+    }
+
+    static forgotPassword(email, callback) {
+        callback(true);
     }
 }
 

@@ -419,7 +419,7 @@ body > .navbar-collapse[data-color="green"]:after {
   background-size: 150% 150%;
 }
 .sidebar[data-color="orange"]:after,
-body > .navbar-collapse[data-color="orange"]:after {
+body > .navbar-collapse[data-color="orange"]:after, .orangeBackground {
   background: #FFA534;
   background: -moz-linear-gradient(top, #FFA534 0%, #ff5221 100%);
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #FFA534), color-stop(100%, #ff5221));
@@ -429,6 +429,7 @@ body > .navbar-collapse[data-color="orange"]:after {
   background: linear-gradient(to bottom, #FFA534 0%, #ff5221 100%);
   background-size: 150% 150%;
 }
+
 .sidebar[data-color="red"]:after,
 body > .navbar-collapse[data-color="red"]:after {
   background: #FB404B;
