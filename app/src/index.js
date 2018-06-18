@@ -15,13 +15,10 @@ import IDE from './views/ide';
 import Account from './views/account';
 import LoginRegister from './views/login_register';
 
-
 import Footer from './footer';
 import NavBar from './navbar';
 import SideBar from './sidebar';
 import Api from './api';
-
-
 
 class App extends Component {
     render() {

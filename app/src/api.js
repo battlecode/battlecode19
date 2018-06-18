@@ -51,7 +51,7 @@ class Api {
         };
 
         // return null if no team
-        callback(null);
+        callback(state);
     }
 
     static updateTeam(params, callback) {
@@ -162,6 +162,18 @@ class Api {
     }
 
     static forgotPassword(email, callback) {
+        callback(true);
+    }
+
+    static fetchTeamCode(callback) {
+        var code = "// hi y'all."
+
+        callback(code);
+    }
+
+    static pushTeamCode(code, callback) {
+        // push code to master
+
         callback(true);
     }
 }
