@@ -5,64 +5,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Battlecode</title>
+    <title>Battlehack West</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,500,500italic,700&" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
     <link href="index.css" rel="stylesheet">
 </head>
 <body>
 
-<div class="header-bar"></div>
-<header>
-    <ul>
-        <li>
-            <button>Login</button>
-        </li>
-
-        <li>
-            <button>Register</button>
-        </li>
-    </ul>
-</header>
-
 <div class="hero">
     <div class="bg-image"></div>
-    <h1>battlecode</h1>
+    <h1>battlehack</h1>
     <div class="holder">
-        <a href="#" class="dev">DEV</a>
-        <a href="#" class="pro">PRO</a>
+        <a href="#" class="register">Register Today!</a>
     </div>
 </div>
 
 <section class="sec-one">
     <div class="left">
         <h2>program <span class="highlight">virtual robots</span> to victory</h2>
-        <p>Battlecode is a programming competition unlike any other, where participants write code that controls an army of virtual robots.  Compete for eternal glory and $50,000 in prizes, or use Battlecode in your classroom to teach programming to the next generation of innovators.</p>
-        <table class="calls"><tr>
-            <td>
-                <i class="fa fa-gamepad"></i><br />
-                <a href="#play">for players</a>
-            </td>
-            <td>
-                <i class="fa fa-graduation-cap"></i><br />
-                <a href="#">for educators</a>
-            </td>
-            <td>
-                <i class="fa fa-users"></i><br />
-                <a href="#sponsor">for recruiters</a>
-            </td>
-        </tr></table>
+        <p>Battlehack is a 24 hour programming competition unlike any other, where participants write code that controls an army of virtual robots.  Hack, code, and strategize your way to prizes and eternal glory in the heart of Silicon Valley.</p>
+        <p style="margin-top:0.5em">All students currently enrolled in a university program are welcome, regardless of programming or AI experience.  Battlehack is a learning experience as well as a competitive one, and a great way buff your skills.</p>
+        
     </div>
     <div class="right">
-        <div class="rect">
-            <div class="head">pro league starts</div>
-            <div class="date">1/08/2019</div>
+        <div class="rect blob">
+            <div class="date">August 25-26<br />Noon to Noon</div>
             <div class="circle"></div>
         </div>
         <div class="rect">
-            <div class="head">dev league starts</div>
-            <div class="date">3/14/2019</div>
-            <div class="circle"></div>
+            Jabil Blue Sky Center<br />
+            6375 San Ignacio Ave<br />
+            San Jose, CA 95119
         </div>
     </div>
 </section>
@@ -72,7 +44,7 @@
 <section class="sec-two" id="play">
     <div class="right">
         <h2>write bots in <span class="highlight">any language</span> to gain territory and defeat the enemy.</h2>
-        <p>Battlecode is a real-time strategy game played by code instead of people.  Teams of virtual robots roam the screen, managing resources and executing different strategies.</p>
+        <p>Battlehack is a real-time strategy game played by code instead of people.  Teams of virtual robots roam the screen, managing resources and executing different strategies.  The game will be announced at the start of the hackathon.</p>
     </div>
     <div class="left">
         <img src="example2.png" />
@@ -81,31 +53,10 @@
 
 <section class="sec-three">
     <div class="left">
-        <p>Compete in the <span class="blue">pro league</span> for a $40,000 prize pool, and get recruited to work at top companies.  Or, compete in the high-school only <span class="red">dev league</span> for a longer season and the chance to impress the world's best colleges.</p>
+        <p>Team up in groups of 1-4, and work together to program your bot.  We'll give you all the food and swag you need, and a place to crash when you need a break.  At the end of the hackathon, your code will be run in a tournament with all teams, and a winner will be declared.</p>
     </div>
     <div class="right">
-        <div class="box">
-            <div class="header dev">DEV</div>
-            <ul class="content">
-                <li>six month season in Fall</li>
-                <li>teams of 2-6</li>
-                <li>interact with colleges</li>
-                <li>$10,000 prize pool</li>
-                <li>open to grades 7-12</li>
-                <button class="cta">learn more</button>
-            </ul>
-        </div>
-        <div class="box">
-            <div class="header pro">PRO</div>
-            <ul class="content">
-                <li>1 month season in January</li>
-                <li>teams of 1-4</li>
-                <li>interact with sponsors</li>
-                <li>$40,000 prize pool</li>
-                <li>open to all</li>
-                <button class="cta">learn more</button>
-            </ul>
-        </div>
+        <iframe width="600" height="250" id="gmap_canvas" src="https://maps.google.com/maps?q=jabil%20blue%20sky%20innovation%20center&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
     </div>
 </section>
 
@@ -117,15 +68,25 @@
         <div id="lang-select">
             <div class="option py">Python</div>
             <div class="option js">Javascript</div>
+            <div class="option java">Java</div>
         </div>
 
     </div>
     <div class="right">
-        <h2>Live sandbox</h2>
-        <button id="play-button">
-            <i class="fa fa-play"></i>
-        </button><br />
-        <canvas id="visualizer"></canvas>
+        <h2 style="margin-bottom:-20px;">FAQ</h2>
+        <div style="padding:50px;font-size:0.8em">
+            <p><b>Battlewhat?  What is this?</b></p>
+            <p>Battlehack is a 24 hour hackathon run by the people behind <a href="https://battlecode.org">Battlecode</a>, a 17 year old MIT AI programming competition.</p>
+            <br />
+            <p><b>What's a hackathon?</b></p>
+            <p>A hackathon is a fancy name for a competition, usually overnight, where a bunch of programmers work in teams writing code.  Battlehack is special because instead of deciding their own projects, everybody works towards the same goal: writing bots for the Battlehack game.</p>
+            <br />
+            <p><b>Can I participate?</b></p>
+            <p>If you're a university student over 18, yes!  Otherwise, unfortunately no.</p>
+            <br />
+            <p><b>How do I apply?</b></p>
+            <p>Click <a href="/register">here</a>!  We'll let you know when decisions come out.</p>
+        </div>
     </div>
 </section>
 
@@ -169,10 +130,11 @@
             <h3>our</h3>
             <h2>sponsors</h2>
         </div>
-        <h4>Battlecode is made possible by the companies that support it.  To learn more about sponsorship, email <a href="mailto:Battlecode Sponsorship <battlecode-sponsorship@mit.edu>">battlecode-sponsorship@mit.edu</a>.</h4>
+        <h4>Battlecode and Battlehack are made possible by the companies that support it.  We're especially grateful to Jabil for providing use of their Blue Sky Center.  To learn more about sponsorship, email <a href="mailto:Battlecode Sponsorship <battlecode-sponsorship@mit.edu>">battlecode-sponsorship@mit.edu</a>.</h4>
     </div>
     <div class="right">
-        <img src="coatue.png" class="plat"><br />
+        <img src="jabil.jpg" height="40px" style="margin-top:20px">
+        <img src="coatue.png" height="40px"><br />
         <img src="deshaw.jpg" class="gold"><br />
         <img src="cruise.png" class="silver"><img src="facebook.jpg" class="silver"><img src="hrt.jpg" class="silver"><img src="twosigma.png" class="silver"><img src="yext.jpg" class="silver"><br />
         <img src="isee.png" class="bronze"><img src="oracle.png" class="bronze">
@@ -189,13 +151,13 @@
         <div class="right">
             <div class="col">
                 <h3>programs</h3>
-                <a href="#">battlecode pro</a><br />
-                <a href="#">battlecode dev</a>
+                <a href="https://battlecode.org">battlecode</a><br />
+                <a href="https://hack.battlecode.org">battlehack</a>
             </div>
             <div class="col">
                 <h3>about</h3>
-                <a href="#">blog</a><br />
-                <a href="#">terms & policy</a>
+                <a href="https://blog.battlecode.org">blog</a><br />
+                <a href="https://blog.battlecode.org/terms">terms & policy</a>
             </div>
             <div class="col">
                 <h3>contact</h3>

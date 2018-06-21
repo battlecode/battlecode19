@@ -44,6 +44,37 @@ function turn() {
 }
 `;
 
+var javaCode = `// use normal language features such as imports
+import java.util.Random;
+import org.battlecode.bc;
+
+// class contains all robot code
+public class Robot extends BattleRobot {
+    // called each turn in the game.
+    public Move getTurn() {
+        Random rand;
+
+        // pick a random direction not off map
+        int dir = 0;
+        do dir = rand.nextInt(4);
+        while (bc.inDirection(dir) == bc.OFF_MAP);
+
+        // if the space is free, move to it.
+        if (bc.inDirection(dir) == bc.FREE)
+            return bc.move(dir);
+
+        // otherwise, get the robot in that space
+        BattleRobot robot = bc.getRobot(bc.inDirection(dir));
+
+        // if the robot is not friendly, attack
+        if (robot.getTeam() != getTeam())
+            return bc.attack(dir);
+
+    }
+}
+`;
+
+
 var lang = "python";
 var langSelect = Array.from(document.getElementById("lang-select").children);
 langSelect.forEach(function(child) {
@@ -62,12 +93,11 @@ langSelect.forEach(function(child) {
             lang = "javascript";
             editor.session.setMode("ace/mode/javascript");
             editor.setValue(jsCode, -1);
+        } else if (child.innerText === "Java") {
+            lang = "java";
+            editor.session.setMode("ace/mode/java");
+            editor.setValue(javaCode, -1);
         }
+
     });
 }); langSelect[0].click();
-
-document.getElementById("play-button").addEventListener("click", function() {
-    var code = editor.getValue();
-
-   // play the game!
-});

@@ -69,39 +69,7 @@ section p .red {
     color:#FF2525;
 }
 
-/*************** HEADER ****************/
-
-header {
-    position:fixed;
-    width:100%;
-    top:0px;
-    z-index: 3;
-}
-
-.header-bar {
-    position:fixed;
-    top:0px;
-    z-index:1;
-    width:275px;
-    padding:0px;
-    margin:0px;
-    right:0px;
-
-    border-left: 50px solid transparent;
-    border-top: 75px solid #d84315;
-}
-
-header ul {
-    list-style-type:none;
-    font-size:1em;
-    margin:0;
-    padding:0;
-    overflow:hidden;
-    width:100%;
-    color:#fff;
-}
-
-header button, .box button {
+.box button {
     background: none;
     color: inherit;
     padding: 0;
@@ -140,7 +108,6 @@ header button, .box button {
 }
 
 .hero h1 {
-    margin-top:100px;
     font-size:5em;
 
     margin:100px auto;
@@ -150,6 +117,7 @@ header button, .box button {
     -o-transform: skew(-10deg);
     width:400px;
     padding:0.25em;
+    margin-bottom:80px;
 
     box-shadow: 1px 1px 10px #000;
 
@@ -161,45 +129,26 @@ header button, .box button {
     margin: 0 auto;
 }
 
-.hero .holder a {
-    width:100px;
-    height:100px;
-    border-radius: 50px;
-    vertical-align: middle;
+.hero .holder .register {
+    padding:15px 30px;
+    border-radius: 3px;
     text-align: center;
-    line-height: 100px;
     font-weight:700;
     font-size: 30px;
 
     box-shadow: 0px 0px 8px #000;
-    margin: -50px auto;
     -webkit-transition: box-shadow 0.1s;
     text-decoration: none;
+    background-color: #2b39f3;
     color:#fff;
 }
 
-.hero .holder a:hover {
+.hero .holder .register:hover {
     box-shadow: 0px 0px 5px #000;
     color:#eee;
-}
-
-.hero .dev {
-    float: left;
-    background-color: #ff2525;
-}
-
-.hero .dev:hover {
-    background-color: #f02424;
-}
-
-.hero .pro {
-    float:right;
-    background-color: #2b39f3;
-}
-
-.hero .pro:hover {
     background-color: #2937e6;
 }
+
 
 /************** SEC ONE ***************/
 
@@ -219,26 +168,38 @@ header button, .box button {
 .sec-one .right .rect {
     width:200px;
     height:75px;
+    margin: 0 auto;
+    font-weight:300;
+    font-size:1.3em;
+
+    margin-top:60px;
+}
+
+.sec-one .right .rect.blob {
     background-color:#d84315;
     margin: 0 auto;
     text-align: center;
     color:#fff;
     vertical-align: middle;
-    font-size:2em;
+    font-size:1.5em;
+    text-align: center;
+    font-size:1.5em;
+
+
 
     margin-top:60px;
 }
 
-.sec-one .right .head {
-    font-size:0.625em;
-    padding-top:0.35em;
+
+.sec-one .right .date {
+    padding-top:0.4em;
 }
 
 .sec-one .rect .circle {
     width:100px;
     height:100px;
     background-color:#d84315;
-    margin: -80px auto;
+    margin: -78px auto;
     border-radius: 50px;
 }
 
@@ -360,14 +321,14 @@ header button, .box button {
 
 .sec-four #lang-select .option {
     float:left;
-    width: calc(50% - 0.5px);
+    width: calc(33.333% - 0.7px);
     height:100%;
     text-align:center;
     padding:0px;
     cursor:pointer;
 }
 
-.sec-four #lang-select .option.py {
+.sec-four #lang-select .option.py, .sec-four #lang-select .option.js {
     border-right: 1px solid rgb(214,68,35);
 }
 
@@ -590,6 +551,11 @@ header button, .box button {
     height:20px;
 }
 
+.sec-six img.copper {
+    height:15px;
+}
+
+
 /************** FOOTER *****************/
 
 footer {
@@ -665,8 +631,8 @@ footer .content .left img {
         margin-top:475px;
     }
 
-    .sec-one .rect .circle {
-        margin-top:-75px;
+    .sec-one .rect .date {
+        font-size:1.25em;
     }
 
     .sec-one .right .head {
