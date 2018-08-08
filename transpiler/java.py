@@ -12,7 +12,7 @@ var robot = {'robot':new robot.MyRobot()};
 
 WORKSPACE = "java/workspace"
 
-def compile(source):
+def compile(sources):
     p = None
     id = math.floor(random()*1000000)
     dir = WORKSPACE + "/" + str(id)
@@ -25,11 +25,12 @@ def compile(source):
         os.makedirs(dir)
 
     shutil.copyfile("java/pom.xml", dir + "/pom.xml")
-    shutil.copytree("java/src", dir + "/src")
+    os.makedirs(dir + "/src/main/java/")
 
-    # Write source to working directory.
-    with open(dir + "/src/main/java/MyRobot.java", mode="w") as f:
-        f.write(source)
+    for source in sources:
+        # Write sources to working directory.
+        with open(dir + "/src/main/java/" + source.filename, mode="w") as f:
+            f.write(source.source)
 
     # Launch compiler.
     p = subprocess.Popen(['mvn', 'generate-sources'],
@@ -92,17 +93,3 @@ def compile(source):
         js += java_js_postfix
 
     return {'success':success, 'error':errors, 'js':js, 'map':source_map}
-
-
-example = """
-package robot;
-
-public class MyRobot extends BCAbstractRobot {
-    public Action turn() {
-        return move(0);
-    }
-}
-"""
-{"lang":"js","source":"package robot; public class MyRobot extends BCAbstractRobot { public Action turn() { return move(0); } } "}
-
-
