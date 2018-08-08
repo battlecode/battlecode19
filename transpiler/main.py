@@ -52,7 +52,7 @@ def compile():
         else:
             raise InvalidUsage("Must provide list of JSON sources for Java target.", status_code=422)
         
-	return jsonify(java.compile(args['src']))
+    return jsonify(java.compile(args['src']))
 
     elif args['lang'] == 'python':
         return jsonify(python.compile(str(args['src'])))
