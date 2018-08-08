@@ -5,8 +5,8 @@ function inBrowser() {
     return (typeof window !== "undefined");
 }
 
-if (!inBrowser()) var {VM} = require('vm2');
-else var VM = require('vm');
+//if (!inBrowser()) var VM = require('vm2');
+var VM = require('vm');
 
 // Get some sorta time in millis.
 function wallClock() {

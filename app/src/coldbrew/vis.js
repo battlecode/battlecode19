@@ -8,14 +8,15 @@ class Visualizer {
         this.map = map;
 
         this.rounds = {};
-        this.round = null;
-        this.nextRound = null;
+        this.round = 0;
+        this.nextRound = 0;
 
         this.BLOCK_SIZE = 10;
         this.PAD_INIT = 100;
         this.PAD = 1;
         this.ROBOT_MAX_HEALTH = 64;
         this.movePercent = 0;
+        this.running = true;
 
         this.infoBox = null;
 
@@ -63,6 +64,30 @@ class Visualizer {
 
         this.canvas.addEventListener('mouseup',function(e){
             if (!this.dragged) {
+                var original = JSON.parse(JSON.stringify(this.dragStart));
+                var r = Math.sqrt(Math.pow(original.x-47,2) + Math.pow(original.y-this.canvas.height+25,2));
+                if (r <= 15) {
+                    this.running = !this.running;
+                    this.dragStart = null;
+                    this.render();
+                    return
+                } else if (!this.running) {
+                    r = Math.sqrt(Math.pow(original.x-20,2) + Math.pow(original.y-this.canvas.height+25,2));
+                    if (r <= 10) {
+                        if ((this.round - 1) in this.rounds) this.nextRound = this.round - 1;
+                        this.dragStart = null;
+                        this.render();
+                        return
+                    }
+                    r = Math.sqrt(Math.pow(original.x-74,2) + Math.pow(original.y-this.canvas.height+25,2));
+                    if (r <= 10) {
+                        if ((this.round + 1) in this.rounds) this.nextRound = this.round + 1;
+                        this.dragStart = null;
+                        this.render();
+                        return
+                    }
+                }
+
                 this.dragStart.x -= (this.canvas.width/2 - this.pos[0]*this.BLOCK_SIZE*this.width/2);
                 this.dragStart.y -= (this.canvas.height/2 - this.pos[0]*this.BLOCK_SIZE*this.height/2);
 
@@ -94,12 +119,11 @@ class Visualizer {
         if (x == null || (this.infoBox && this.infoBox.x == x && this.infoBox.y == y) || this.map[x + y*this.width]) {
             this.infoBox = null;
         } else this.infoBox = {x:x, y:y, content:null};
-        this.updateInfoBox();
         this.render();
         console.log(this.infoBox);
     }
 
-    updateInfoBox() {
+    renderInfoBox() {
         if (this.infoBox == null) return;
         var robots = this.rounds[this.round].robots;
 
@@ -108,6 +132,91 @@ class Visualizer {
             if (robots[i].x == this.infoBox.x && robots[i].y == this.infoBox.y)
                 this.infoBox.content = robots[i];
         }
+
+        this.ctx.beginPath();
+
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+        this.ctx.fillStyle = "#000";
+        this.ctx.strokeStyle = "#fff"
+        this.ctx.font = "15px Roboto Mono, monospace";
+        this.ctx.textAlign = "left";
+
+        this.ctx.rect(0,0,155,this.infoBox.content?98:37);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.fillStyle = "#00ff00";
+
+        this.ctx.fillText("Pos: [" + this.infoBox.x + ", " + this.infoBox.y + "]", 9, 26); 
+        if (this.infoBox.content) {
+            this.ctx.fillText("Robot ID: " + this.infoBox.content.id, 9, 46);
+            this.ctx.fillText("Health: " + this.infoBox.content.health, 9, 66);
+            this.ctx.fillText("Signal: " + this.infoBox.content.signal, 9, 86);
+        }
+        this.ctx.fill();
+    }
+
+    renderControlBox() {
+        this.ctx.beginPath();
+
+        this.ctx.fillStyle = "#000";
+        this.ctx.strokeStyle = "#fff"
+        this.ctx.font = "25px Roboto Mono, monospace";
+        this.ctx.textAlign = "center";
+
+        var box_width = 94;
+        var box_height = 50;
+
+        this.ctx.rect(0,this.canvas.height-box_height,box_width,box_height);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.rect(this.canvas.width-box_width,this.canvas.height-box_height,box_width,box_height);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.fillStyle = "#fff";
+
+        this.ctx.beginPath();
+        this.ctx.fillText(this.round,this.canvas.width-box_width/2,this.canvas.height-box_height/2+8);
+        this.ctx.fill();
+        
+        this.ctx.beginPath();
+        this.ctx.arc(47,this.canvas.height - 25, 15, 0, 2*Math.PI);
+        this.ctx.fill();
+
+        if (!this.running) {
+            if (this.round - 1 in this.rounds) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(25, this.canvas.height - 15);
+                this.ctx.lineTo(25, this.canvas.height - 50 + 15);
+                this.ctx.lineTo(15, this.canvas.height - 25);
+                this.ctx.fill();
+            }
+
+            if (this.round + 1 in this.rounds) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(69, this.canvas.height - 15);
+                this.ctx.lineTo(69, this.canvas.height - 50 + 15);
+                this.ctx.lineTo(79, this.canvas.height - 25);
+                this.ctx.fill();
+            }
+
+            this.ctx.fillStyle = "#000"
+            this.ctx.beginPath();
+            this.ctx.moveTo(43, this.canvas.height-32);
+            this.ctx.lineTo(43, this.canvas.height-18);
+            this.ctx.lineTo(54, this.canvas.height-25);
+            this.ctx.fill();
+        } else {
+            this.ctx.fillStyle = "#000"
+            this.ctx.fillRect(40,this.canvas.height-32,14,14);
+        }
+
     }
 
     gameOver(reason) {
@@ -119,7 +228,7 @@ class Visualizer {
     }
 
     stopped() {
-        return false;
+        return !this.running;
     }
 
     handleScroll(e) {
@@ -178,8 +287,11 @@ class Visualizer {
         // Restore the context.
         this.ctx.restore();
 
-        // Update the info box
-        this.updateInfoBox();
+        // Render the info box.
+        this.renderInfoBox();
+
+        // Render the control box.
+        this.renderControlBox();
 
         // Re-render if necessary.
         if (need_refresh) setTimeout(this.render.bind(this), time_to_render, time);
@@ -225,7 +337,7 @@ class Visualizer {
         var nexi = this.rounds[this.nextRound].nexi;
 
         var past_robots = [];
-        if (this.round == this.nextRound - 1 && this.round in this.rounds) {
+        if (this.round in this.rounds) {
             past_robots = this.rounds[this.round].robots;
         } else this.movePercent = 1;
 
