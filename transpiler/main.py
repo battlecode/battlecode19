@@ -43,7 +43,7 @@ def compile():
     # Intake a list of files rather than a source for Java
     if args['lang'] == 'java':
         if isinstance(args['src'], (list,)):
-            for src in args['src]:
+            for src in args['src']:
                 if isinstance(src, dict) and 'source' in src and 'filename' in src:
                     src['source'] = str(src['source'])
                     src['filename'] = str(src['filename']).split('/')[0]
