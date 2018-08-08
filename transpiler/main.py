@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import java, js, python
+import java, python
 
 app = Flask(__name__)
 
@@ -53,9 +53,6 @@ def compile():
             raise InvalidUsage("Must provide list of JSON sources for Java target.", status_code=422)
         
 	return jsonify(java.compile(args['src']))
-
-    elif args['lang'] == 'js':
-        return jsonify(js.compile(str(args['src'])))
 
     elif args['lang'] == 'python':
         return jsonify(python.compile(str(args['src'])))
