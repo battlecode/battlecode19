@@ -4,10 +4,10 @@ class Compiler {
 static JS(code) {
 return `
 let bc = {
-	'NORTH':     2,
-	'NORTHEAST': 1,
-	'EAST':      0,
-	'SOUTHEAST': 7,
+    'NORTH':     2,
+    'NORTHEAST': 1,
+    'EAST':      0,
+    'SOUTHEAST': 7,
     'SOUTH':     6,
     'SOUTHWEST': 5,
     'WEST':      4,
@@ -18,7 +18,7 @@ let bc = {
 
 class BCAbstractRobot {
     constructor() {
-    	// Internal robot state representation
+        // Internal robot state representation
         this._bc_game_state = null;
         this._bc_signal = null;
 
@@ -38,11 +38,11 @@ class BCAbstractRobot {
 
     // Action template
     _bc_action(dir, action) {
-    	return {
-        	'signal': this.signal,
-        	'logs': this._bc_logs,
-        	'dir': dir,
-        	'action': action
+        return {
+            'signal': this.signal,
+            'logs': this._bc_logs,
+            'dir': dir,
+            'action': action
         };
     }
     
@@ -53,42 +53,42 @@ class BCAbstractRobot {
 
     // Get robot of a given ID
     getRobot(id) {
-    	if (id <= 0) return null;
-    	for (var i=0; i<this._bc_game_state.visible.length; i++) {
-    		if (this._bc_game_state.visible[i].id === id) {
-    			return this._bc_game_state.visible[i];
-    		}
-    	} return null;
+        if (id <= 0) return null;
+        for (var i=0; i<this._bc_game_state.visible.length; i++) {
+            if (this._bc_game_state.visible[i].id === id) {
+                return this._bc_game_state.visible[i];
+            }
+        } return null;
     }
 
     // Get current robot vision.
     getVisibleMap() {
-    	return this._bc_game_state.shadow;
+        return this._bc_game_state.shadow;
     }
 
     // Get a list of robots visible to you.
     getVisibleRobots() {
-    	return this._bc_game_state.visible;
+        return this._bc_game_state.visible;
     }
 
     // Get me.
     me() {
-    	return getRobot(this.getVision()[3][3]);
+        return getRobot(this.getVision()[3][3]);
     }
 
     // Get the square dx, dy away.
     getRelativePos(dX, dY) {
-    	if (dX < -3 || dX > 3 || dY < -3 || dY > 3) return null;
-    	var vis = getVision()[dY][dX];
+        if (dX < -3 || dX > 3 || dY < -3 || dY > 3) return null;
+        var vis = getVision()[dY][dX];
 
-    	if (vis > 0) return getRobot(vis);
-    	else return vis;
+        if (vis > 0) return getRobot(vis);
+        else return vis;
     }
 
     // If in browser, direct print, otherwise put in message.
     log(message) {
-    	if (this._bc_in_browser) _bc_browser_log(this.id, message);
-    	else this._bc_logs.push(message);
+        if (this._bc_in_browser) _bc_browser_log(this.id, message);
+        else this._bc_logs.push(message);
     }
 
     // Move in a direction
@@ -105,6 +105,7 @@ class BCAbstractRobot {
         return null;
     }
 }
+
 
 ${code}
 
