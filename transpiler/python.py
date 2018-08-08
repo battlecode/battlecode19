@@ -5,28 +5,6 @@ from time import sleep
 import math
 import shutil
 
-python_prefix = """
-from random import random
-
-class BCAbstractRobot:
-    def __init__(self):
-        self.game_state = None
-
-    def _do_turn(self, game_state):
-        self.game_state = game_state
-        return self.turn()
-
-    def move(self):
-        return None
-
-    def turn(self):
-        return None
-"""
-
-python_postfix = """
-robot = MyRobot()
-"""
-
 WORKSPACE = "python_workspace"
 
 def compile(source, min=True):
@@ -41,10 +19,8 @@ def compile(source, min=True):
     if not os.path.exists(dir):
         os.makedirs(dir)
 
-    new_source = python_prefix + source + python_postfix
-
     with open(dir+"/robot.py", mode="w") as f:
-        f.write(new_source)
+        f.write(source)
 
     print(dir)
 
@@ -91,11 +67,3 @@ def compile(source, min=True):
     shutil.rmtree(dir)
 
     return {'success':success, 'error':errors, 'js':js, 'map':source_map}
-
-
-example = """
-class MyRobot(BCAbstractRobot):
-    def turn(self):
-        dir = int(random()*4)
-        self.move(dir)
-"""
