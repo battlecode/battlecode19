@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+<body>
+    <script src="./lib/caja.js"></script>
+    <script src="./lib/FunctionPromise.js" type="text/javascript"></script>
+    <script src="./lib/pypyjs.js" type="text/javascript"></script>
+
+    <script src="game.js"></script>
+    <script src="runtime.js"></script>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+
+    var game = new Game(32,345345,20,true);
+    var canvas = document.getElementById("canvas");
+
+    var coldbrew = new Coldbrew(canvas,16);
+
+    var python_code = `
+from random import random
+
+def turn():
+    dir = int(random()*4)
+    while bc.inDirection(dir) is None:
+        dir = int(random()*4)
+
+    if bc.inDirection(dir) > 0:
+        return bc.attack(dir)
+    else:
+        return bc.move(dir)`
+    var js_code = `
+function turn() {
+    var dir = Math.floor(Math.random()*4);
+    
+    return bc.move(dir);
+}
+`;
+    coldbrew.onInit(function() {
+        var red = {'code':js_code,'lang':'javascript'};
+        var blue = {'code':python_code,'lang':'python'};
+
+        coldbrew.playGame(red,red,game,function() {
+            alert("Starting now...");
+        }, function() {
+            alert("Game over!");
+        });
+    });
+
+    </script>
+</body>
+</html>

@@ -7,3 +7,9 @@ battlecode/static/bundles/*
 *migrations*
 .coverage
 html-cov/
+node_modules/
+gross/
+lib/
+*/target/*
+*/staging/*
+*/.jsweet/

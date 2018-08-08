@@ -2,6 +2,8 @@
 
 import React, { Component } from 'react';
 import Api from '../api';
+import Coldbrew from '../coldbrew/runtime';
+import Compiler from '../coldbrew/compiler'
 
 var firebase_config = {
     apiKey: "AIzaSyBT7Mu9Bw6UH0Tr-mKXMwhKjdnLppdjvA4",
@@ -18,7 +20,7 @@ window.firebase.initializeApp(firebase_config);
 class IDE extends Component {
     constructor() {
         super();
-        this.state = {menu:false, theater:false};
+        this.state = {menu:false, theater:false, logs:[[],[]]};
 
         this.pull = this.pull.bind(this);
         this.push = this.push.bind(this);
@@ -67,10 +69,22 @@ class IDE extends Component {
 
     run() {
         this.setState({theater:true});
+
+        var c = new Coldbrew("viewer");
+
+        var code = Compiler.JS(this.firepad.getText());
+
+        c.playGame(code,code, function(logs) {
+            this.setState({logs:logs});
+        }.bind(this));
     }
 
     componentDidUpdate() {
         this.editor.resize();
+        var element = document.getElementById("redConsole");
+        element.scrollTop = element.scrollHeight;
+        element = document.getElementById("blueConsole");
+        element.scrollTop = element.scrollHeight;
     }
 
     exitTheater() {
@@ -146,14 +160,14 @@ class IDE extends Component {
                         borderRadius:"20px"
                     }} onClick={ this.exitTheater }/>
 
-                    <div id="viewer" style={{
+                    <canvas id="viewer" style={{
                         position:"absolute",
                         top:"20px",
                         left:"20px",
                         width:"calc(100% - 40px)",
                         height:"60%",
                         border:"1px solid #ddd"
-                    }}></div>
+                    }}></canvas>
 
                     <div id="console" style={{
                         position:"absolute",
@@ -163,7 +177,8 @@ class IDE extends Component {
                         height:"calc(40% - 50px)",
                         backgroundColor:"#333",
                         color:"#fff",
-                        fontFamily:"Roboto Mono, monospace"
+                        fontFamily:"Roboto Mono, monospace",
+                        fontSize:"0.9em"
                     }}>
                         <div id="redConsole" style={{
                             width:"calc(50% - 3px)",
@@ -175,6 +190,11 @@ class IDE extends Component {
                             padding:"10px",
                             overflow:"scroll"
                         }}>
+                            { this.state.logs[0].map(log => 
+                                <span key={ log.timestamp }>
+                                    <span style={{color:log.type==="error"?"red":"green"}}>[Robot { log.robot }{log.type==='error'?' Error':''}]</span> {log.message}
+                                <br /></span>
+                            )}
                         </div>
                         <div id="blueConsole" style={{
                             width:"calc(50% - 3px)",
@@ -185,7 +205,13 @@ class IDE extends Component {
                             left:"50%",
                             padding:"10px",
                             overflow:"scroll"
-                        }}></div>
+                        }}>
+                            { this.state.logs[1].map(log => 
+                                <span key={ log.timestamp }>
+                                    <span style={{color:log.type==="error"?"red":"green"}}>[Robot { log.robot }{log.type==='error'?' Error':''}]</span> {log.message}
+                                <br /></span>
+                            )}
+                        </div>
                     </div>
                 </div>
 
