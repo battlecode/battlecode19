@@ -6,10 +6,6 @@ import math
 import shutil
 import sys
 
-java_js_postfix = """
-var robot = {'robot':new robot.MyRobot()};
-"""
-
 WORKSPACE = "java/workspace"
 
 def compile(sources):
@@ -88,8 +84,5 @@ def compile(sources):
 
     # Cleanup working dir.
     shutil.rmtree(dir)
-
-    if success:
-        js += java_js_postfix
 
     return {'success':success, 'error':errors, 'js':js, 'map':source_map}
