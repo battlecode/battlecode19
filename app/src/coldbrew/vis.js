@@ -116,20 +116,19 @@ class Visualizer {
     }
 
     clickBlock(x, y) {
-        if (x == null || (this.infoBox && this.infoBox.x == x && this.infoBox.y == y) || this.map[x + y*this.width]) {
+        if (x === null || (this.infoBox && this.infoBox.x === x && this.infoBox.y === y) || this.map[x + y*this.width]) {
             this.infoBox = null;
         } else this.infoBox = {x:x, y:y, content:null};
         this.render();
-        console.log(this.infoBox);
     }
 
     renderInfoBox() {
-        if (this.infoBox == null) return;
+        if (this.infoBox === null) return;
         var robots = this.rounds[this.round].robots;
 
         this.infoBox.content = null;
         for (var i=0; i<robots.length; i++) {
-            if (robots[i].x == this.infoBox.x && robots[i].y == this.infoBox.y)
+            if (robots[i].x === this.infoBox.x && robots[i].y === this.infoBox.y)
                 this.infoBox.content = robots[i];
         }
 
@@ -307,7 +306,7 @@ class Visualizer {
         for (var c=0; c<this.width; c++) {
             for (var r=0; r<this.height; r++) {
                 if (this.map[this.width*r + c]) continue;
-                if (this.infoBox != null && this.infoBox.x == c && this.infoBox.y == r) continue;
+                if (this.infoBox != null && this.infoBox.x === c && this.infoBox.y === r) continue;
                 this.ctx.rect(c*this.BLOCK_SIZE + this.PAD,
                               r*this.BLOCK_SIZE + this.PAD,
                               this.BLOCK_SIZE - 2*this.PAD,
@@ -349,21 +348,23 @@ class Visualizer {
         this.ctx.strokeStyle = "#fd5f00";
         this.ctx.lineWidth = 0.5;
 
+        var i = 0;
+
         // For each nexus list
         for (var n=0; n<nexi.length; n++) {
             var coords = [];
             
             // For each id in the nexus, find the coords
-            for (var i=0; i<nexi[n].length; i++) {
+            for (i=0; i<nexi[n].length; i++) {
                 for (var r=0; r<robots.length; r++) {
-                    if (robots[r].id == nexi[n][i]) {
+                    if (robots[r].id === nexi[n][i]) {
                         coords.push({x:robots[r].x, y:robots[r].y});
                         break;
                     }
                 }
             }
 
-            for (var i=0; i<coords.length-1; i++) {
+            for (i=0; i<coords.length-1; i++) {
                 this.ctx.moveTo(this.BLOCK_SIZE*(coords[i].x+0.5),
                                 this.BLOCK_SIZE*(coords[i].y+0.5));
                 this.ctx.lineTo(this.BLOCK_SIZE*(coords[i+1].x+0.5),
@@ -380,12 +381,12 @@ class Visualizer {
         this.ctx.shadowColor = '#333';
 
         // Draw robots
-        for (var i=0; i<robots.length; i++) {
+        for (i=0; i<robots.length; i++) {
             var robot = robots[i];
 
             var past_robot = robot;
             for (var k=0; k<past_robots.length; k++)
-                if (robot.id == past_robots[k].id)
+                if (robot.id === past_robots[k].id)
                     past_robot = past_robots[k];
 
             var x = (1-this.movePercent)*past_robot.x + this.movePercent*robot.x;
@@ -393,7 +394,7 @@ class Visualizer {
             var h = (1-this.movePercent)*past_robot.health + this.movePercent*robot.health;
 
             this.ctx.beginPath();
-            this.ctx.fillStyle = robot.team==0 ? "#DD0048":"blue";
+            this.ctx.fillStyle = robot.team === 0 ? "#DD0048":"blue";
             this.ctx.arc((x + 0.5)*this.BLOCK_SIZE,
                          (y + 0.5)*this.BLOCK_SIZE,
                          0.5*(this.BLOCK_SIZE-5*this.PAD)*(0.2 + 0.8*h/this.ROBOT_MAX_HEALTH),

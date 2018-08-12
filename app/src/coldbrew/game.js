@@ -64,7 +64,7 @@ function Game(map_size, seed, num_robots, debug) {
     }
 
     var to_create = this.makeMap(this.shadow, seed, num_robots); // list of robots
-    for (var i=0; i<to_create.length; i++) {
+    for (i=0; i<to_create.length; i++) {
         this.createItem(to_create[i].x, to_create[i].y, to_create[i].team);
     }
 }
@@ -88,7 +88,7 @@ Game.prototype.makeMap = function(x, seed, players) {
     for (var r=0; r<x.length/2; r++) {
         for (var c=0; c<x[0].length; c++) {
             x[r][c] = x[x.length-1-r][x[0].length-1-c] = random() > 0.8 ? -1 : 0;
-            if (random() < player_odd && x[r][c] != -1) {
+            if (random() < player_odd && x[r][c] !== -1) {
                 var team = random() > 0.5 ? 1 : 0;
                 ret_players.push({ team: team, x: c, y: r });
                 ret_players.push({ team: 1-team, x:x[0].length-1-c, y:x.length-1-r });
@@ -104,7 +104,7 @@ Game.prototype.viewerMap = function() {
 
     for (var r=0; r<this.shadow.length; r++) {
         for (var c=0; c<this.shadow[0].length; c++) {
-            map.push(this.shadow[r][c] == -1);
+            map.push(this.shadow[r][c] === -1);
         }
     }
 
@@ -144,7 +144,7 @@ Game.prototype.createItem = function(x,y,team) {
     robot.signal      = 0;
     this.init_queue++;
 
-    if (this.shadow[robot.y][robot.x] == 0) this.shadow[robot.y][robot.x] = robot.id;
+    if (this.shadow[robot.y][robot.x] === 0) this.shadow[robot.y][robot.x] = robot.id;
     this.robots.push(robot);
     
     return robot;
@@ -163,9 +163,9 @@ Game.prototype.getItem = function(item_id) {
 
     let i = 0;
     do robot = this.robots[i++];
-    while (robot.id != item_id && i < this.robots.length);
+    while (robot.id !== item_id && i < this.robots.length);
 
-    if (item_id != robot.id || i > this.robots.length) return null;
+    if (item_id !== robot.id || i > this.robots.length) return null;
 
     return robot;
 }
@@ -178,7 +178,7 @@ Game.prototype.getItem = function(item_id) {
  */
 Game.prototype.robotError = function(message, robot) {
     if (this.debug) {
-        let team = robot.team==0?"red":"blue";
+        let team = robot.team===0?"red":"blue";
         if (inBrowser()) console.log("%c"+"[Robot "+robot.id+" Error] "
                                    + ("%c"+message),"color:"+team+";",
                                      "color:black;");
@@ -186,6 +186,28 @@ Game.prototype.robotError = function(message, robot) {
         // XXX FIX XXX              + "[Robot "+robot.id+" Error]\033[0m " + message)
     } else this.logs[robot.team].push({
         'type':'error',
+        'message':message,
+        'robot':robot.id,
+        'timestamp':wallClock()
+    });
+}
+
+/**
+ * Pretty print a log message regarding a robot.
+ *
+ * @param {string} message - The message.
+ * @param {Object} robot - The robot id to print for.
+ */
+Game.prototype.robotLog = function(message, robot) {
+    if (this.debug) {
+        let team = robot.team===0?"red":"blue";
+        if (inBrowser()) console.log("%c"+"[Robot "+robot.id+" Log] "
+                                   + ("%c"+message),"color:"+team+";",
+                                     "color:black;");
+        //else console.log((robot.team==0?"\033[31m":"\033[34m")
+        // XXX FIX XXX              + "[Robot "+robot.id+" Error]\033[0m " + message)
+    } else this.logs[robot.team].push({
+        'type':'log',
         'message':message,
         'robot':robot.id,
         'timestamp':wallClock()
@@ -206,18 +228,18 @@ Game.prototype.isOver = function() {
     var nulls = [0,0];
     for (var i=0; i<this.robots.length; i++) {
         var robot = this.robots[i];
-        if (robot.initialized && robot.hook != null) {
-            if (robot.team == 0) red += robot.health;
+        if (robot.initialized && robot.hook !== null) {
+            if (robot.team === 0) red += robot.health;
             else blue += robot.health;
         } else nulls[robot.team]++;
     }
 
-    if (red == 0) {
+    if (red === 0) {
         this.winner = 1;
         this.win_condition = 0;
         if (this.debug) console.log("Game over, blue won by annihilation.");
         return true;
-    } else if (blue == 0) {
+    } else if (blue === 0) {
         this.winner = 0;
         this.win_condition = 0;
         if (this.debug) console.log("Game over, red won by annihilation.");
@@ -233,7 +255,7 @@ Game.prototype.isOver = function() {
         } else {
             this.win_condition = 2;
             this.winner = +(Math.random() > 0.5);
-            if (this.debug) console.log("Game over, " + (this.winner==0?"red":"blue") + " won by random draw.");
+            if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw.");
         }
 
         return true;
@@ -309,14 +331,14 @@ Game.prototype.getVisible = function(robot) {
  */
 Game.prototype._newPosCalc = function(x, y, dir) {
     var new_pos = [x, y];
-    if (dir == 0) new_pos[0] += 1;
-    else if (dir == 1) { new_pos[0] += 1; new_pos[1] += 1; }
-    else if (dir == 2) new_pos[1] += 1;
-    else if (dir == 3) { new_pos[1] += 1; new_pos[0] -= 1; }
-    else if (dir == 4) new_pos[0] -= 1;
-    else if (dir == 5) { new_pos[1] -= 1; new_pos[0] -= 1; }
-    else if (dir == 6) new_pos[1] -= 1;
-    else if (dir == 7) { new_pos[0] += 1; new_pos[1] -= 1; }
+    if (dir === 0) new_pos[0] += 1;
+    else if (dir === 1) { new_pos[0] += 1; new_pos[1] += 1; }
+    else if (dir === 2) new_pos[1] += 1;
+    else if (dir === 3) { new_pos[1] += 1; new_pos[0] -= 1; }
+    else if (dir === 4) new_pos[0] -= 1;
+    else if (dir === 5) { new_pos[1] -= 1; new_pos[0] -= 1; }
+    else if (dir === 6) new_pos[1] -= 1;
+    else if (dir === 7) { new_pos[0] += 1; new_pos[1] -= 1; }
     else return null;
 
     // wrap position
@@ -339,7 +361,7 @@ Game.prototype._applyNexi = function() {
         for (var c=0; r<this.shadow[0].length; r++) {
             // check if the square is a nexus.
             var o = this.shadow[r][c];
-            if (o == -1) continue;
+            if (o === -1) continue;
 
             var sides = [
                 this.shadow[this._overflow(r-1)][c],
@@ -356,7 +378,7 @@ Game.prototype._applyNexi = function() {
             ];
 
             var corners_good = true;
-            for (var i=0; i<4; i++) corners_good &= (corners[i] == 0);
+            for (var i=0; i<4; i++) corners_good &= (corners[i] === 0);
 
             if (corners_good) {
                 // make sure that all sides are robots on same team.
@@ -364,17 +386,17 @@ Game.prototype._applyNexi = function() {
                 for (var i=0; i<4; i++) if (sides[i] > 0) 
                     teams[this.getItem(sides[i]).team] += 1;
                 
-                if (teams[0] == 4 || teams[1] == 4) { // all red or blue
+                if (teams[0] === 4 || teams[1] === 4) { // all red or blue
                     this.nexi.push(sides);
 
-                    var side_team = (teams[0] == 4) ? 0 : 1;
-                    if (o == side_team) {
+                    var side_team = (teams[0] === 4) ? 0 : 1;
+                    if (o === side_team) {
                         // create a side_team robot in r,c
                         var baby = this.createItem(c, r, side_team);
                         baby.health = NEXUS_INCUBATOR_HP;
                     } else {
                         var center = this.getItem(o);
-                        if (center.team == side_team)
+                        if (center.team === side_team)
                             center.health += (center.health >= INITIAL_HP)?0:NEXUS_INCUBATOR_HP;
                         else sides.forEach(function(side) {
                             side.health -= NEXUS_POISON_HP;
@@ -427,18 +449,24 @@ Game.prototype.enactTurn = function() {
     this._applyNexi();
 
     let robot = this.robots[this.robin];
-    if (robot.hook == null || !robot.initialized) {
+    if (robot.hook === null || !robot.initialized) {
         return "Robot not initialized.";
     }
 
     robot.start_time = wallClock();
 
-    let action = robot.hook(this.getGameStateDump(robot));
-
+    let action = null;
+    
+    try {
+        action = robot.hook(this.getGameStateDump(robot));
+    } catch (e) {
+        this.robotError(e.toString(), robot);
+    }
+    
     let diff_time = wallClock() - robot.start_time;
     let response = this.enactAction(robot, action, diff_time);
 
-    if (response != "") {
+    if (response !== "") {
         this.robotError(response, robot);
     }
 }
@@ -458,8 +486,7 @@ Game.prototype.enactTurn = function() {
  */
 Game.prototype.enactAction = function(robot, action, time) {
     this.robin++;
-    var new_round = false;
-    if (this.robin == this.robots.length) this.robin++;
+    if (this.robin === this.robots.length) this.robin++;
 
     robot.time -= time;
     if (robot.time < 0) {
@@ -470,24 +497,31 @@ Game.prototype.enactAction = function(robot, action, time) {
     } else robot.time += CHESS_EXTRA;
 
 
-    if (action == null) return "";
-    var valid = typeof action==='object' && action!==null && !(action instanceof Array) && !(action instanceof Date);
-    valid = valid && 'action' in action && ['move','attack','signal'].indexOf(action['action']) >= 0;
+    if (action === null) return "";
 
+    var valid = typeof action==='object' && action!==null && !(action instanceof Array) && !(action instanceof Date);
     if (!valid) {
-        console.log(action);
+        if (this.debug) console.log(action);
         return "Malformed move.";
+    }
+
+    if ('logs' in action) {
+        for (var l=0; l<action['logs'].length; l++) {
+            this.robotLog(action['logs'][l], robot);
+        }
     }
 
     if ('signal' in action && Number.isInteger(action.signal) && action.signal >= 0 && action.signal < Math.pow(2,COMMUNICATION_BITS)) {
         robot.signal = action.signal;
     }
 
-    if (action.action == 'move') {
+    valid = valid && 'action' in action && ['move','attack'].indexOf(action['action']) >= 0;
+
+    if (valid && action.action === 'move') {
         if ('dir' in action && Number.isInteger(action.dir) && action.dir >= 0 && action.dir < 8) {
             var new_pos = this._newPosCalc(robot.x,robot.y,action.dir);
 
-            if (this.shadow[new_pos[1]][new_pos[0]] == 0) {
+            if (this.shadow[new_pos[1]][new_pos[0]] === 0) {
                 // space isn't occupied, so move into it.
                 this.shadow[robot.y][robot.x] = 0;
                 this.shadow[new_pos[1]][new_pos[0]] = robot.id;
@@ -499,7 +533,7 @@ Game.prototype.enactAction = function(robot, action, time) {
                 return "Attempted to move into occupied square."
             }
         } else return "Malformed move.";        
-    } else if (action.action == 'attack') {
+    } else if (valid && action.action === 'attack') {
         if ('dir' in action && Number.isInteger(action.dir) && action.dir >= 0 && action.dir < 8) {
             var new_pos = this._newPosCalc(robot.x,robot.y,action.dir);
 
@@ -508,7 +542,7 @@ Game.prototype.enactAction = function(robot, action, time) {
                 var victim = this.getItem(this.shadow[new_pos[1]][new_pos[0]]);
                 victim.health -= ATTACK_PENALTY;
 
-                if (victim.health == 0) {
+                if (victim.health === 0) {
                     this.shadow[new_pos[1]][new_pos[0]] = 0;
 
                     // delete robot

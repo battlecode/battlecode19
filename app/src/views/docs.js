@@ -1,91 +1,34 @@
 import React, { Component } from 'react';
 
 class Docs extends Component {
-  render() {
-    return (
-        <div className="content">
-        <div className="content">
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-md-12">
-              <div className="card">
-                <div className="header">
-                  <h4 className="title">Battlecode Oceana: Game Spec</h4>
-                  <p className="category">Updated 2/1/14 14:24 UTC</p>
+    render() {
+        return (
+            <div className="content">
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <div className="card">
+                                <div className="header">
+                                    <h4 className="title">Battlecode Nexus: Game Spec</h4>
+                                    <p className="category">Updated 8/8/17 2:00PM PST</p>
+                                </div>
+                                <div className="content">
+                                    <p>In the distant future, almost all nature and technology have been wiped out by global catastrophe.  All that remains are two opposing factions of <i>microbots</i>, <span className="text-danger">red</span> and <span className="text-info">blue</span>, who live on  a wraparound grid randomly scattered with holes and obstacles.  Microbots start with 64HP, and are given a randomly generated integer ID at creation.</p>
+                                    <p>In each turn a microbots can either move to or attack a nearby square, and communicate using up to 4 bits of signalling.  Microbots have limited vision; they can only see within a surrounding 14x14 region, and can only view the ID and signal bits of other microbots.</p>
+                                    <p>Microbots can heal and reproduce through the joint formation of nexi.  If any 4 microbots of the same team are in the following formation, with empty corners:</p>
+                                    <blockquote>
+                                        <p><center>X<br />X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X<br />X</center></p>
+                                    </blockquote>
+                                    <p>then a new microbot of that team will be created in the center square with 1HP.  If such a microbot already exists, it’s health will be increased by 1HP.  However, if a microbot of the opposing team is in the center square, all 4 microbots in the surrounding nexus will lose 1HP.</p>
+                                    <p>The game ends when either one team is totally annihilated, or 200 rounds have passed.  After 200 rounds, the team with greater total HP wins.  If both teams have equal HP after 200 rounds, the winner is determined by a coin flip.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="content">
-                  <div className="typo-line">
-                    <h1><p className="category">Header 1</p>Light Bootstrap Table Heading </h1>
-                  </div>
-                  <div className="typo-line">
-                    <h2><p className="category">Header 2</p>Light Bootstrap Table Heading</h2>
-                  </div>
-                  <div className="typo-line">
-                    <h3><p className="category">Header 3</p>Light Bootstrap Table Heading</h3>
-                  </div>
-                  <div className="typo-line">
-                    <h4><p className="category">Header 4</p>Light Bootstrap Table Heading</h4>
-                  </div>
-                  <div className="typo-line">
-                    <h5><p className="category">Header 5</p>Light Bootstrap Table Heading</h5>
-                  </div>
-                  <div className="typo-line">
-                    <h6><p className="category">Header 6</p>Light Bootstrap Table Heading</h6>
-                  </div>
-                  <div className="typo-line">
-                    <p><span className="category">Paragraph</span>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam.</p>
-                  </div>
-                  <div className="typo-line">
-                    <p className="category">Quote</p>
-                    <blockquote>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam.
-                      </p>
-                      <small>
-                        Steve Jobs, CEO Apple
-                      </small>
-                    </blockquote>
-                  </div>
-                  <div className="typo-line">
-                    <p className="category">Muted Text</p>
-                    <p className="text-muted">
-                      Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet.
-                    </p>
-                  </div>
-                  <div className="typo-line">
-                    {/*
-                                     there are also "text-info", "text-success", "text-warning", "text-danger" clases for the text
-                                     */}
-                    <p className="category">Coloured Text</p>
-                    <p className="text-primary">
-                      Text Primary - Light Bootstrap Table Heading and complex bootstrap dashboard you've ever seen on the internet.
-                    </p>
-                    <p className="text-info">
-                      Text Info - Light Bootstrap Table Heading and complex bootstrap dashboard you've ever seen on the internet.
-                    </p>
-                    <p className="text-success">
-                      Text Success - Light Bootstrap Table Heading and complex bootstrap dashboard you've ever seen on the internet.
-                    </p>
-                    <p className="text-warning">
-                      Text Warning - Light Bootstrap Table Heading and complex bootstrap dashboard you've ever seen on the internet.
-                    </p>
-                    <p className="text-danger">
-                      Text Danger - Light Bootstrap Table Heading and complex bootstrap dashboard you've ever seen on the internet.
-                    </p>
-                  </div>
-                  <div className="typo-line">
-                    <h2><p className="category">Small Tag</p>Header with small subtitle <br /><small>".small" is a tag for the headers</small> </h2>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      </div>
-    );
-  }
+        );
+    }
 }
 
 export default Docs;

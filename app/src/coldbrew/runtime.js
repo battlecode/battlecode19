@@ -50,6 +50,7 @@ CrossVM.prototype.turn = function(message) {
  */
 function Coldbrew(visualizer) {
     this.visualizer = visualizer;
+    this.kill = false;
 }
 
 
@@ -81,11 +82,7 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
 
             if (wallClock() - start_time < 100) {
                 game.registerHook(function(turn_json) {
-                    try {
-                        return v.turn(turn_json);
-                    } catch(exception) {
-                        console.log(exception);
-                    }
+                    return v.turn(turn_json);
                 },robot.id);
             } else {
                 game.robotError("Took too long to initialize.",robot);
@@ -98,7 +95,7 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
     var vis = new Visualizer(this.visualizer, game.shadow[0].length, game.shadow.length, game.viewerMap());
     var gameLoop = setInterval(function() {
         emptyQueue();
-        if (game.isOver()) {
+        if (game.isOver() || this.kill) {
             clearInterval(gameLoop);
             log_receiver(game.logs);
             vis.gameOver(game.win_condition);
@@ -113,7 +110,11 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
                 round = game.round;
             }
         }
-    },0);
+    }.bind(this),0);
+}
+
+Coldbrew.prototype.destroy = function() {
+    this.kill = true;
 }
 
 export default Coldbrew;

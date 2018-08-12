@@ -20,7 +20,10 @@ window.firebase.initializeApp(firebase_config);
 class IDE extends Component {
     constructor() {
         super();
-        this.state = {menu:false, theater:false, logs:[[],[]]};
+        this.state = {menu:false, theater:false, logs:[[],[]], loading:false, error:false, errors:''};
+
+        this.lang = 'javascript';
+        this.storage = {};
 
         this.pull = this.pull.bind(this);
         this.push = this.push.bind(this);
@@ -29,6 +32,7 @@ class IDE extends Component {
         this.changeHandler = this.changeHandler.bind(this);
         this.hideSidebar = this.hideSidebar.bind(this);
         this.exitTheater = this.exitTheater.bind(this);
+        this.exitErrors = this.exitErrors.bind(this);
     }
 
     componentDidMount() {
@@ -62,20 +66,24 @@ class IDE extends Component {
     }
 
     push() {
-        Api.pushTeamCode(this.firepad.getText(), function(success) {
-            // pass
-        });
+        Compiler.Compile(this.lang, this.firepad.getText(), function(code) {
+            Api.pushTeamCode(code, function() {});
+        }.bind(this), function(errors) {
+            this.setState({error: true, errors:errors});
+        }.bind(this));
     }
 
     run() {
-        this.setState({theater:true});
+        this.setState({loading:true});
 
-        var c = new Coldbrew("viewer");
-
-        var code = Compiler.JS(this.firepad.getText());
-
-        c.playGame(code,code, function(logs) {
-            this.setState({logs:logs});
+        Compiler.Compile(this.lang, this.firepad.getText(), function(code) {
+            this.setState({theater:true, loading:false});
+            this.c = new Coldbrew("viewer");
+            this.c.playGame(code,code, function(logs) {
+                this.setState({logs:logs});
+            }.bind(this));
+        }.bind(this), function(errors) {
+            this.setState({loading:false, error: true, errors:errors});
         }.bind(this));
     }
 
@@ -88,9 +96,12 @@ class IDE extends Component {
     }
 
     exitTheater() {
-        // make sure coldbrew is killed
-
+        this.c.destroy();
         this.setState({theater:false});
+    }
+
+    exitErrors() {
+        this.setState({error:false, errors:''});
     }
 
     showMenu() {
@@ -104,7 +115,11 @@ class IDE extends Component {
         var id = e.target.id;
         var val = e.target.value;
 
-        if (id === "lang") this.session.setMode("ace/mode/" + val);
+        if (id === "lang") {
+            this.session.setMode("ace/mode/" + val);
+            this.lang = val;
+        }
+
         else if (id === "theme") this.editor.setTheme("ace/theme/" + val);
         else if (id === "tab") this.session.setTabSize(val);
         else if (id === "auto") this.editor.setOptions({
@@ -131,12 +146,73 @@ class IDE extends Component {
                     height:"100%",
                     position:"absolute",
                     top:"0px",
-                    opacity:this.state.theater?"0.8":"0",
+                    opacity:(this.state.theater||this.state.error||this.state.loading)?"0.8":"0",
                     backgroundColor:"#000",
                     zIndex:"100",
-                    visibility:this.state.theater?"visible":"hidden",
+                    visibility:(this.state.theater||this.state.error||this.state.loading)?"visible":"hidden",
                     transition:"opacity 500ms ease, visibility 500ms ease",
                 }}></div>
+
+                <div style={{
+                    top:"calc(50% - 35px)",
+                    left:"calc(50% - 35px)",
+                    position:"absolute",
+                    zIndex:"101",
+                    visibility:this.state.loading?"visible":"hidden",
+                    transition:"visibility 500ms ease",
+                    width:"70px",
+                    height:"70px"
+                }} className='sk-circle'>
+                  <div className="sk-circle1 sk-child"></div>
+                  <div className="sk-circle2 sk-child"></div>
+                  <div className="sk-circle3 sk-child"></div>
+                  <div className="sk-circle4 sk-child"></div>
+                  <div className="sk-circle5 sk-child"></div>
+                  <div className="sk-circle6 sk-child"></div>
+                  <div className="sk-circle7 sk-child"></div>
+                  <div className="sk-circle8 sk-child"></div>
+                  <div className="sk-circle9 sk-child"></div>
+                  <div className="sk-circle10 sk-child"></div>
+                  <div className="sk-circle11 sk-child"></div>
+                  <div className="sk-circle12 sk-child"></div>
+                </div>
+
+                <div style={{
+                    width:"calc(100% - 50px)",
+                    height:"calc(100% - 50px)",
+                    position:"absolute",
+                    top:this.state.error?"25px":"-2000px",
+                    right:"25px",
+                    backgroundColor:"#fff",
+                    zIndex:"101",
+                    visibility:this.state.error?"visible":"hidden",
+                    transition:"top 500ms ease, visibility 500ms ease",
+                }}>
+                    <i className="pe-7s-close-circle" style={{
+                        position:"absolute",
+                        top:"-15px",
+                        right:"-15px",
+                        fontSize:"1.5em",
+                        cursor:"pointer",
+                        border:"10px solid #fff",
+                        backgroundColor:"#fff",
+                        borderRadius:"20px"
+                    }} onClick={ this.exitErrors }/>
+                    <pre id="console" style={{
+                        position:"absolute",
+                        top:"30px",
+                        left:"20px",
+                        width:"calc(100% - 40px)",
+                        height:"calc(100% - 50px)",
+                        backgroundColor:"#333",
+                        color:"#fff",
+                        fontFamily:"Roboto Mono, monospace",
+                        padding: "20px",
+                        fontSize:"0.9em"
+                    }}>
+                    { this.state.errors }
+                    </pre>
+                </div>
 
                 <div style={{
                     width:"calc(100% - 50px)",
@@ -190,8 +266,8 @@ class IDE extends Component {
                             padding:"10px",
                             overflow:"scroll"
                         }}>
-                            { this.state.logs[0].map(log => 
-                                <span key={ log.timestamp }>
+                            { this.state.logs[0].map((log, idx) => 
+                                <span key={ idx }>
                                     <span style={{color:log.type==="error"?"red":"green"}}>[Robot { log.robot }{log.type==='error'?' Error':''}]</span> {log.message}
                                 <br /></span>
                             )}
@@ -206,8 +282,8 @@ class IDE extends Component {
                             padding:"10px",
                             overflow:"scroll"
                         }}>
-                            { this.state.logs[1].map(log => 
-                                <span key={ log.timestamp }>
+                            { this.state.logs[1].map((log, idx) => 
+                                <span key={ idx }>
                                     <span style={{color:log.type==="error"?"red":"green"}}>[Robot { log.robot }{log.type==='error'?' Error':''}]</span> {log.message}
                                 <br /></span>
                             )}
