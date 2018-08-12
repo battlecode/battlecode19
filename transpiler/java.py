@@ -29,8 +29,8 @@ def compile(sources):
 
     for source in sources:
         # Write sources to working directory.
-        with open(dir + "/src/main/java/" + source.filename, mode="w") as f:
-            f.write(source.source)
+        with open(dir + "/src/main/java/" + source['filename'], mode="w") as f:
+            f.write(source['source'])
 
     # Launch compiler.
     p = subprocess.Popen(['mvn', 'generate-sources'],
