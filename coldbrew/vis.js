@@ -414,5 +414,4 @@ class Visualizer {
     }
 }
 
-export default Visualizer;
-
+module.exports = Visualizer;

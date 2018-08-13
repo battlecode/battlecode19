@@ -564,4 +564,4 @@ Game.prototype.enactAction = function(robot, action, time) {
     return "";
 }
 
-export default Game;
+module.exports = Game;

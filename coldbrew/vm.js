@@ -11,4 +11,4 @@ CrossVM.prototype.turn = function(message) {
     return this.vm.run(code);
 }
 
-export default CrossVM;
+module.exports = CrossVM;

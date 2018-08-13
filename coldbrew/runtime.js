@@ -1,6 +1,6 @@
-import Game from './game';
-import Visualizer from './vis'
-import CrossVM from './vm'
+var Game = require('./game');
+var Visualizer = require('./vis');
+var CrossVM = require('./vm');
 
 function wallClock() {
     if (typeof window !== 'undefined') return window.performance.now();
@@ -63,7 +63,7 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
     var game = this.game;
 
     if (this.replay_eater) {
-        var replay = {'rounds':[], 'logs':null, 'width':game.shadow[0].length, 'height':game.shadow.length, 'map': game.viewerMap()};
+        var replay = {'rounds':[], 'seed':this.seed, 'logs':null, 'width':game.shadow[0].length, 'height':game.shadow.length, 'map': game.viewerMap()};
         replay['rounds'].push(game.viewerMessage());
     } else var vis = new Visualizer(this.visualizer, game.shadow[0].length, game.shadow.length, game.viewerMap());
     
@@ -99,4 +99,4 @@ Coldbrew.prototype.destroy = function() {
     this.kill = true;
 }
 
-export default Coldbrew;
+module.exports = Coldbrew;

@@ -13,4 +13,4 @@ CrossVM.prototype.turn = function(message) {
     return script.runInContext(this.context);
 }
 
-export default CrossVM;
+module.exports = CrossVM;
