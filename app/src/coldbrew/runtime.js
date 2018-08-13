@@ -48,9 +48,10 @@ CrossVM.prototype.turn = function(message) {
  * @param {number} [tile_size=30] - The tile size to render games with.
  * @constructor
  */
-function Coldbrew(visualizer) {
+function Coldbrew(visualizer, seed) {
     this.visualizer = visualizer;
     this.kill = false;
+    this.seed = seed;
 }
 
 
@@ -64,7 +65,7 @@ function Coldbrew(visualizer) {
  * @param {function} when_ended - The function to call when the game has ended.
  */
 Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
-    this.game = new Game(20,345345,10,false);
+    this.game = new Game(20,this.seed,false);
 
     function emptyQueue() {
         while (game.init_queue > 0) {
@@ -81,9 +82,7 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
             }
 
             if (wallClock() - start_time < 100) {
-                game.registerHook(function(turn_json) {
-                    return v.turn(turn_json);
-                },robot.id);
+                game.registerHook(v.turn.bind(v), robot.id);
             } else {
                 game.robotError("Took too long to initialize.",robot);
             }

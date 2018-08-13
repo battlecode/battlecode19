@@ -8,7 +8,7 @@ var NEXUS_POISON_HP = 2;
 var NEXUS_INCUBATOR_HP = 1;
 
 var CHESS_INITIAL = 100;
-var CHESS_EXTRA = 20;
+var CHESS_EXTRA = 10;
 
 // Check whether in browser or node.
 function inBrowser() {
@@ -37,12 +37,11 @@ function wallClock() {
 * @param {number} seed - The seed for map generation.
  * @param {boolean} [debug=false] - Enables debug mode (default false).
  */
-function Game(map_size, seed, num_robots, debug) {
+function Game(map_size, seed, debug) {
     this.robots = [] // objects active in the game.
     this.ids = []; // list of "spent" item ids.
 
     this.seed = seed;
-    this.num_robots = num_robots;
     this.round = 0;
     this.robin = Infinity;
     this.init_queue = 0; // how many robots have yet to be initialized.
@@ -63,7 +62,7 @@ function Game(map_size, seed, num_robots, debug) {
         }
     }
 
-    var to_create = this.makeMap(this.shadow, seed, num_robots); // list of robots
+    var to_create = this.makeMap(this.shadow, this.seed); // list of robots
     for (i=0; i<to_create.length; i++) {
         this.createItem(to_create[i].x, to_create[i].y, to_create[i].team);
     }
@@ -75,12 +74,13 @@ function Game(map_size, seed, num_robots, debug) {
  * @param {number[][]} x - The shadow to populate the map with.
  * @return {Object[]} - A list of robots with x, y, and team.
  */
-Game.prototype.makeMap = function(x, seed, players) {
+Game.prototype.makeMap = function(x, seed) {
     function random() {
         var x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
     }
 
+    var players = 3 + Math.floor(6*random());
     var player_odd = players/(0.8*x.length*x[0].length/2);
     
     var ret_players = [];
@@ -332,13 +332,13 @@ Game.prototype.getVisible = function(robot) {
 Game.prototype._newPosCalc = function(x, y, dir) {
     var new_pos = [x, y];
     if (dir === 0) new_pos[0] += 1;
-    else if (dir === 1) { new_pos[0] += 1; new_pos[1] += 1; }
-    else if (dir === 2) new_pos[1] += 1;
-    else if (dir === 3) { new_pos[1] += 1; new_pos[0] -= 1; }
+    else if (dir === 1) { new_pos[0] += 1; new_pos[1] -= 1; }
+    else if (dir === 2) new_pos[1] -= 1;
+    else if (dir === 3) { new_pos[1] -= 1; new_pos[0] -= 1; }
     else if (dir === 4) new_pos[0] -= 1;
-    else if (dir === 5) { new_pos[1] -= 1; new_pos[0] -= 1; }
-    else if (dir === 6) new_pos[1] -= 1;
-    else if (dir === 7) { new_pos[0] += 1; new_pos[1] -= 1; }
+    else if (dir === 5) { new_pos[1] += 1; new_pos[0] -= 1; }
+    else if (dir === 6) new_pos[1] += 1;
+    else if (dir === 7) { new_pos[0] += 1; new_pos[1] += 1; }
     else return null;
 
     // wrap position
@@ -419,13 +419,16 @@ Game.prototype.getGameStateDump = function(robot) {
     shadow.forEach(function(row) {
         row.forEach(function(v) {
             if (v <= 0) return;
-            var robot = insulate(this.getItem(v));
-            delete robot.team;
-            delete robot.initialized;
-            delete robot.hook;
-            delete robot.time;
-            delete robot.start_time;
-            visible.push(robot);
+            var r = insulate(this.getItem(v));
+            delete r.initialized;
+            delete r.hook;
+            delete r.time;
+            delete r.start_time;
+            if (robot.id !== r.id) {
+                delete r.health;
+                delete r.team;
+            }
+            visible.push(r);
         }.bind(this));
     }.bind(this));
 
