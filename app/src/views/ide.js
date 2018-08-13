@@ -1,9 +1,7 @@
-/* eslint-disable import/first */
-
 import React, { Component } from 'react';
 import Api from '../api';
-import Coldbrew from '../coldbrew/runtime';
-import Compiler from '../coldbrew/compiler'
+import Coldbrew from 'coldbrew';
+import Compiler from '../compiler';
 
 var firebase_config = {
     apiKey: "AIzaSyBT7Mu9Bw6UH0Tr-mKXMwhKjdnLppdjvA4",

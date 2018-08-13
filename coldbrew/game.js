@@ -8,7 +8,7 @@ var NEXUS_POISON_HP = 2;
 var NEXUS_INCUBATOR_HP = 1;
 
 var CHESS_INITIAL = 100;
-var CHESS_EXTRA = 10;
+var CHESS_EXTRA = 20;
 
 // Check whether in browser or node.
 function inBrowser() {

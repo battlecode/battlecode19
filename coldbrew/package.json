@@ -1,0 +1,19 @@
+{
+  "name": "coldbrew",
+  "version": "0.1.0",
+  "private": true,
+  "main": "runtime.js",
+  "dependencies": {
+    "esm": "^3.0.74",
+    "vm-browserify": "^1.1.0",
+    "vm2": "^3.6.3"
+  },
+  "browser": {
+    "./vm.js": "./vm_browser.js"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0"
+  }
+}

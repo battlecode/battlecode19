@@ -13,7 +13,8 @@
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
     "react-router": "^4.3.1",
-    "react-router-dom": "^4.3.1"
+    "react-router-dom": "^4.3.1",
+    "vm2": "^3.6.3"
   },
   "scripts": {
     "start": "react-scripts start",

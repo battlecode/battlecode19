@@ -1,42 +1,10 @@
 import Game from './game';
 import Visualizer from './vis'
+import CrossVM from './vm'
 
-function inBrowser() {
-    return (typeof window !== "undefined");
-}
-
-//if (!inBrowser()) var VM = require('vm2');
-var VM = require('vm');
-
-// Get some sorta time in millis.
 function wallClock() {
     if (typeof window !== 'undefined') return window.performance.now();
     else return new Date().getTime();
-}
-
-
-function CrossVM(code) {
-    this.inBrowser = inBrowser();
-
-    if (this.inBrowser) {
-        this.context = VM.createContext();
-        this.script = VM.createScript(code);
-        this.script.runInContext(this.context);
-    }
-
-    else {
-        this.vm = new VM({ timeout:100, console: 'off' });
-        this.vm.run(code);
-    }
-}
-
-CrossVM.prototype.turn = function(message) {
-    var code = "robot.robot._do_turn(" + message + ");"
-
-    if (this.inBrowser) {
-        var script = VM.createScript(code);
-        return script.runInContext(this.context);
-    } else return this.vm.run(code);
 }
 
 /**
@@ -48,10 +16,11 @@ CrossVM.prototype.turn = function(message) {
  * @param {number} [tile_size=30] - The tile size to render games with.
  * @constructor
  */
-function Coldbrew(visualizer, seed) {
+function Coldbrew(visualizer, seed, replay_eater) {
     this.visualizer = visualizer;
     this.kill = false;
     this.seed = seed;
+    this.replay_eater = replay_eater;
 }
 
 
@@ -79,6 +48,7 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
                 var v = new CrossVM(code);
             } catch(error) {
                 game.robotError("Failed to initialize: " + error,robot);
+                continue;
             }
 
             if (wallClock() - start_time < 100) {
@@ -91,21 +61,34 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
 
     var round = -1;
     var game = this.game;
-    var vis = new Visualizer(this.visualizer, game.shadow[0].length, game.shadow.length, game.viewerMap());
+
+    if (this.replay_eater) {
+        var replay = {'rounds':[], 'logs':null, 'width':game.shadow[0].length, 'height':game.shadow.length, 'map': game.viewerMap()};
+        replay['rounds'].push(game.viewerMessage());
+    } else var vis = new Visualizer(this.visualizer, game.shadow[0].length, game.shadow.length, game.viewerMap());
+    
     var gameLoop = setInterval(function() {
         emptyQueue();
         if (game.isOver() || this.kill) {
             clearInterval(gameLoop);
-            log_receiver(game.logs);
-            vis.gameOver(game.win_condition);
-        } else if (!vis.stopped()) {
-            if (round == -1) vis.starting();
+            if (log_receiver) log_receiver(game.logs);
+            if (this.replay_eater) {
+                replay['logs'] = game.logs;
+                replay['win_condition'] = game.win_condition;
+                this.replay_eater(replay);
+            } else vis.gameOver(game.win_condition);
+        } else if (!(!this.replay_eater && vis.stopped())) {
+            if (round == -1 && !this.replay_eater) vis.starting();
             game.enactTurn();
 
             if (game.round != round) {
-                vis.feedRound(round, game.viewerMessage());
-                vis.setRound(round);
-                log_receiver(game.logs);
+                if (this.replay_eater) replay['rounds'].push(game.viewerMessage());
+                else {
+                    vis.feedRound(round, game.viewerMessage());
+                    vis.setRound(round);
+                }
+
+                if (log_receiver) log_receiver(game.logs);
                 round = game.round;
             }
         }
