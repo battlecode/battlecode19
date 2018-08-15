@@ -3,7 +3,7 @@ The view that is returned in a request.
 """
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from rest_framework import permissions, status, mixins, viewsets
+from rest_framework import permissions, status, mixins, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -58,6 +58,10 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'username'
     lookup_url_kwarg = 'username'
 
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
+
+
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -106,6 +110,8 @@ class TeamViewSet(viewsets.GenericViewSet,
     queryset = Team.objects.all().order_by('name').exclude(deleted=True)
     serializer_class = TeamSerializer
     permission_classes = (LeagueActiveOrSafeMethods, IsAuthenticatedOrSafeMethods)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
     def get_queryset(self):
         """

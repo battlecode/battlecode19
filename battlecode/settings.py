@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'webpack_loader',
     'rest_framework',
-    'battlecode.api',
+    'battlecode.api'
 ]
 
 MIDDLEWARE = [

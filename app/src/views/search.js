@@ -13,14 +13,14 @@ class UserList extends Component {
                   <thead>
                     <tr>
                         <th>User</th>
-                        <th>Team</th>
+                        <th>Avatar</th>
                         <th>Bio</th>
                     </tr>
                   </thead>
                     <tbody>
-                        { this.props.users.map(user => <tr key={ user.id }>
+                        { this.props.users.map(user => <tr key={ user.username }>
                         <td>{ user.username }</td>
-                        <td>{ user.team }</td>
+                        <td><img src={ user.avatar } width='50px'/></td>
                         <td>{ user.bio }</td>
                   </tr> )}
                     </tbody>

@@ -38,10 +38,11 @@ class Api {
     }
 
     static search(query, callback) {
-        var users = [{'id':0,'username':'nanogru','team':'teh devs','bio':'this is it buddy.'}];
-        var teams = [];
-
-        callback(users, teams);
+        $.get(URL+LEAGUE+"/team/?search="+encodeURIComponent(query), function(team_data, team_success) {
+            $.get(URL+"user/profile/?search="+encodeURIComponent(query), function(user_data, user_success) {
+                callback(user_data.results, team_data.results);
+            });
+        });
     }
 
     static getUserTeam(callback) {
