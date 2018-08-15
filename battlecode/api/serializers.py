@@ -61,15 +61,18 @@ class FullUserSerializer(serializers.HyperlinkedModelSerializer):
         return instance
 
 
+class UpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Update
+        fields = '__all__'
+
 class LeagueSerializer(serializers.HyperlinkedModelSerializer):
+    updates = UpdateSerializer(many=True, read_only=True)
+
     class Meta:
         model = League
         fields = '__all__'
 
-class UpdateSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model =  Update
-        fields = '_all_'
 
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     serializer_url_field = LeagueHyperlinkedIdentityField

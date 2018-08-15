@@ -59,7 +59,7 @@ class League(models.Model):
 class Update(models.Model):
     message = models.CharField(max_length=1000, blank=True)
     time = models.DateTimeField(auto_now_add=True)
-    league = models.ForeignKey(League, on_delete=models.PROTECT)
+    league = models.ForeignKey(League, related_name='updates', on_delete=models.PROTECT)
 
 
 class Map(models.Model):
