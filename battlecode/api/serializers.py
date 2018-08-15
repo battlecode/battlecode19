@@ -66,6 +66,10 @@ class LeagueSerializer(serializers.HyperlinkedModelSerializer):
         model = League
         fields = '__all__'
 
+class UpdateSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model =  Update
+        fields = '_all_'
 
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     serializer_url_field = LeagueHyperlinkedIdentityField
