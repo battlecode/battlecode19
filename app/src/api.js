@@ -1,6 +1,7 @@
 import $ from 'jquery';
 
-var BACKEND_URL = "http://127.0.0.1:8000/";
+var URL = "http://127.0.0.1:8000/api/";
+var LEAGUE = 0
 
 class Api {
     static getUpcomingDates(callback) {
@@ -19,18 +20,21 @@ class Api {
     }
 
     static getTeamWinStats(callback) {
-        $.ajax(
         var data = [20,60,20];
 
         callback(data);
     }
 
     static getUpdates(callback) {
-        var updates = [
-            {id: 0, date: '10/2', time: '10:02', message: 'This is a critical update!'}
-        ];
+        $.get(URL+"league/"+LEAGUE+"/", function(data, success) {
+            for (var i=0; i<data.updates.length; i++) {
+                var d = new Date(data.updates[i].time);
+                data.updates[i].date = d.toLocaleDateString();
+                data.updates[i].time = d.toLocaleTimeString();
+            }
 
-        callback(updates);
+            callback(data.updates);
+        });
     }
 
     static search(query, callback) {
