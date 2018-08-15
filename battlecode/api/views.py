@@ -113,6 +113,17 @@ class TeamViewSet(viewsets.GenericViewSet,
         """
         return super().get_queryset().filter(league_id=self.kwargs['league_id'])
 
+    def list(self, request, *args, **kwargs):
+        res = super().list(request)
+        if 'username' in request.GET:
+            username = request.GET['username']
+            new_data = []
+            for data in res.data.get('results'):
+                if username in data.get('users'):
+                    new_data.append(data)
+            res.data['results'] = new_data
+        return res
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['request'] = self.request
