@@ -44,8 +44,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
 
 class Update(models.Model):
-    updates = models.CharField(max_length=1000, blank=True)
-    seen    = models.BooleanField(default=False)
+    update = models.CharField(max_length=1000, blank=True)
+    seen   = models.BooleanField(default=False)
 
 
 class League(models.Model):

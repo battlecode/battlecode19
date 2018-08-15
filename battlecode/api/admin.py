@@ -16,11 +16,14 @@ class UserAdmin(DjangoUserAdmin):
         ('Private', {'fields': ('date_of_birth', 'registration_key')}),
     )
 
+@admin.register(Update)
+class UpdateAdmin(admin.ModelAdmin):
+    pass
+
 @admin.register(League)
 class LeagueAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'start_date', 'end_date', 'active')
     list_display_links = ('id', 'name')
-
 
 @admin.register(Tournament)
 class TournamentAdmin(admin.ModelAdmin):
