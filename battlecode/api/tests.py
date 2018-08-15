@@ -412,11 +412,13 @@ class TeamTestCase(test.APITransactionTestCase):
         response = self.client.get('/api/bc18/team/{}/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse('team_key' in json.loads(response.content), 'Team key not returned if not authenticated')
+        self.assertFalse('code' in json.loads(response.content), 'Code not returned if not authenticated')
 
         self.client.force_authenticate(user=self.userC)
         response = self.client.get('/api/bc18/team/{}/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('team_key' in json.loads(response.content), 'Team key returned if authenticated')
+        self.assertTrue('code' in json.loads(response.content), 'Code returned if authenticated')
 
         response = self.client.get('/api/bc17/team/{}/'.format(self.team2.id))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'League and team id mismatch')
@@ -503,6 +505,7 @@ class TeamTestCase(test.APITransactionTestCase):
             'divisions': ['highschool', 'newbie'],
             'auto_accept_unranked': True,
             'auto_accept_ranked': False,
+            'code': "// I wrote some code",
         }
         response = self.client.patch(url, update)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, 'Unauthorized update')
@@ -510,11 +513,13 @@ class TeamTestCase(test.APITransactionTestCase):
         self.client.force_authenticate(user=self.userC)
         response = self.client.patch(url, update)
         content = json.loads(response.content)
+        print(content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, 'Successful update')
         self.assertEqual(content['bio'], update['bio'])
         self.assertEqual(content['divisions'], update['divisions'])
         self.assertEqual(content['auto_accept_unranked'], update['auto_accept_unranked'])
         self.assertEqual(content['auto_accept_ranked'], update['auto_accept_ranked'])
+        self.assertEqual(content['code'], update['code'])
 
         response = self.client.patch('/api/bc19/team/{}/'.format(self.team3.id), update)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, 'Cannot update team in inactive league')

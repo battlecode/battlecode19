@@ -78,7 +78,6 @@ WSGI_APPLICATION = 'battlecode.wsgi.application'
 WEBPACK_LOADER = {
     'DEFAULT': {
         'BUNDLE_DIR_NAME': 'bundles/local/',
-        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
     }
 }
 

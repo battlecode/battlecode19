@@ -43,6 +43,10 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
 
+class Update(models.Model):
+    updates = models.CharField(max_length=1000, blank=True)
+    seen    = models.BooleanField(default=False)
+
 
 class League(models.Model):
     id                  = models.TextField(primary_key=True)
@@ -51,6 +55,7 @@ class League(models.Model):
     end_date            = models.DateField()
     active              = models.BooleanField(default=False)
     submissions_enabled = models.BooleanField(default=False)
+    updates  = models.ManyToManyField(Update, default=list)
 
     def __str__(self):
         return self.name
@@ -106,6 +111,11 @@ class Team(models.Model):
     sigma                = models.FloatField(default=8.333)
     auto_accept_ranked   = models.BooleanField(default=False)
     auto_accept_unranked = models.BooleanField(default=False)
+    wins                 = models.IntegerField(default=0)
+    loses                = models.IntegerField(default=0)
+    draws                = models.IntegerField(default=0)
+
+    code                 = models.TextField(default="// hi y'all.")
 
     # metadata
     deleted = models.BooleanField(default=False)

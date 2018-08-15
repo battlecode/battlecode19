@@ -148,6 +148,9 @@ class TeamViewSet(viewsets.GenericViewSet,
         res = super().retrieve(request, pk=pk)
         if res.status_code == status.HTTP_200_OK and request.user.username in res.data.get('users'):
             res.data['team_key'] = self.get_queryset().get(pk=pk).team_key
+            res.data['code'] = self.get_queryset().get(pk=pk).code
+        else:
+            del res.data['code']
         return res
 
     def partial_update(self, request, league_id, pk=None):
@@ -155,6 +158,7 @@ class TeamViewSet(viewsets.GenericViewSet,
             team = self.get_queryset().get(pk=pk)
         except Team.DoesNotExist:
             return Response({'message': 'Team not found'}, status.HTTP_404_NOT_FOUND)
+
         if len(team.users.filter(username=request.user.username)) == 0:
             return Response({'message': 'User not on this team'}, status.HTTP_401_UNAUTHORIZED)
 

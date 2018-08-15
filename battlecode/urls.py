@@ -29,5 +29,4 @@ urlpatterns = [
     path('api/', include('battlecode.api.urls')),
     path('admin/', admin.site.urls, name='admin'),
     path('docs/', include_docs_urls(title='Battlecode API')),
-    re_path('.*', generic.TemplateView.as_view(template_name='view.html'), name='test-view'),
 ]
