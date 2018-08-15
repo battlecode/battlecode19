@@ -83,7 +83,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         model = Team
         fields = ('url', 'id', 'league', 'name', 'avatar', 'users',
             'bio', 'divisions', 'auto_accept_ranked', 'auto_accept_unranked',
-            'code')
+            'code', 'wins', 'loses', 'draws')
         read_only_fields = ('id', 'avatar',)
 
     def update(self, instance, validated_data):
