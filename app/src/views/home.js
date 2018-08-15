@@ -27,7 +27,7 @@ class UpdateCard extends Component {
 class PerfCard extends UpdateCard {
     componentDidMount() {
         $().ready(function() {
-            Api.getUserMuHistory(function(perf) {
+            Api.getTeamMuHistory(function(perf) {
                 var dataSales = {'series':[perf,perf], 'labels':[]};
                 for (var i=perf.length-1; i>=0; i--)
                     dataSales.labels.push(i===0 ? "Now" : i + "hr ago");
@@ -73,7 +73,7 @@ class PerfCard extends UpdateCard {
 class StatCard extends UpdateCard {
     componentDidMount() {
         $().ready(function() {
-            Api.getUserWinStats(function(stats) {
+            Api.getTeamWinStats(function(stats) {
                 window.Chartist.Pie('#stat_chart', {
                     labels: stats.map(p => p+"%"),
                     series: stats

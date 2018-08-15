@@ -43,10 +43,6 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
 
-class Update(models.Model):
-    update = models.CharField(max_length=1000, blank=True)
-    seen   = models.BooleanField(default=False)
-
 
 class League(models.Model):
     id                  = models.TextField(primary_key=True)
@@ -55,10 +51,15 @@ class League(models.Model):
     end_date            = models.DateField()
     active              = models.BooleanField(default=False)
     submissions_enabled = models.BooleanField(default=False)
-    updates  = models.ManyToManyField(Update, default=list)
 
     def __str__(self):
         return self.name
+
+
+class Update(models.Model):
+    message = models.CharField(max_length=1000, blank=True)
+    time = models.DateTimeField(auto_now_add=True)
+    league = models.ForeignKey(League, on_delete=models.PROTECT)
 
 
 class Map(models.Model):

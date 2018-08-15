@@ -1,5 +1,7 @@
 import $ from 'jquery';
 
+var BACKEND_URL = "http://127.0.0.1:8000/";
+
 class Api {
     static getUpcomingDates(callback) {
         var new_state = [
@@ -10,13 +12,14 @@ class Api {
         callback(new_state);
     }
 
-    static getUserMuHistory(callback) {
+    static getTeamMuHistory(callback) {
         var data = [10,12,14,10,28,32,25,32];
 
         callback(data);
     }
 
-    static getUserWinStats(callback) {
+    static getTeamWinStats(callback) {
+        $.ajax(
         var data = [20,60,20];
 
         callback(data);
