@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import Api from '../api';
-import Coldbrew from 'coldbrew';
+import Coldsys from 'coldbrew';
 import Compiler from '../compiler';
+
+var Coldbrew = Coldsys.Coldbrew;
 
 var firebase_config = {
     apiKey: "AIzaSyBT7Mu9Bw6UH0Tr-mKXMwhKjdnLppdjvA4",

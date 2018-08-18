@@ -179,7 +179,7 @@ class NoTeam extends Component {
     }
 
     createTeam() {
-        Api.createTeam(this.state.team_name, parseInt(this.state.team_id), function(success) {
+        Api.createTeam(this.state.team_name, parseInt(this.state.team_id,10), function(success) {
             window.location.reload();
         });
     }

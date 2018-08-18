@@ -20,7 +20,7 @@ class UserList extends Component {
                     <tbody>
                         { this.props.users.map(user => <tr key={ user.username }>
                         <td>{ user.username }</td>
-                        <td><img src={ user.avatar } width='50px'/></td>
+                        <td><img src={ user.avatar } alt='user-avatar' width='50px'/></td>
                         <td>{ user.bio }</td>
                   </tr> )}
                     </tbody>

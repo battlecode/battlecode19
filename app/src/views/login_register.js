@@ -135,7 +135,6 @@ class LoginRegister extends Component {
                         </div>
                         <button type="button" onClick={ this.login } className="btn btn-success btn-block btn-fill">Login</button>
                         <button type="button" onClick={ this.register } className="btn btn-primary btn-block btn-fill">Register</button>
-                        <button type="button" onClick={ this.forgot } className="btn btn-warning btn-block btn-fill">Forgot Password</button>
 
 
                         <div className="clearfix" />

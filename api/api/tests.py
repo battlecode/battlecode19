@@ -5,8 +5,8 @@ import logging
 from django.contrib.auth import get_user_model
 from rest_framework import status, test
 
-from battlecode.api.views import *
-from battlecode.api.models import *
+from api.views import *
+from api.models import *
 
 
 def generate_user(id_num, **kwargs):

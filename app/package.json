@@ -15,7 +15,8 @@
     "react-dom": "^16.4.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "vm2": "^3.6.3"
+    "vm2": "^3.6.3",
+    "react-popout": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

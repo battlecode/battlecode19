@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'webpack_loader',
     'rest_framework',
-    'battlecode.api'
+    'api'
 ]
 
 MIDDLEWARE = [
@@ -59,7 +59,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 APPEND_SLASH = False
 
-ROOT_URLCONF = 'battlecode.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATES = [
     {
@@ -77,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'battlecode.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Webpack
@@ -162,7 +162,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'battlecode/static'),
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 

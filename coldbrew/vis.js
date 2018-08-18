@@ -1,13 +1,26 @@
 class Visualizer {
-    constructor(canvas, mapWidth, mapHeight, map) {
-        this.width = mapWidth;
-        this.height = mapHeight;
+    constructor(canvas, mapWidth, mapHeight, map, replay) {
+        let the_replay = JSON.parse(replay);
+
+        if (replay) {
+            this.rounds = the_replay.rounds;
+            this.width = the_replay.width;
+            this.height = the_replay.height;
+            this.map = the_replay.map;
+
+            this.replay = true;
+        } else {
+            this.rounds = {};
+            this.width = mapWidth;
+            this.height = mapHeight;
+            this.map = map;
+
+            this.replay = false;
+        }
 
         this.canvas = document.getElementById(canvas);
         this.ctx = this.canvas.getContext("2d");
-        this.map = map;
 
-        this.rounds = {};
         this.round = 0;
         this.nextRound = 0;
 
@@ -22,6 +35,21 @@ class Visualizer {
 
         this.initializeCanvas();
         this.render();
+
+        this.startPlayingReplay();
+    }
+
+    startPlayingReplay() {
+        if (this.replay) {
+            if (!this.running) clearInterval(this.replayInterval);
+            else this.replayInterval = setInterval(function() {
+                if (this.round+1 < this.rounds.length) this.setRound(this.round+1);
+                else {
+                    this.running = false;
+                    this.startPlayingReplay();
+                }
+            }.bind(this),50);
+        }
     }
 
     initializeCanvas() {
@@ -70,6 +98,7 @@ class Visualizer {
                     this.running = !this.running;
                     this.dragStart = null;
                     this.render();
+                    this.startPlayingReplay()
                     return
                 } else if (!this.running) {
                     r = Math.sqrt(Math.pow(original.x-20,2) + Math.pow(original.y-this.canvas.height+25,2));

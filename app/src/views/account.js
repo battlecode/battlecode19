@@ -35,7 +35,7 @@ class Account extends Component {
 
     updateUser() {
         this.setState({'up':'<i class="fa fa-circle-o-notch fa-spin"></i>'});
-        Api.updateUser(this.state.team, function(response) {
+        Api.updateUser(this.state.user, function(response) {
             if (response) this.setState({'up':'<i class="fa fa-check"></i>'});
             else this.setState({'up':'<i class="fa fa-times"></i>'});
             setTimeout(function() {
@@ -55,6 +55,7 @@ class Account extends Component {
 
     componentDidMount() {
         Api.getUserProfile(function(u) {
+            console.log(u);
             this.setState({user: u});
         }.bind(this));
     }
@@ -316,8 +317,8 @@ class Account extends Component {
                                         <div className="row">
                                             <div className="col-md-12">
                                                 <div className="form-group">
-                                                    <label>User Avatar Upload</label>
-                                                    <input type="file" autoComplete="photo" onChange={ this.uploadProfile } className="btn btn-block btn-default btn-fill" />
+                                                    <label>User Avatar URL</label>
+                                                    <input type="text" id="avatar" className="form-control" onChange={this.changeHandler} value={ this.state.user.avatar } />
                                                 </div>
                                             </div>
                                         </div>
@@ -325,7 +326,7 @@ class Account extends Component {
                                             <div className="col-md-12">
                                                 <div className="form-group">
                                                     <label>User Bio</label>
-                                                    <textarea rows={5} className="form-control" placeholder="Put your team bio here." onChange={this.changeHandler} id="bio" value={ this.state.user.bio } />
+                                                    <textarea rows={5} className="form-control" placeholder="Put your bio here." onChange={this.changeHandler} id="bio" value={ this.state.user.bio } />
                                                 </div>
                                             </div>
                                         </div>

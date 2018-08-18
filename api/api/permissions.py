@@ -2,7 +2,7 @@ from django.db import InternalError
 from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
 
-from battlecode.api.models import League, Team
+from api.models import League, Team
 
 
 class IsAuthenticatedAsRequestedUser(permissions.BasePermission):

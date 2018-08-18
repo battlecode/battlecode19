@@ -17,7 +17,7 @@ class Docs extends Component {
                                     <p>In each turn a microbots can either move to or attack a nearby square, and communicate using up to 4 bits of signalling.  Microbots have limited vision; they can only see within a surrounding 14x14 region, and can only view the ID and signal bits of other microbots.</p>
                                     <p>Microbots can heal and reproduce through the joint formation of nexi.  If any 4 microbots of the same team are in the following formation, with empty corners:</p>
                                     <blockquote>
-                                        <p><center>X<br />X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X<br />X</center></p>
+                                        <p style={{textAlign:'center'}}>X<br />X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X<br />X</p>
                                     </blockquote>
                                     <p>then a new microbot of that team will be created in the center square with 1HP.  If such a microbot already exists, it’s health will be increased by 1HP.  However, if a microbot of the opposing team is in the center square, all 4 microbots in the surrounding nexus will lose 1HP.</p>
                                     <p>The game ends when either one team is totally annihilated, or 200 rounds have passed.  After 200 rounds, the team with greater total HP wins.  If both teams have equal HP after 200 rounds, the winner is determined by a coin flip.</p>

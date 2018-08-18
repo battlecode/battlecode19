@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Api from '../api';
 
+
 class ScrimmageRequest extends Component {
     constructor() {
         super();
@@ -107,6 +108,12 @@ class ScrimmageHistory extends Component {
         }.bind(this));
     }
 
+    playReplay(e) {
+        e.preventDefault();
+        var url = e.target.href;
+        window.open(url, "replay_window", "scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=600,height=600");
+    }
+
     render() {
         return (
             <div className="col-md-12">
@@ -134,7 +141,7 @@ class ScrimmageHistory extends Component {
                                         <td>{ s.status }</td>
                                         <td>{ s.team }</td>
                                         <td>{ s.color }</td>
-                                        { s.replay!==''?<td><a href={ '/replay?' + s.replay }>Watch</a></td>:<td>N/A</td> }
+                                        { s.replay!==''?<td><a href={ '/replay?' + s.replay } onClick={ this.playReplay }>Watch</a></td>:<td>N/A</td> }
                                     </tr>
                                 )) }
                             </tbody>

@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class APIConfig(AppConfig):
-    name = 'battlecode.api'
+    name = 'api'
     label = 'api'

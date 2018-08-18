@@ -58,7 +58,7 @@ class FullUserSerializer(serializers.HyperlinkedModelSerializer):
         model = get_user_model()
         fields = ('url', 'email', 'first_name', 'last_name', 'password', 'date_of_birth',
             'username', 'avatar', 'bio', 'country')
-        read_only_fields = ('url', 'avatar')
+        read_only_fields = ('url',)
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -82,6 +82,7 @@ class FullUserSerializer(serializers.HyperlinkedModelSerializer):
         instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
         instance.bio = validated_data.get('bio', instance.bio)
         instance.country = validated_data.get('country', instance.country)
+        instance.avatar = validated_data.get('avatar', instance.avatar)
         instance.save()
         return instance
 

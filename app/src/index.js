@@ -13,6 +13,7 @@ import Search from './views/search';
 import Team from './views/team';
 import IDE from './views/ide';
 import Account from './views/account';
+import ReplayViewer from './views/replay';
 import LoginRegister from './views/login_register';
 
 import Footer from './footer';
@@ -49,6 +50,7 @@ class App extends Component {
                         <Route path="/ide" component={ IDE }/>
                         <Route path="/account" component={ Account }/>
                         <Route path="/tournaments" component={ Tournaments }/>
+                        <Route path="/replay" component={ ReplayViewer }/>
                         <Route path="*" component={ NotFound }/>
                     </Switch>
                     <Footer />

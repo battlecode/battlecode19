@@ -101,7 +101,7 @@ class Api {
             var requests = []
             for (let i=0; i<scrimmages.length; i++) {
                 if (scrimmages[i].status !== "pending") continue;
-                if (scrimmages[i].requested_by !== parseInt(Cookies.get('team_id'))
+                if (scrimmages[i].requested_by !== parseInt(Cookies.get('team_id'),10)
                     || scrimmages[i].blue_team.id === scrimmages[i].red_team.id) {
                     requests.push({
                         id:scrimmages[i].id,
@@ -133,8 +133,14 @@ class Api {
         });
     }
 
+    static getReplayFromURL(url, callback) {
+        $.get(url, function(data, succcess) {
+            callback(data);
+        });
+    }
+
     static getScrimmageHistory(callback) {
-        let my_id = parseInt(Cookies.get('team_id'));
+        let my_id = parseInt(Cookies.get('team_id'),10);
         this.getAllTeamScrimmages(function(s) {
             var requests = []
             for (let i=0; i<s.length; i++) {
@@ -188,6 +194,7 @@ class Api {
 
     static getUserProfile(callback) {
         $.get(URL+"/api/user/profile/"+encodeURIComponent(Cookies.get('username'))+"/").done(function(data, status) {
+            Cookies.set('user_url',data.url);
             $.get(data.url).done(function(data, success) {
                 callback(data);
             }).fail(function(xhr, status, error) {
@@ -197,9 +204,17 @@ class Api {
     }
 
     static updateUser(profile, callback) {
-        // do stuff with profile
-
-        callback(true);
+        $.ajax({
+            url:Cookies.get('user_url'),
+            data:JSON.stringify(profile),
+            type:'PATCH',
+            contentType:'application/json',
+            dataType: 'json'
+        }).done(function(data, status) {
+            callback(true);
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
     }
 
     static loginCheck(callback) {

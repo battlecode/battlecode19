@@ -26,7 +26,7 @@ urlpatterns = [
     path('auth/token/', TokenObtainPairView.as_view()),
     path('auth/token/refresh/', TokenRefreshView.as_view()),
     path('auth/token/verify/', TokenVerifyView.as_view()),
-    path('api/', include('battlecode.api.urls')),
+    path('api/', include('api.urls')),
     path('admin/', admin.site.urls, name='admin'),
     path('docs/', include_docs_urls(title='Battlecode API')),
 ]

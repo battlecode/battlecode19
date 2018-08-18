@@ -99,4 +99,4 @@ Coldbrew.prototype.destroy = function() {
     this.kill = true;
 }
 
-module.exports = Coldbrew;
+module.exports = {'Coldbrew': Coldbrew, 'Visualizer': Visualizer};

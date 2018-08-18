@@ -3,4 +3,4 @@
 
 Built in react, using modified template from http://creative-tim.com. Install with `npm install`, dev with `npm run start`, and build for prod with `npm run build`.  Fully static frontend, and interfaces with backend API via AJAX calls in `api.js` (TODO). 
 
-Intent is to integrate dev environment/IDE into this using [Firepad](https://github.com/firebase/firepad) for collaboration and code storage, and [Coldbrew](https://github/joshuagruenstein/coldbrew) for player code development/testing.
+When installing a new Node package, always `npm install --save <package>` or `npm install --save-dev <package>`, and commit `package.json` and `package-lock.json`.

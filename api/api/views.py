@@ -7,8 +7,8 @@ from rest_framework import permissions, status, mixins, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from battlecode.api.serializers import *
-from battlecode.api.permissions import *
+from api.serializers import *
+from api.permissions import *
 
 
 class PartialUpdateModelMixin(mixins.UpdateModelMixin):
