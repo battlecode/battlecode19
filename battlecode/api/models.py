@@ -40,8 +40,8 @@ class User(AbstractUser):
     avatar   = models.TextField(blank=True)
     country  = models.TextField(blank=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'date_of_birth']
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'date_of_birth']
 
 
 class League(models.Model):
@@ -62,15 +62,6 @@ class Update(models.Model):
     league = models.ForeignKey(League, related_name='updates', on_delete=models.PROTECT)
 
 
-class Map(models.Model):
-    league   = models.ForeignKey(League, on_delete=models.PROTECT)
-    name     = models.TextField()
-    filename = models.TextField()
-    hidden   = models.BooleanField(default=True)
-
-    def __str__(self):
-        return '(#{}) {}'.format(self.id, self.name)
-
 
 class Tournament(models.Model):
     TRUESKILL   = 'trueskill'
@@ -88,7 +79,6 @@ class Tournament(models.Model):
     style       = models.TextField(choices=TOURNAMENT_STYLE_CHOICES)
     date_time   = models.DateTimeField()
     divisions   = fields.ArrayField(models.TextField(choices=TOURNAMENT_DIVISION_CHOICES), blank=True, default=list)
-    maps        = models.ManyToManyField(Map, default=list)
     stream_link = models.TextField(blank=True)
     hidden      = models.BooleanField(default=True)
 
@@ -116,7 +106,7 @@ class Team(models.Model):
     loses                = models.IntegerField(default=0)
     draws                = models.IntegerField(default=0)
 
-    code                 = models.TextField(default="// hi y'all.")
+    code                 = models.TextField(default="// Get started by reading the docs!")
 
     # metadata
     deleted = models.BooleanField(default=False)
@@ -151,14 +141,7 @@ class Scrimmage(models.Model):
     league    = models.ForeignKey(League, on_delete=models.PROTECT)
     red_team  = models.ForeignKey(Team, null=True, on_delete=models.PROTECT, related_name='red_team')
     blue_team = models.ForeignKey(Team, null=True, on_delete=models.PROTECT, related_name='blue_team')
-    map       = models.ForeignKey(Map, on_delete=models.PROTECT)
     ranked    = models.BooleanField(default=False)
-
-    # Completed when the scrimmage is queued
-    red_submission  = models.ForeignKey(Submission, null=True, default=None,
-        on_delete=models.PROTECT, related_name='red_submission')
-    blue_submission = models.ForeignKey(Submission, null=True, default=None,
-        on_delete=models.PROTECT, related_name='blue_submission')
 
     # Match-running (completed by match runner)
     status    = models.TextField(choices=SCRIMMAGE_STATUS_CHOICES, default='pending')

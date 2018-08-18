@@ -3,19 +3,18 @@ import Api from '../api';
 
 class YesTeam extends Component {
 
-    constructor() {
+    constructor(props) {
         super();
 
         this.state = {
             team: {
-                team_name:'',
-                team_id:0,
-                secret_key:'',
-                auto_accept:true,
-                auto_run:true,
-                division:'college',
+                name:'',
+                id:0,
+                team_key:'',
+                auto_accept_ranked:true,
+                auto_accept_unranked:true,
                 bio:'',
-                img:'',
+                avatar:'',
                 users:[]
             },
             'up':'Update Info'
@@ -26,6 +25,12 @@ class YesTeam extends Component {
         this.updateTeam = this.updateTeam.bind(this);
         this.uploadProfile = this.uploadProfile.bind(this);
     }
+
+    //componentDidMount() {
+    //    Api.getUserTeam(function(new_state) {
+    //        this.setState({ team:new_state });
+    //    }.bind(this));
+    //}
 
     changeHandler(e) {
         var id = e.target.id;
@@ -60,14 +65,16 @@ class YesTeam extends Component {
     uploadProfile(e) {
         var reader = new FileReader();
         reader.onloadend = () => this.setState(function(prevState, props) {
-            prevState.team.img = reader.result;
+            prevState.team.bio = reader.result;
             return prevState;
         });
         reader.readAsDataURL(e.target.files[0]);
     }
 
     componentDidMount() {
-        this.setState({team: this.props.team });
+        Api.getUserTeam(function(new_state) {
+            this.setState({ team:new_state });
+        }.bind(this));
     }
 
     render() {
@@ -83,46 +90,33 @@ class YesTeam extends Component {
                                 <div className="col-md-7">
                                     <div className="form-group">
                                         <label>Team Name (static)</label>
-                                        <input type="text" className="form-control" disabled placeholder="Team" value={ this.state.team.team_name } />
+                                        <input type="text" className="form-control" disabled readOnly value={ this.state.team.name } />
                                     </div>
                                 </div>
                                 <div className="col-md-5">
                                     <div className="form-group">
                                         <label>Secret Key (static)</label>
-                                        <input type="text" className="form-control" disabled placeholder="Key" value={ this.state.team.secret_key } />
+                                        <input type="text" className="form-control" disabled readOnly value={ this.state.team.team_key } />
                                     </div>
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="col-md-6">
-                                    <div className="checkbox" onClick={ this.checkHandler } id="auto_accept">
-                                        <label id="auto_accept"><input type="checkbox" data-toggle="checkbox" readOnly checked={ !!this.state.team.auto_accept } className="form-control" /> Auto-accept scrimmages.</label>
+                                    <div className="checkbox" onClick={ this.checkHandler } id="auto_accept_unranked">
+                                        <label id="auto_accept_unranked"><input type="checkbox" data-toggle="checkbox" readOnly checked={ !!this.state.team.auto_accept_unranked } className="form-control" /> Auto-accept scrimmages.</label>
                                     </div>
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="checkbox" onClick={ this.checkHandler } id="auto_run">
-                                        <label id="auto_run"><input type="checkbox" data-toggle="checkbox" readOnly checked={ !!this.state.team.auto_run } className="form-control" /> Auto-run ranking scrimmages.</label>
+                                    <div className="checkbox" onClick={ this.checkHandler } id="auto_accept_ranked">
+                                        <label id="auto_accept_ranked"><input type="checkbox" data-toggle="checkbox" readOnly checked={ !!this.state.team.auto_accept_ranked } className="form-control" /> Auto-run ranking scrimmages.</label>
                                     </div>
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="col-md-12">
                                     <div className="form-group">
-                                        <label>Division</label>
-                                        <select className="form-control" id="division" value={ this.state.team.division } onChange={ this.changeHandler }>
-                                            <option value='highschool'>Highschool</option>
-                                            <option value='newbie'>Newbie</option>
-                                            <option value='college'>College</option>
-                                            <option value='pro'>Pro</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-md-12">
-                                    <div className="form-group">
-                                        <label>Team Avatar Upload</label>
-                                        <input type="file" autoComplete="photo" onChange={ this.uploadProfile } className="btn btn-block btn-default btn-fill" />
+                                        <label>Team Avatar URL</label>
+                                        <input type="text" id="avatar" className="form-control" onChange={this.changeHandler} value={ this.state.team.avatar } />
                                     </div>
                                 </div>
                             </div>
@@ -145,8 +139,8 @@ class YesTeam extends Component {
                         </div>
                         <div className="content">
                             <div className="author">
-                                <img className="avatar border-gray" src={ this.state.team.img } alt="..." />
-                                <h4 className="title">{ this.state.team.team_name }<br />
+                                <img className="avatar border-gray" src={ this.state.team.avatar } alt="..." />
+                                <h4 className="title">{ this.state.team.name }<br />
                                     <small>{ this.state.team.users.join(", ") }</small>
                                 </h4>
                             </div>
@@ -162,7 +156,7 @@ class YesTeam extends Component {
 class NoTeam extends Component {
     constructor() {
         super();
-        this.state = {team_name:"", secret_key:""};
+        this.state = {team_name:"", secret_key:"", team_id:"0"};
 
         this.joinTeam = this.joinTeam.bind(this);
         this.createTeam = this.createTeam.bind(this);
@@ -185,7 +179,7 @@ class NoTeam extends Component {
     }
 
     createTeam() {
-        Api.createTeam(this.state.team_name, function(success) {
+        Api.createTeam(this.state.team_name, parseInt(this.state.team_id), function(success) {
             window.location.reload();
         });
     }
@@ -217,10 +211,16 @@ class NoTeam extends Component {
                         </div>
                         <div className="content">
                             <div className="row">
-                                <div className="col-md-12">
+                                <div className="col-md-8">
                                     <div className="form-group">
                                         <label>Team Secret Key</label>
                                         <input type="text" className="form-control" id="secret_key" onChange={this.changeHandler} />
+                                    </div>
+                                </div>
+                                <div className="col-md-4">
+                                    <div className="form-group">
+                                        <label>Team ID</label>
+                                        <input type="text" className="form-control" id="team_id" onChange={this.changeHandler} />
                                     </div>
                                 </div>
                             </div>
@@ -239,14 +239,13 @@ class Team extends Component {
         super();
         this.state = {
             'team': {
-                team_name:'',
-                team_id:0,
+                name:'',
+                id:0,
                 secret_key:'',
-                auto_accept:true,
-                auto_run:true,
-                division:'college',
+                auto_accept_ranked:true,
+                auto_accept_unranked:true,
                 bio:'',
-                img:'',
+                avatar:'',
                 users:[]
             }
         }
@@ -254,6 +253,7 @@ class Team extends Component {
 
     componentDidMount() {
         Api.getUserTeam(function(new_state) {
+            console.log('new_state: ' + new_state.name);
             this.setState({ team:new_state });
         }.bind(this));
     }

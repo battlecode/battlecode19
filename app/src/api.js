@@ -1,6 +1,7 @@
 import $ from 'jquery';
+import * as Cookies from "js-cookie";
 
-var URL = "http://127.0.0.1:8000/api/";
+var URL = "http://127.0.0.1:8000";
 var LEAGUE = 0
 
 class Api {
@@ -26,7 +27,7 @@ class Api {
     }
 
     static getUpdates(callback) {
-        $.get(URL+"league/"+LEAGUE+"/", function(data, success) {
+        $.get(URL+"/api/league/"+LEAGUE+"/", function(data, success) {
             for (var i=0; i<data.updates.length; i++) {
                 var d = new Date(data.updates[i].time);
                 data.updates[i].date = d.toLocaleDateString();
@@ -38,7 +39,7 @@ class Api {
     }
 
     static search(query, callback) {
-        $.get(URL+LEAGUE+"/team/?search="+encodeURIComponent(query), function(team_data, team_success) {
+        $.get(URL+"/api/"+LEAGUE+"/team/?search="+encodeURIComponent(query), function(team_data, team_success) {
             $.get(URL+"user/profile/?search="+encodeURIComponent(query), function(user_data, user_success) {
                 callback(user_data.results, team_data.results);
             });
@@ -46,52 +47,113 @@ class Api {
     }
 
     static getUserTeam(callback) {
-        var state = {
-            team_name:'Teh Devs',
-            team_id:2342,
-            secret_key:'3f8wgugf',
-            auto_accept:true,
-            auto_run:false,
-            division:'newbie',
-            bio:'Isn\'t this a cool bio?',
-            img:'',
-            users:['jgru', 'oiheb', 'oedgg']
-        };
-
-        // return null if no team
-        callback(state);
+        $.get(URL+"/api/"+LEAGUE+"/team/?username="+encodeURIComponent(Cookies.get('username'))).done(function(data, status){
+            if (data.results.length === 0) callback(null);
+            else {
+                Cookies.set('team_id',data.results[0].id);
+                $.get(URL+"/api/"+LEAGUE+"/team/"+data.results[0].id+"/").done(function(data, status) {
+                    callback(data);
+                });
+            }
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
     }
 
     static updateTeam(params, callback) {
-        callback(true);
+        $.ajax({
+            url:URL+"/api/"+LEAGUE+"/team/"+Cookies.get('team_id')+"/",
+            data:JSON.stringify(params),
+            type:'PATCH',
+            contentType:'application/json',
+            dataType: 'json'
+        }).done(function(data, status) {
+            callback(true);
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
     }
 
     static acceptScrimmage(scrimmage_id, callback) {
-        callback();
+        $.ajax({
+            url:URL+"/api/"+LEAGUE+"/scrimmage/"+scrimmage_id+"/accept/",
+            method:"PATCH"
+        }).done(function(data, status) {
+            callback(true);
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
     }
 
     static rejectScrimmage(scrimmage_id, callback) {
-        callback();
+        $.ajax({
+            url:URL+"/api/"+LEAGUE+"/scrimmage/"+scrimmage_id+"/reject/",
+            method:"PATCH"
+        }).done(function(data, status) {
+            callback(true);
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
     }
 
     static getScrimmageRequests(callback) {
-        var requests = [
-            {'id':104, 'team':'Teh Devs'}
-        ];
-
-        callback(requests);
+        this.getAllTeamScrimmages(function(scrimmages) {
+            var requests = []
+            for (let i=0; i<scrimmages.length; i++) {
+                if (scrimmages[i].status !== "pending") continue;
+                if (scrimmages[i].requested_by !== parseInt(Cookies.get('team_id'))
+                    || scrimmages[i].blue_team.id === scrimmages[i].red_team.id) {
+                    requests.push({
+                        id:scrimmages[i].id,
+                        team_id:scrimmages[i].requested_by,
+                        team:(scrimmages[i].requested_by===scrimmages[i].red_team.id)?scrimmages[i].red_team.name:scrimmages[i].blue_team.name
+                    });
+                }
+            }
+            callback(requests);
+        });
     }
 
     static requestScrimmage(team_name, callback) {
-        callback(true);
+        $.get(URL+"/api/"+LEAGUE+"/team/?search="+encodeURIComponent(team_name), function(team_data, team_success) {
+            if (team_data.results.length === 0) return callback(false);
+            $.post(URL+"/api/"+LEAGUE+"/scrimmage/", {
+                red_team:Cookies.get('team_id'),
+                blue_team:team_data.results[0].id,
+                ranked:false
+            }).done(function(data, status) {
+                callback(true)
+            });
+        });
+    }
+
+    static getAllTeamScrimmages(callback) {
+        $.get(URL+"/api/"+LEAGUE+"/scrimmage/", function(data, succcess) {
+            callback(data.results);
+        });
     }
 
     static getScrimmageHistory(callback) {
-        var scrimmages = [
-            {time:'10/20 2:24', status:'Won', team:'Teh Devs', color:'Red', replay:'434985u92.bc19z'}
-        ];
+        let my_id = parseInt(Cookies.get('team_id'));
+        this.getAllTeamScrimmages(function(s) {
+            var requests = []
+            for (let i=0; i<s.length; i++) {
+                let on_red = s[i].red_team.id === my_id;
+                if (s[i].status === "pending" && s[i].requested_by !== my_id) continue;
 
-        callback(scrimmages)
+                if (s[i].status === "redwon") s[i].status = on_red ? "won":"lost";
+                else if (s[i].status === "bluewon") s[i].status = on_red ? "lost":"won";
+                s[i].status = s[i].status.charAt(0).toUpperCase() + s[i].status.slice(1);
+
+                s[i].date = new Date(s[i].updated_at).toLocaleDateString();
+                s[i].time = new Date(s[i].updated_at).toLocaleTimeString();
+
+                s[i].team = on_red ? s[i].blue_team.name : s[i].red_team.name;
+                s[i].color = on_red ? 'Red' : 'Blue';
+
+                requests.push(s[i]);
+            } callback(requests);
+        });
     }
 
     static getTournaments(callback) {
@@ -102,49 +164,36 @@ class Api {
         callback(tournaments);
     }
 
-    static getGitHead(callback) {
-        var source = "// this is source code"
-
-        callback(source);
-    }
-
-    static pushToGitHead(src, callback) {
-        // do stuff with src
-
-        callback(true); // no errors
-    }
-
     static createTeam(team_name, callback) {
-        // create the team
-
-        callback(true);
+        $.post(URL+"/api/"+LEAGUE+"/team/",{'name':team_name }).done(function(data, status){
+            Cookies.set('team_id',data.id);
+            callback(true);
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
     }
 
-    static joinTeam(secret_key, callback) {
-        // join the team
-
-        callback(true);
-    }
-
-    static logout(callback) {
-        // logout
-
-        callback(true);
+    static joinTeam(secret_key, team_id, callback) {
+        $.ajax({
+            'url':URL+"/api/"+LEAGUE+"/team/"+team_id+"/join/",
+            'type':'PATCH',
+            'data':{'team_key':secret_key }
+        }).done(function(data, status){
+            Cookies.set('team_id',data.id);
+            callback(true);
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
     }
 
     static getUserProfile(callback) {
-        var user = {
-            username:'nanogru',
-            email:'jgru@mit.edu',
-            first:'Josh',
-            last:'Gruenstein',
-            dob:'5/13/1999',
-            bio:'This is a sweg bio.',
-            img:'',
-            country:''
-        }
-
-        callback(user);
+        $.get(URL+"/api/user/profile/"+encodeURIComponent(Cookies.get('username'))+"/").done(function(data, status) {
+            $.get(data.url).done(function(data, success) {
+                callback(data);
+            }).fail(function(xhr, status, error) {
+                console.log(error);
+            });
+        });
     }
 
     static updateUser(profile, callback) {
@@ -153,36 +202,62 @@ class Api {
         callback(true);
     }
 
-    static loginCheck() {
-        // ideally this should not require a backend call.
+    static loginCheck(callback) {
+        $.ajaxSetup({
+            headers: { 'Authorization': 'Bearer ' + Cookies.get('token') }
+        });
 
-        return true;
+        $.post(URL+"/auth/token/verify/", {
+            token: Cookies.get('token')
+        }).done(function(data, status){
+            callback(true);
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
     }
 
-    static login(email, password, callback) {
-        // callback true if success, false otherwise
-
-        callback(false);
+    static logout(callback) {
+        Cookies.set('token',"");
+        Cookies.set('refresh',"");
+        callback();
     }
 
-    static register(email, username, password, callback) {
-        callback(true);
+    static login(username, password, callback) {
+        $.post(URL+"/auth/token/", {
+            username: username,
+            password:password
+        }).done(function(data, status){
+            Cookies.set('token',data.access);
+            Cookies.set('refresh',data.refresh);
+            Cookies.set('username',username);
+            
+            callback(true);
+        }).fail(function(xhr, status, error) {
+            callback(false);
+        });
+    }
+
+    static register(email, username, password, first, last, dob, callback) {
+        $.post(URL+"/api/user/", {
+            email: email,
+            username:username,
+            password:password,
+            first_name:first,
+            last_name:last,
+            date_of_birth:dob
+        }).done(function(data, status){
+            this.login(email, password, callback);
+        }.bind(this)).fail(function(xhr, status, error) {
+            console.log("WHAT")
+        });
     }
 
     static forgotPassword(email, callback) {
         callback(true);
     }
 
-    static fetchTeamCode(callback) {
-        var code = "// hi y'all."
-
-        callback(code);
-    }
-
     static pushTeamCode(code, callback) {
-        // push code to master
-
-        callback(true);
+        this.updateTeam({'code':code}, callback);
     }
 }
 

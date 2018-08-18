@@ -280,29 +280,6 @@ class SubmissionViewSet(viewsets.GenericViewSet,
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-class MapViewSet(viewsets.GenericViewSet,
-                 mixins.ListModelMixin,
-                 mixins.RetrieveModelMixin):
-    """
-    list:
-    Returns a list of maps, ordered alphabetically.
-
-    retrieve:
-    Returns a map from its id.
-    """
-    queryset = Map.objects.all().exclude(hidden=True).order_by('name')
-    serializer_class = MapSerializer
-    permission_classes = (LeagueActiveOrSafeMethods,)
-
-    def get_queryset(self):
-        return super().get_queryset().filter(league=self.kwargs.get('league_id', None))
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['request'] = self.request
-        context['league_id'] = self.kwargs.get('league_id', None)
-        return context
-
 
 class ScrimmageViewSet(viewsets.GenericViewSet,
                        mixins.ListModelMixin,
@@ -349,12 +326,6 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
             raise InternalError
         return teams[0]
 
-    def get_map(self, league_id, map_id):
-        try:
-            return Map.objects.filter(league_id=league_id, hidden=False).get(pk=map_id)
-        except Map.DoesNotExist:
-            return None
-
     def get_submission(self, team_id):
         submissions = Submission.objects.all().filter(team_id=team_id).order_by('-submitted_at')
         if submissions.count() == 0:
@@ -375,7 +346,6 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
         try:
             red_team_id = int(request.data['red_team'])
             blue_team_id = int(request.data['blue_team'])
-            map_id = int(request.data['map'])
             ranked = request.data['ranked'] == 'True'
 
             # Validate teams
@@ -391,30 +361,16 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
             if that_team is None:
                 return Response({'message': 'Requested team does not exist'}, status.HTTP_404_NOT_FOUND)
 
-            # Validate map
-            scrim_map = self.get_map(league_id, map_id)
-            if scrim_map is None:
-                return Response({'message': 'Requested map does not exist'}, status.HTTP_404_NOT_FOUND)
-
             data = {
                 'league': league_id,
                 'red_team': red_team.id,
                 'blue_team': blue_team.id,
-                'map': scrim_map.id,
                 'ranked': ranked,
                 'requested_by': this_team.id,
             }
 
-            # Validate submissions
-            red_submission = self.get_submission(red_team_id)
-            blue_submission = self.get_submission(blue_team_id)
-            if red_submission is None or blue_submission is None:
-                return Response({'message': 'Teams do not have submissions'}, status.HTTP_400_BAD_REQUEST)
-
             # Check auto accept
             if (ranked and that_team.auto_accept_ranked) or (not ranked and that_team.auto_accept_unranked):
-                data['red_submission'] = red_submission.id
-                data['blue_submission'] = blue_submission.id
                 data['status'] = 'queued'
 
             # Create scrimmage
@@ -431,18 +387,12 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
     def accept(self, request, league_id, team, pk=None):
         try:
             scrimmage = self.get_queryset().get(pk=pk)
-            if scrimmage.requested_by == team:
+            if scrimmage.requested_by == team and scrimmage.red_team.id != scrimmage.blue_team.id:
                 return Response({'message': 'Cannot accept an outgoing scrimmage.'}, status.HTTP_400_BAD_REQUEST)
             if scrimmage.status != 'pending':
                 return Response({'message': 'Scrimmage is not pending.'}, status.HTTP_400_BAD_REQUEST)
             scrimmage.status = 'queued'
 
-            red_submission = self.get_submission(scrimmage.red_team.id)
-            blue_submission = self.get_submission(scrimmage.blue_team.id)
-            if red_submission is None or blue_submission is None:
-                return Response({'message': 'Teams should have submissions if queued'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
-            scrimmage.red_submission = red_submission
-            scrimmage.blue_submission = blue_submission
             scrimmage.save()
 
             serializer = self.get_serializer(scrimmage)

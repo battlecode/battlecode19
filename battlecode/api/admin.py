@@ -46,16 +46,9 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_filter = ('team',)
 
 
-@admin.register(Map)
-class MapAdmin(admin.ModelAdmin):
-    list_display = ('id', 'league', 'name', 'filename', 'hidden')
-    list_display_links = ('id', 'name')
-    list_filter = ('league',)
-
-
 @admin.register(Scrimmage)
 class ScrimmageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'league', 'red_team', 'blue_team', 'map', 'ranked', 'status',
+    list_display = ('id', 'league', 'red_team', 'blue_team', 'ranked', 'status',
         'requested_by', 'requested_at', 'started_at', 'updated_at')
     list_filter = ('league', 'red_team', 'blue_team')
 

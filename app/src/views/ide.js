@@ -23,7 +23,6 @@ class IDE extends Component {
         this.lang = 'javascript';
         this.storage = {};
 
-        this.pull = this.pull.bind(this);
         this.push = this.push.bind(this);
         this.run = this.run.bind(this);
         this.showMenu = this.showMenu.bind(this);
@@ -43,7 +42,7 @@ class IDE extends Component {
         this.editor.setShowPrintMargin(false);
 
         Api.getUserTeam(function(t) {
-            var hash = t.team_id + "|" + t.secret_key;
+            var hash = t.id + "|" + t.team_key;
             var ref = window.firebase.database().ref().child(hash);
             this.firepad = window.Firepad.fromACE(ref, this.editor);
         }.bind(this));
@@ -57,16 +56,10 @@ class IDE extends Component {
         });
     }
 
-    pull() {
-        Api.fetchTeamCode(function(code) {
-            this.firepad.setText(code);
-        }.bind(this));
-    }
-
     push() {
         Compiler.Compile(this.lang, this.firepad.getText(), function(code) {
             Api.pushTeamCode(code, function() {});
-        }.bind(this), function(errors) {
+        }, function(errors) {
             this.setState({error: true, errors:errors});
         }.bind(this));
     }
@@ -297,7 +290,6 @@ class IDE extends Component {
                 }}>
                     <i onClick={ this.showMenu } style={{cursor:"pointer"}} className="pe-7s-menu" />
                     <i onClick={ this.run } className="pe-7s-play pull-right" style={{cursor:"pointer", marginTop:"2px"}} />
-                    <i onClick={ this.pull } className="pe-7s-download" style={{marginLeft:"10px", cursor:"pointer"}} />
                     <i onClick={ this.push } className="pe-7s-upload" style={{marginLeft:"10px", cursor:"pointer"}} />
                 </div>
                 <div style={{

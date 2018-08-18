@@ -9,11 +9,11 @@ class Account extends Component {
             user: {
                 username:'',
                 email:'',
-                first:'',
-                last:'',
-                dob:'',
+                first_name:'',
+                last_name:'',
+                date_of_birth:'',
                 bio:'',
-                img:'',
+                avatar:'',
                 country:''
             },
             'up':'Update Info'
@@ -47,7 +47,7 @@ class Account extends Component {
     uploadProfile(e) {
         var reader = new FileReader();
         reader.onloadend = () => this.setState(function(prevState, props) {
-            prevState.user.img = reader.result;
+            prevState.user.avatar = reader.result;
             return prevState;
         });
         reader.readAsDataURL(e.target.files[0]);
@@ -89,21 +89,21 @@ class Account extends Component {
                                             <div className="col-md-6">
                                                 <div className="form-group">
                                                     <label>First Name</label>
-                                                    <input type="text" className="form-control" id="first" onChange={ this.changeHandler } value={ this.state.user.first } />
+                                                    <input type="text" className="form-control" id="first" onChange={ this.changeHandler } value={ this.state.user.first_name } />
                                                 </div>
                                             </div>
                                             <div className="col-md-6">
                                                 <div className="form-group">
                                                     <label>Last Name</label>
-                                                    <input type="text" className="form-control" id="last" onChange={ this.changeHandler } value={ this.state.user.last } />
+                                                    <input type="text" className="form-control" id="last" onChange={ this.changeHandler } value={ this.state.user.last_name } />
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="row">
                                             <div className="col-md-6">
                                                 <div className="form-group">
-                                                    <label>Date of Birth (MM/DD/YYYY)</label>
-                                                    <input type="text" className="form-control" id="dob" onChange={ this.changeHandler } value={ this.state.user.dob } />
+                                                    <label>Date of Birth (YYYY-MM-DD)</label>
+                                                    <input type="text" className="form-control" id="dob" onChange={ this.changeHandler } value={ this.state.user.date_of_birth } />
                                                 </div>
                                             </div>
 
@@ -340,8 +340,8 @@ class Account extends Component {
                                     </div>
                                     <div className="content">
                                         <div className="author">
-                                            <img className="avatar border-gray" src={ this.state.user.img } alt="..." />
-                                            <h4 className="title">{ this.state.user.first + " " + this.state.user.last }<br /><small>{ this.state.user.username }</small></h4>
+                                            <img className="avatar border-gray" src={ this.state.user.avatar } alt="..." />
+                                            <h4 className="title">{ this.state.user.first_name + " " + this.state.user.last_name }<br /><small>{ this.state.user.username }</small></h4>
                                         </div>
                                         <p className="description text-center">{ this.state.user.bio }</p>
                                     </div>

@@ -20,7 +20,7 @@ class LoginRegister extends Component {
     }
 
     login() {
-        Api.login(this.state.email, this.state.password, function(success) {
+        Api.login(this.state.username, this.state.password, function(success) {
             if (success) window.location.reload();
             else this.setState({error:"Incorrect email/password."});
         }.bind(this));
@@ -33,10 +33,10 @@ class LoginRegister extends Component {
             else if (this.state.email.length < 4) this.setState({error:"Email must be at least 4 characters."});
             else if (this.state.first.length < 1) this.setState({error:"Must provide first name."});
             else if (this.state.last.length < 1) this.setState({error:"Must provide last name."});
-            else if (this.state.dob.split("/").length !== 3 || this.state.dob.length !== 10) this.setState({error:"Must provide DOB in MM/DD/YYYY form."})
+            else if (this.state.dob.split("-").length !== 3 || this.state.dob.length !== 10) this.setState({error:"Must provide DOB in YYYY-MM-DD form."})
             else if (this.state.password.length < 6) this.setState({error:"Password must be at least 6 characters."})
 
-            else Api.register(this.state.email, this.state.username, this.state.password, function(success) {
+            else Api.register(this.state.email, this.state.username, this.state.password, this.state.first, this.state.last, this.state.dob, function(success) {
                 if (success) window.location.reload();
                 else this.setState({error:"Registration failed.  Maybe account exists?"});
             }.bind(this));
@@ -96,8 +96,8 @@ class LoginRegister extends Component {
                         <div className="row">
                             <div className="col-md-12">
                                 <div className="form-group">
-                                    <label>Email</label>
-                                    <input type="email" id="email" className="form-control" onChange={ this.changeHandler }  />
+                                    <label>Username</label>
+                                    <input type="text" id="username" className="form-control" onChange={ this.changeHandler } />
                                 </div>
                             </div>
                             <div style={{display:this.state.register?"block":"none"}}>
@@ -115,14 +115,14 @@ class LoginRegister extends Component {
                                 </div> 
                                 <div className="col-xs-6">
                                     <div className="form-group">
-                                        <label>Username</label>
-                                        <input type="text" id="username" className="form-control" onChange={ this.changeHandler } />
+                                        <label>Email</label>
+                                        <input type="email" id="email" className="form-control" onChange={ this.changeHandler }  />
                                     </div>
                                 </div>
                                 <div className="col-xs-6">
                                     <div className="form-group">
                                         <label>Date of Birth</label>
-                                        <input type="text" id="dob" placeholder="MM/DD/YYYY" className="form-control" onChange={ this.changeHandler } />
+                                        <input type="text" id="dob" placeholder="YYYY-MM-DD" className="form-control" onChange={ this.changeHandler } />
                                     </div>
                                 </div>
                             </div>

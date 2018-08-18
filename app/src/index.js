@@ -21,8 +21,19 @@ import SideBar from './sidebar';
 import Api from './api';
 
 class App extends Component {
+    constructor() {
+        super();
+        this.state = {'logged_in': null}; 
+    }
+
+    componentDidMount() {
+        Api.loginCheck(function(logged_in) {
+            this.setState({ 'logged_in': logged_in });
+        }.bind(this));
+    }
+
     render() {
-        if (Api.loginCheck()) return (
+        if (this.state.logged_in) return (
             <div className="wrapper">
                 <SideBar />
                 <div className="main-panel">
@@ -43,7 +54,8 @@ class App extends Component {
                     <Footer />
                 </div>
             </div>
-        ); else return <LoginRegister />;
+        ); else if (this.state.logged_in === false) return <LoginRegister />;
+        else return <div></div>
     }
 }
 

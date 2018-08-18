@@ -47,7 +47,7 @@ class ScrimmageRequests extends Component {
     render() {
         return (
             <div className="col-md-12">
-                { this.state.requests.map(r => <ScrimmageRequest id={r.id} team={r.team} />) }
+                { this.state.requests.map(r => <ScrimmageRequest key={r.id} id={r.id} team={r.team} />) }
             </div>
         );
     }
@@ -66,11 +66,11 @@ class ScrimmageRequestor extends Component {
         this.setState({'up':'<i class="fa fa-circle-o-notch fa-spin"></i>'});
         Api.requestScrimmage(this.state.input, function(response) {
             if (response) this.setState({'up':'<i class="fa fa-check"></i>'});
-            else this.setState({'up':'<i class="fa fa-times"></i>'});
+            else this.setState({'up':'Team not found'});
             setTimeout(function() {
                 this.setState({'up':'Request'});
             }.bind(this),2000);
-        })
+        }.bind(this))
     }
 
     changeHandler(e) {
@@ -85,7 +85,7 @@ class ScrimmageRequestor extends Component {
                         <div className="input-group">
                             <input type="text" className="form-control" onChange={ this.changeHandler } placeholder="Team to request..." />
                             <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onclick={ this.request }dangerouslySetInnerHTML={{__html:this.state.up }}></button>
+                                <button className="btn btn-default" type="button" onClick={ this.request } dangerouslySetInnerHTML={{__html:this.state.up }}></button>
                             </span>
                         </div>
                     </div>
@@ -118,6 +118,7 @@ class ScrimmageHistory extends Component {
                         <table className="table table-hover table-striped">
                             <thead>
                                 <tr>
+                                    <th>Date</th>
                                     <th>Time</th>
                                     <th>Status</th>
                                     <th>Team</th>
@@ -127,12 +128,13 @@ class ScrimmageHistory extends Component {
                             </thead>
                             <tbody>
                                 { this.state.scrimmages.map(s => (
-                                    <tr>
+                                    <tr key={s.id}>
+                                        <td>{ s.date }</td>
                                         <td>{ s.time }</td>
                                         <td>{ s.status }</td>
                                         <td>{ s.team }</td>
                                         <td>{ s.color }</td>
-                                        <td><a href={ '/replay?' + s.replay }>Watch</a></td>
+                                        { s.replay!==''?<td><a href={ '/replay?' + s.replay }>Watch</a></td>:<td>N/A</td> }
                                     </tr>
                                 )) }
                             </tbody>
