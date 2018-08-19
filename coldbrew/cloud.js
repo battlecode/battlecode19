@@ -65,6 +65,7 @@ function playGame() {
                     replay_id.id,
                     scrimmage.id
                 ]).then(playGame);
+                c.destroy();
             });
         }); c.playGame();
     }).catch(function(error) {

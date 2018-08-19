@@ -57,17 +57,17 @@ Coldbrew.prototype.gameLoop = function() {
         clearInterval(this.gameLoopInterval);
         if (this.log_receiver) this.log_receiver(this.game.logs);
         if (this.replay_eater) {
-            replay['logs'] = this.game.logs;
-            replay['win_condition'] = this.game.win_condition;
-            replay['winner'] = this.game.winner;
-            this.replay_eater(replay);
+            this.replay['logs'] = this.game.logs;
+            this.replay['win_condition'] = this.game.win_condition;
+            this.replay['winner'] = this.game.winner;
+            this.replay_eater(this.replay);
         } else this.vis.gameOver(this.game.win_condition);
     } else if (!(!this.replay_eater && this.vis.stopped())) {
         if (this.round == 0 && !this.replay_eater) this.vis.starting();
         this.game.enactTurn();
 
         if (this.game.round != this.round) {
-            if (this.replay_eater) replay['rounds'].push(this.game.viewerMessage());
+            if (this.replay_eater) this.replay['rounds'].push(this.game.viewerMessage());
             else {
                 this.vis.feedRound(this.round, this.game.viewerMessage());
                 this.vis.setRound(this.round);
@@ -93,8 +93,8 @@ Coldbrew.prototype.playGame = function(log_receiver) {
 
     this.log_receiver = log_receiver;
     if (this.replay_eater) {
-        var replay = {'rounds':[], 'seed':this.seed, 'logs':null, 'width':this.game.shadow[0].length, 'height':this.game.shadow.length, 'map': this.game.viewerMap()};
-        replay['rounds'].push(this.game.viewerMessage());
+        this.replay = {'rounds':[], 'seed':this.seed, 'logs':null, 'width':this.game.shadow[0].length, 'height':this.game.shadow.length, 'map': this.game.viewerMap()};
+        this.replay['rounds'].push(this.game.viewerMessage());
     }
     
     this.gameLoopInterval = setInterval(this.gameLoop.bind(this),0);
@@ -103,9 +103,10 @@ Coldbrew.prototype.playGame = function(log_receiver) {
 Coldbrew.prototype.destroy = function() {
     clearInterval(this.gameLoopInterval);
     this.kill = true;
-    this.vis.scrub();
-    delete this.game;
-    delete this.vis;
+    if (this.vis) this.vis.scrub();
+    this.game = {};
+    this.vis = {};
+    this.replay = {};
 }
 
 module.exports = {'Coldbrew': Coldbrew, 'Visualizer': Visualizer};
