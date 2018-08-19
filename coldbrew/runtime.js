@@ -75,6 +75,7 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
             if (this.replay_eater) {
                 replay['logs'] = game.logs;
                 replay['win_condition'] = game.win_condition;
+                replay['winner'] = game.winner;
                 this.replay_eater(replay);
             } else vis.gameOver(game.win_condition);
         } else if (!(!this.replay_eater && vis.stopped())) {

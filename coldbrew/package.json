@@ -5,6 +5,7 @@
   "main": "runtime.js",
   "dependencies": {
     "esm": "^3.0.74",
+    "pg-promise": "^8.4.6",
     "vm-browserify": "^1.1.0",
     "vm2": "^3.6.3"
   },

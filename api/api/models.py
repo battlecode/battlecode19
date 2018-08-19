@@ -124,6 +124,8 @@ class Submission(models.Model):
     def __str__(self):
         return '{}: (#{}) {}'.format(self.team, self.id, self.name)
 
+class Replay(models.Model):
+    content = models.TextField(null=True, default=None)
 
 class Scrimmage(models.Model):
     SCRIMMAGE_STATUS_CHOICES = (
@@ -145,7 +147,7 @@ class Scrimmage(models.Model):
 
     # Match-running (completed by match runner)
     status    = models.TextField(choices=SCRIMMAGE_STATUS_CHOICES, default='pending')
-    replay    = models.TextField(blank=True)
+    replay    = models.ForeignKey(Replay, on_delete=models.PROTECT, null=True, related_name='replay')
     red_logs  = models.TextField(blank=True)
     blue_logs = models.TextField(blank=True)
 

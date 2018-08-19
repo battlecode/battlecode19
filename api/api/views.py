@@ -76,6 +76,15 @@ class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.AllowAny,)
 
 
+class ReplayViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Replay.objects.all()
+    serializer_class = ReplaySerializer
+    permission_classes = (permissions.AllowAny,)
+
+    def list(self, request):
+        return Response({'message': 'Must lookup specific replay'}, status.HTTP_400_BAD_REQUEST)
+
+
 class TeamViewSet(viewsets.GenericViewSet,
                   mixins.CreateModelMixin,
                   mixins.ListModelMixin,
@@ -363,8 +372,8 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
 
             data = {
                 'league': league_id,
-                'red_team': red_team.id,
-                'blue_team': blue_team.id,
+                'red_team': red_team.name,
+                'blue_team': blue_team.name,
                 'ranked': ranked,
                 'requested_by': this_team.id,
             }

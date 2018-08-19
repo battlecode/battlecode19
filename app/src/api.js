@@ -51,6 +51,7 @@ class Api {
             if (data.results.length === 0) callback(null);
             else {
                 Cookies.set('team_id',data.results[0].id);
+                Cookies.set('team_name',data.results[0].name);
                 $.get(URL+"/api/"+LEAGUE+"/team/"+data.results[0].id+"/").done(function(data, status) {
                     callback(data);
                 });
@@ -102,11 +103,11 @@ class Api {
             for (let i=0; i<scrimmages.length; i++) {
                 if (scrimmages[i].status !== "pending") continue;
                 if (scrimmages[i].requested_by !== parseInt(Cookies.get('team_id'),10)
-                    || scrimmages[i].blue_team.id === scrimmages[i].red_team.id) {
+                    || scrimmages[i].blue_team === scrimmages[i].red_team) {
                     requests.push({
                         id:scrimmages[i].id,
                         team_id:scrimmages[i].requested_by,
-                        team:(scrimmages[i].requested_by===scrimmages[i].red_team.id)?scrimmages[i].red_team.name:scrimmages[i].blue_team.name
+                        team:(Cookies.get('team_name')===scrimmages[i].red_team)?scrimmages[i].blue_team:scrimmages[i].red_team
                     });
                 }
             }
@@ -123,6 +124,8 @@ class Api {
                 ranked:false
             }).done(function(data, status) {
                 callback(true)
+            }).fail(function() {
+                callback(false);
             });
         });
     }
@@ -135,7 +138,7 @@ class Api {
 
     static getReplayFromURL(url, callback) {
         $.get(url, function(data, succcess) {
-            callback(data);
+            callback(data.content);
         });
     }
 
@@ -144,7 +147,7 @@ class Api {
         this.getAllTeamScrimmages(function(s) {
             var requests = []
             for (let i=0; i<s.length; i++) {
-                let on_red = s[i].red_team.id === my_id;
+                let on_red = s[i].red_team === Cookies.get('team_name');
                 if (s[i].status === "pending" && s[i].requested_by !== my_id) continue;
 
                 if (s[i].status === "redwon") s[i].status = on_red ? "won":"lost";
@@ -154,7 +157,7 @@ class Api {
                 s[i].date = new Date(s[i].updated_at).toLocaleDateString();
                 s[i].time = new Date(s[i].updated_at).toLocaleTimeString();
 
-                s[i].team = on_red ? s[i].blue_team.name : s[i].red_team.name;
+                s[i].team = on_red ? s[i].blue_team : s[i].red_team;
                 s[i].color = on_red ? 'Red' : 'Blue';
 
                 requests.push(s[i]);
