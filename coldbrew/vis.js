@@ -280,6 +280,8 @@ Visualizer.prototype.setRound = function(round) {
 }
 
 Visualizer.prototype.render = function(time_to_render) {
+    if (!this.rounds) return;
+
     var time = time_to_render/10 || 10;
 
     // Clear frame and save context
@@ -322,6 +324,13 @@ Visualizer.prototype.render = function(time_to_render) {
     // Re-render if necessary.
     if (need_refresh) setTimeout(this.render.bind(this), time_to_render, time);
 }
+
+Visualizer.prototype.scrub = function() {
+    this.rounds = {};
+    this.map = {};
+    this.width = null;
+    this.height = null;
+} 
 
 Visualizer.prototype.renderMap = function() {
     this.ctx.beginPath();

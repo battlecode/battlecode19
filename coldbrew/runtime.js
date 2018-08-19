@@ -17,13 +17,14 @@ function wallClock() {
  * @constructor
  */
 function Coldbrew(visualizer, seed, player_one, player_two, replay_eater) {
-    this.visualizer = visualizer;
     this.kill = false;
     this.seed = seed;
     this.replay_eater = replay_eater;
     this.player_one = player_one;
     this.player_two = player_two;
     this.game = new Game(this.seed, false);
+    
+    if (visualizer) this.vis = new Visualizer(visualizer, this.game.shadow[0].length, this.game.shadow.length, this.game.viewerMap());
 }
 
 
@@ -94,7 +95,7 @@ Coldbrew.prototype.playGame = function(log_receiver) {
     if (this.replay_eater) {
         var replay = {'rounds':[], 'seed':this.seed, 'logs':null, 'width':this.game.shadow[0].length, 'height':this.game.shadow.length, 'map': this.game.viewerMap()};
         replay['rounds'].push(this.game.viewerMessage());
-    } else this.vis = new Visualizer(this.visualizer, this.game.shadow[0].length, this.game.shadow.length, this.game.viewerMap());
+    }
     
     this.gameLoopInterval = setInterval(this.gameLoop.bind(this),0);
 }
@@ -102,8 +103,9 @@ Coldbrew.prototype.playGame = function(log_receiver) {
 Coldbrew.prototype.destroy = function() {
     clearInterval(this.gameLoopInterval);
     this.kill = true;
-    this.game = null;
-    this.vis = null;
+    this.vis.scrub();
+    delete this.game;
+    delete this.vis;
 }
 
 module.exports = {'Coldbrew': Coldbrew, 'Visualizer': Visualizer};
