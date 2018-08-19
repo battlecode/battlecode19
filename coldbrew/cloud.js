@@ -17,7 +17,8 @@ const cn = {
 const db = pgp(cn);
 
 const get_queued = `
-SELECT s.id as id, r.code as red, b.code as blue
+SELECT s.id as id, s.red_team_id as red_id, s.blue_team_id as blue_id,
+       r.code as red, b.code as blue
 FROM api_scrimmage as s
 INNER JOIN api_team r ON r.id=s.red_team_id
 INNER JOIN api_team b ON b.id=s.blue_team_id
@@ -37,6 +38,10 @@ const end_match = `
 UPDATE api_scrimmage SET status = $1, replay_id = $2 WHERE id = $3;
 `
 
+const update_stats = `
+UPDATE api_team SET $1~ = $1~ + 1 WHERE id = $2;
+`
+
 function playGame() {
     db.one(get_queued).then(function(scrimmage) {
         db.none(update_running,[scrimmage.id]).then(function() {
@@ -46,10 +51,21 @@ function playGame() {
                 var r = JSON.stringify(replay);
                 db.one(publish_replay,[r]).then(function(replay_id) {
                     console.log(`[Worker ${process.pid}] Match ${scrimmage.id} complete.`);
-                    db.none(end_match,[replay.winner===0?'redwon':'bluewon',replay_id.id,scrimmage.id]).then(playGame);
+                    db.none(update_stats,[
+                        replay.winner===0?'wins':'losses',
+                        scrimmage.red_id
+                    ]);
+                    db.none(update_stats,[
+                        replay.winner===0?'losses':'wins',
+                        scrimmage.blue_id
+                    ]);
+                    db.none(end_match,[
+                        replay.winner===0?'redwon':'bluewon',
+                        replay_id.id,
+                        scrimmage.id
+                    ]).then(playGame);
                 });
             });
-
             c.playGame(scrimmage.red, scrimmage.blue);
         });
     }).catch(function(error) {

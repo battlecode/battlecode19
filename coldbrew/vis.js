@@ -1,8 +1,7 @@
 class Visualizer {
     constructor(canvas, mapWidth, mapHeight, map, replay) {
-        let the_replay = JSON.parse(replay);
-
         if (replay) {
+            let the_replay = JSON.parse(replay);
             this.rounds = the_replay.rounds;
             this.width = the_replay.width;
             this.height = the_replay.height;

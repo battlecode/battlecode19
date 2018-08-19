@@ -75,7 +75,7 @@ class StatCard extends UpdateCard {
         $().ready(function() {
             Api.getTeamWinStats(function(stats) {
                 window.Chartist.Pie('#stat_chart', {
-                    labels: stats.map(p => p+"%"),
+                    labels: stats,
                     series: stats
                 }); 
             });
@@ -87,7 +87,7 @@ class StatCard extends UpdateCard {
             <div className="card">
                 <div className="header">
                     <h4 className="title">Match Statistics</h4>
-                    <p className="category">Wins, losses, and ties.</p>
+                    <p className="category">Wins and losses.</p>
                 </div>
                 <div className="content">
                     <div id="stat_chart" className="ct-chart ct-perfect-fourth" />
@@ -95,7 +95,6 @@ class StatCard extends UpdateCard {
                         <div className="legend">
                             <i className="fa fa-circle text-info" /> Win
                             <i className="fa fa-circle text-danger" /> Loss
-                            <i className="fa fa-circle text-warning" /> Tie
                         </div>
                         <hr />
                         <div className="stats">
@@ -115,8 +114,8 @@ class DateCard extends UpdateCard {
     }
 
     componentDidMount() {
-        Api.getUpcomingDates(function(dates) {
-            this.setState({ dates: dates });
+        Api.getUpdates(function(dates) {
+            this.setState({ dates: (dates.length > 5)?dates.slice(0,5):dates  });
         }.bind(this));
     }
 
@@ -124,16 +123,16 @@ class DateCard extends UpdateCard {
         return (
             <div className="card ">
                 <div className="header">
-                    <h4 className="title">Upcoming Dates</h4>
-                    <p className="category">Deadlines, milestones, and more.</p>
+                    <h4 className="title">Recent Updates</h4>
+                    <p className="category">A full listing can be found in the sidebar.</p>
                 </div>
                 <div className="content">
                     <div className="table-full-width">
                         <table className="table">
                             <tbody>
                                 { this.state.dates.map(date => <tr key={ date.id }>
-                                <td>{ date.date }</td>
-                                <td>{ date.data }</td>
+                                <td>{ date.time }</td>
+                                <td>{ date.message }</td>
                                 </tr> )}
                             </tbody>
                         </table>
@@ -166,11 +165,6 @@ class Home extends Component {
         if (this.state.on_team) return (
             <div className="content">
                 <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-md-12">
-                            <PerfCard />
-                        </div>
-                    </div>
                     <div className="row">
                         <div className="col-md-6">
                             <StatCard />

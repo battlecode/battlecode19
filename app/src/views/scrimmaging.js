@@ -141,7 +141,7 @@ class ScrimmageHistory extends Component {
                                         <td>{ s.status }</td>
                                         <td>{ s.team }</td>
                                         <td>{ s.color }</td>
-                                        { s.replay!==''?<td><a href={ '/replay?' + s.replay } onClick={ this.playReplay }>Watch</a></td>:<td>N/A</td> }
+                                        { s.replay?<td><a href={ '/replay?' + s.replay } onClick={ this.playReplay }>Watch</a></td>:<td>N/A</td> }
                                     </tr>
                                 )) }
                             </tbody>

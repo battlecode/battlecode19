@@ -112,7 +112,7 @@ Game.prototype.viewerMap = function() {
 }
 
 Game.prototype.viewerMessage = function() {
-    return {robots:this.robots, nexi:this.nexi};
+    return insulate({robots:this.robots, nexi:this.nexi});
 }
 
 /**
@@ -226,12 +226,30 @@ Game.prototype.isOver = function() {
     var blue = 0;
 
     var nulls = [0,0];
+    var total = [0,0]
     for (var i=0; i<this.robots.length; i++) {
         var robot = this.robots[i];
-        if (robot.initialized && robot.hook !== null) {
-            if (robot.team === 0) red += robot.health;
-            else blue += robot.health;
-        } else nulls[robot.team]++;
+        total[robot.team]++;
+        if (robot.initialized) {
+            if (robot.hook) {
+                if (robot.team === 0) red += robot.health;
+                else blue += robot.health;
+            } else nulls[robot.team]++;
+        }
+    }
+
+    if (nulls[0] === total[0] && nulls[1] === total[1]) {
+        this.winner = +(Math.random() > 0.5);
+        this.win_condition = 2;
+        return true;
+    } else if (nulls[0] === total[0]) {
+        this.winner = 1;
+        this.win_condition = 0;
+        return true;
+    } else if (nulls[1] === total[1]) {
+        this.winner = 0;
+        this.win_condition = 0;
+        return true;
     }
 
     if (red === 0) {

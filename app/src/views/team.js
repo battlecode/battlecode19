@@ -26,11 +26,11 @@ class YesTeam extends Component {
         this.uploadProfile = this.uploadProfile.bind(this);
     }
 
-    //componentDidMount() {
-    //    Api.getUserTeam(function(new_state) {
-    //        this.setState({ team:new_state });
-    //    }.bind(this));
-    //}
+    leaveTeam() {
+        Api.leaveTeam(function(success) {
+            if (success) window.location.reload();
+        });
+    }
 
     changeHandler(e) {
         var id = e.target.id;
@@ -90,13 +90,13 @@ class YesTeam extends Component {
                                 <div className="col-md-7">
                                     <div className="form-group">
                                         <label>Team Name (static)</label>
-                                        <input type="text" className="form-control" disabled readOnly value={ this.state.team.name } />
+                                        <input type="text" className="form-control" readOnly value={ this.state.team.name } />
                                     </div>
                                 </div>
                                 <div className="col-md-5">
                                     <div className="form-group">
                                         <label>Secret Key (static)</label>
-                                        <input type="text" className="form-control" disabled readOnly value={ this.state.team.team_key } />
+                                        <input type="text" className="form-control" readOnly value={ this.state.team.team_key } />
                                     </div>
                                 </div>
                             </div>
@@ -128,7 +128,9 @@ class YesTeam extends Component {
                                     </div>
                                 </div>
                             </div>
+                            
                             <button type="button" onClick={ this.updateTeam } className="btn btn-info btn-fill pull-right" dangerouslySetInnerHTML={{__html:this.state.up }}></button>
+                            <button type="button" onClick={ this.leaveTeam } style={{marginRight:'10px'}} className="btn btn-danger btn-fill pull-right">Leave Team</button>
                             <div className="clearfix" />
                         </div>
                     </div>
@@ -156,7 +158,7 @@ class YesTeam extends Component {
 class NoTeam extends Component {
     constructor() {
         super();
-        this.state = {team_name:"", secret_key:"", team_id:"0"};
+        this.state = {team_name:"", secret_key:"", team_join_name:""};
 
         this.joinTeam = this.joinTeam.bind(this);
         this.createTeam = this.createTeam.bind(this);
@@ -173,13 +175,13 @@ class NoTeam extends Component {
     }
 
     joinTeam() {
-        Api.joinTeam(this.state.secret_key, function(success) {
-            window.location.reload();
+        Api.joinTeam(this.state.secret_key, this.state.team_join_name, function(success) {
+            if (success) window.location.reload();
         });
     }
 
     createTeam() {
-        Api.createTeam(this.state.team_name, parseInt(this.state.team_id,10), function(success) {
+        Api.createTeam(this.state.team_name, function(success) {
             window.location.reload();
         });
     }
@@ -219,8 +221,8 @@ class NoTeam extends Component {
                                 </div>
                                 <div className="col-md-4">
                                     <div className="form-group">
-                                        <label>Team ID</label>
-                                        <input type="text" className="form-control" id="team_id" onChange={this.changeHandler} />
+                                        <label>Team Name</label>
+                                        <input type="text" className="form-control" id="team_join_name" onChange={this.changeHandler} />
                                     </div>
                                 </div>
                             </div>
@@ -237,23 +239,11 @@ class NoTeam extends Component {
 class Team extends Component {
     constructor() {
         super();
-        this.state = {
-            'team': {
-                name:'',
-                id:0,
-                secret_key:'',
-                auto_accept_ranked:true,
-                auto_accept_unranked:true,
-                bio:'',
-                avatar:'',
-                users:[]
-            }
-        }
+        this.state = { 'team': false }
     }
 
     componentDidMount() {
         Api.getUserTeam(function(new_state) {
-            console.log('new_state: ' + new_state.name);
             this.setState({ team:new_state });
         }.bind(this));
     }
@@ -264,8 +254,8 @@ class Team extends Component {
                 <div className="content">
                     <div className="container-fluid">
                         <div className="row">
-                            { this.state.team !== null && <YesTeam team={ this.state.team }/> }
                             { this.state.team === null && <NoTeam /> }
+                            { this.state.team && <YesTeam team={ this.state.team }/> }
                         </div>
                     </div>
                 </div>

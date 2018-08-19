@@ -21,9 +21,10 @@ class Api {
     }
 
     static getTeamWinStats(callback) {
-        var data = [20,60,20];
-
-        callback(data);
+        this.getUserTeam(function(team) {
+            var stats = [team.wins, team.losses];
+            callback(stats);
+        });
     }
 
     static getUpdates(callback) {
@@ -176,19 +177,35 @@ class Api {
     static createTeam(team_name, callback) {
         $.post(URL+"/api/"+LEAGUE+"/team/",{'name':team_name }).done(function(data, status){
             Cookies.set('team_id',data.id);
+            Cookies.set('team_name',data.name);
             callback(true);
         }).fail(function(xhr, status, error) {
             callback(false);
         });
     }
 
-    static joinTeam(secret_key, team_id, callback) {
+    static joinTeam(secret_key, team_name, callback) {
+        $.get(URL+"/api/"+LEAGUE+"/team/?search="+encodeURIComponent(team_name), function(team_data, team_success) {
+            if (team_data.results.length === 0) return callback(false);
+            $.ajax({
+                'url':URL+"/api/"+LEAGUE+"/team/"+team_data.results[0].id+"/join/",
+                'type':'PATCH',
+                'data':{'team_key':secret_key }
+            }).done(function(data, status){
+                Cookies.set('team_id',data.id);
+                Cookies.set('team_name',data.name);
+                callback(true);
+            }).fail(function(xhr, status, error) {
+                callback(false);
+            });
+        });
+    }
+
+    static leaveTeam(callback) {
         $.ajax({
-            'url':URL+"/api/"+LEAGUE+"/team/"+team_id+"/join/",
-            'type':'PATCH',
-            'data':{'team_key':secret_key }
+            'url':URL+"/api/"+LEAGUE+"/team/"+Cookies.get('team_id')+"/leave/",
+            'type':'PATCH'
         }).done(function(data, status){
-            Cookies.set('team_id',data.id);
             callback(true);
         }).fail(function(xhr, status, error) {
             callback(false);
@@ -249,6 +266,10 @@ class Api {
             Cookies.set('refresh',data.refresh);
             Cookies.set('username',username);
             
+            $.ajaxSetup({
+                headers: { 'Authorization': 'Bearer ' + Cookies.get('token') }
+            });
+            
             callback(true);
         }).fail(function(xhr, status, error) {
             callback(false);
@@ -256,6 +277,10 @@ class Api {
     }
 
     static register(email, username, password, first, last, dob, callback) {
+        if ($.ajaxSettings && $.ajaxSettings.headers) {
+            delete $.ajaxSettings.headers.Authorization;
+        }
+
         $.post(URL+"/api/user/", {
             email: email,
             username:username,
@@ -264,7 +289,8 @@ class Api {
             last_name:last,
             date_of_birth:dob
         }).done(function(data, status){
-            this.login(email, password, callback);
+            this.login(username, password, callback);
+            
         }.bind(this)).fail(function(xhr, status, error) {
             console.log("WHAT")
         });

@@ -175,8 +175,6 @@ class TeamViewSet(viewsets.GenericViewSet,
         if res.status_code == status.HTTP_200_OK and request.user.username in res.data.get('users'):
             res.data['team_key'] = self.get_queryset().get(pk=pk).team_key
             res.data['code'] = self.get_queryset().get(pk=pk).code
-        else:
-            del res.data['code']
         return res
 
     def partial_update(self, request, league_id, pk=None):
@@ -413,11 +411,13 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
     def reject(self, request, league_id, team, pk=None):
         try:
             scrimmage = self.get_queryset().get(pk=pk)
-            if scrimmage.requested_by == team:
+            if scrimmage.requested_by == team and scrimmage.red_team.id != scrimmage.blue_team.id:
                 return Response({'message': 'Cannot reject an outgoing scrimmage.'}, status.HTTP_400_BAD_REQUEST)
             if scrimmage.status != 'pending':
                 return Response({'message': 'Scrimmage is not pending.'}, status.HTTP_400_BAD_REQUEST)
             scrimmage.status = 'rejected'
+
+            scrimmage.save()
 
             serializer = self.get_serializer(scrimmage)
             return Response(serializer.data, status.HTTP_200_OK)
@@ -433,6 +433,8 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
             if scrimmage.status != 'pending':
                 return Response({'message': 'Scrimmage is not pending.'}, status.HTTP_400_BAD_REQUEST)
             scrimmage.status = 'cancelled'
+
+            scrimmage.save()
 
             serializer = self.get_serializer(scrimmage)
             return Response(serializer.data, status.HTTP_200_OK)

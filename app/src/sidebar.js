@@ -20,6 +20,7 @@ class SideBar extends Component {
     componentDidMount() {
         Api.getUserTeam(function(e) {
             this.setState({on_team:(e !== null)});
+            window.init_right_menu();
         }.bind(this));
     }
 

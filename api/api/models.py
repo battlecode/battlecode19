@@ -103,7 +103,7 @@ class Team(models.Model):
     auto_accept_ranked   = models.BooleanField(default=False)
     auto_accept_unranked = models.BooleanField(default=False)
     wins                 = models.IntegerField(default=0)
-    loses                = models.IntegerField(default=0)
+    losses               = models.IntegerField(default=0)
     draws                = models.IntegerField(default=0)
 
     code                 = models.TextField(default="// Get started by reading the docs!")

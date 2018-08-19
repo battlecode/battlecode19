@@ -5,18 +5,13 @@ var transparentDemo = true;
 var fixedTop = false;
 
 var navbar_initialized = false;
+var click_toggle = null;
+var init_right_menu = null;
 
 $(document).ready(function(){
     window_width = $(window).width();
-    
-    // check if there is an image set for the sidebar's background
-    lbd.checkSidebarImage();
-    
-    // Init navigation toggle for small screens   
-    if(window_width <= 991){
-        lbd.initRightMenu();   
-    }
-     
+    init_right_menu = lbd.initRightMenu;
+             
     //  Activate the tooltips   
     $('[rel="tooltip"]').tooltip();
 
@@ -37,37 +32,18 @@ $(document).ready(function(){
       
 });
 
-// activate collapse right menu when the windows is resized 
-$(window).resize(function(){
-    if($(window).width() <= 991){
-        lbd.initRightMenu();   
-    }
-});
-    
 lbd = {
     misc:{
         navbar_menu_visible: 0
     },
     
-    checkSidebarImage: function(){
-        $sidebar = $('.sidebar');
-        image_src = $sidebar.data('image');
-        
-        if(image_src !== undefined){
-            sidebar_container = '<div class="sidebar-background" style="background-image: url(' + image_src + ') "/>'
-            $sidebar.append(sidebar_container);
-        }  
-    },
     initRightMenu: function(){  
          if(!navbar_initialized){
             $navbar = $('nav').find('.navbar-collapse').first().clone(true);
             
             $sidebar = $('.sidebar');
             sidebar_color = $sidebar.data('color');
-            
-            $logo = $sidebar.find('.logo').first();
-            logo_content = $logo[0].outerHTML;
-                    
+                                
             ul_content = '';
              
             $navbar.attr('data-color',sidebar_color);
@@ -83,28 +59,18 @@ lbd = {
             });
              
             ul_content = '<ul class="nav navbar-nav">' + ul_content + '</ul>';
-            
-            navbar_content = logo_content + ul_content;
-            
-            $navbar.html(navbar_content);
+
+            $navbar.html(ul_content);
              
-            $('body').append($navbar);
-             
-            background_image = $sidebar.data('image');
-            if(background_image != undefined){
-                $navbar.css('background',"url('" + background_image + "')")
-                       .removeAttr('data-nav-image')
-                       .addClass('has-image');                
-            }
-             
+            $('body').append($navbar);             
              
              $toggle = $('.navbar-toggle');
              
              $navbar.find('a').removeClass('btn btn-round btn-default');
              $navbar.find('button').removeClass('btn-round btn-fill btn-info btn-primary btn-success btn-danger btn-warning btn-neutral');
              $navbar.find('button').addClass('btn-simple btn-block');
-            
-             $toggle.click(function (){    
+             click_toggle = function () {    
+                console.log("CLICKED");
                 if(lbd.misc.navbar_menu_visible == 1) {
                     $('html').removeClass('nav-open'); 
                     lbd.misc.navbar_menu_visible = 0;
@@ -132,7 +98,7 @@ lbd = {
                     lbd.misc.navbar_menu_visible = 1;
                     
                 }
-            });
+            }
             navbar_initialized = true;
         }
    
