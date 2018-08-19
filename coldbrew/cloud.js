@@ -48,7 +48,7 @@ function playGame() {
     db.one(queue).then(function(scrimmage) {
         console.log(`[Worker ${process.pid}] Running match ${scrimmage.id}`);
         var seed = Math.floor(10000*Math.random());
-        let c = new Coldbrew(null, seed, function(replay) {
+        let c = new Coldbrew(null, seed, scrimmage.red, scrimmage.blue, function(replay) {
             var r = JSON.stringify(replay);
             db.one(publish_replay,[r]).then(function(replay_id) {
                 console.log(`[Worker ${process.pid}] Match ${scrimmage.id} complete.`);
@@ -65,9 +65,9 @@ function playGame() {
                     replay_id.id,
                     scrimmage.id
                 ]).then(playGame);
+                c.destroy();
             });
-        });
-        c.playGame(scrimmage.red, scrimmage.blue);
+        }); c.playGame();
     }).catch(function(error) {
         setTimeout(playGame,Math.floor(5000*Math.random()));
     });

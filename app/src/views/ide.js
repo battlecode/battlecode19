@@ -71,8 +71,8 @@ class IDE extends Component {
 
         Compiler.Compile(this.lang, this.firepad.getText(), function(code) {
             this.setState({theater:true, loading:false});
-            this.c = new Coldbrew("viewer", Math.floor(10000*Math.random()));
-            this.c.playGame(code,code, function(logs) {
+            this.c = new Coldbrew("viewer", Math.floor(10000*Math.random()), code, code);
+            this.c.playGame(function(logs) {
                 this.setState({logs:logs});
             }.bind(this));
         }.bind(this), function(errors) {
@@ -90,6 +90,7 @@ class IDE extends Component {
 
     exitTheater() {
         this.c.destroy();
+        this.c = null;
         this.setState({theater:false});
     }
 
