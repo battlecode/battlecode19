@@ -34,7 +34,7 @@ function Coldbrew(visualizer, seed, replay_eater) {
  * @param {function} when_ended - The function to call when the game has ended.
  */
 Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
-    this.game = new Game(20,this.seed,false);
+    this.game = new Game(this.seed, false);
 
     function emptyQueue() {
         while (game.init_queue > 0) {

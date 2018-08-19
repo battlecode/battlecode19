@@ -1,8 +1,8 @@
 var ROBOT_VISION = 7;
 var ATTACK_PENALTY = 1;
 var INITIAL_HP = 64;
-var COMMUNICATION_BITS = 4;
-var MAX_ROUNDS = 50;
+var COMMUNICATION_BITS = 8;
+var MAX_ROUNDS = 200;
 
 var NEXUS_POISON_HP = 2;
 var NEXUS_INCUBATOR_HP = 1;
@@ -37,7 +37,7 @@ function wallClock() {
 * @param {number} seed - The seed for map generation.
  * @param {boolean} [debug=false] - Enables debug mode (default false).
  */
-function Game(map_size, seed, debug) {
+function Game(seed, debug) {    
     this.robots = [] // objects active in the game.
     this.ids = []; // list of "spent" item ids.
 
@@ -54,49 +54,51 @@ function Game(map_size, seed, debug) {
     // The shadow is a 2d map where 0 signifies empty, -1 impassable, and anything
     // else is the id of the robot/item occupying the square.  This is updated
     // after every action.
-    this.shadow = new Array(map_size);
-    for (var i=0; i<map_size; i++) {
-        this.shadow[i] = new Array(map_size);
-        for (var j=0; j<map_size; j++) {
-            this.shadow[i][j] = 0;
-        }
-    }
-
-    var to_create = this.makeMap(this.shadow, this.seed); // list of robots
+    
+    var to_create = this.makeMap(); // list of robots
     for (i=0; i<to_create.length; i++) {
         this.createItem(to_create[i].x, to_create[i].y, to_create[i].team);
     }
 }
 
 /**
- * Generate a map. Currently a placeholder.
+ * Generate a map.
  * 
- * @param {number[][]} x - The shadow to populate the map with.
+ * @param {Object[]} to_create - A list of robots to create.
  * @return {Object[]} - A list of robots with x, y, and team.
  */
-Game.prototype.makeMap = function(x, seed) {
-    function random() {
-        var x = Math.sin(seed++) * 10000;
+Game.prototype.makeMap = function() {
+    var random = function() {
+        var x = Math.sin(this.seed++) * 10000;
         return x - Math.floor(x);
+    }.bind(this);
+
+    let width = 15 + Math.floor(16.0*random());
+    let height = 15 + Math.floor(16.0*random());
+    this.shadow = new Array(height);
+    for (let i=0; i<height; i++) {
+        this.shadow[i] = new Array(width);
+        for (var j=0; j<width; j++) {
+            this.shadow[i][j] = 0;
+        }
     }
 
     var players = 3 + Math.floor(6*random());
-    var player_odd = players/(0.8*x.length*x[0].length/2);
+    var player_odd = players/(0.8*height*width/2);
     
-    var ret_players = [];
-
-    for (var r=0; r<x.length/2; r++) {
-        for (var c=0; c<x[0].length; c++) {
-            x[r][c] = x[x.length-1-r][x[0].length-1-c] = random() > 0.8 ? -1 : 0;
-            if (random() < player_odd && x[r][c] !== -1) {
+    var to_create = [];
+    for (var r=0; r<height/2; r++) {
+        for (var c=0; c<width; c++) {
+            this.shadow[r][c] = this.shadow[height-1-r][width-1-c] = random() > 0.8 ? -1 : 0;
+            if (random() < player_odd && this.shadow[r][c] !== -1) {
                 var team = random() > 0.5 ? 1 : 0;
-                ret_players.push({ team: team, x: c, y: r });
-                ret_players.push({ team: 1-team, x:x[0].length-1-c, y:x.length-1-r });
+                to_create.push({ team: team, x: c, y: r });
+                to_create.push({ team: 1-team, x:width-1-c, y:height-1-r });
             }
         }
     }    
 
-    return ret_players;
+    return to_create;
 }
 
 Game.prototype.viewerMap = function() {
@@ -310,9 +312,15 @@ Game.prototype.registerHook = function(hook, robot_id) {
     robot.hook = hook;
 }
 
-Game.prototype._overflow = function(val) {
+Game.prototype._overflow_y = function(val) {
     if (val < 0) return this.shadow.length + val;
     else if (val >= this.shadow.length) return val - this.shadow.length;
+    else return val;
+}
+
+Game.prototype._overflow_x = function(val) {
+    if (val < 0) return this.shadow[0].length + val;
+    else if (val >= this.shadow[0].length) return val - this.shadow[0].length;
     else return val;
 }
 
@@ -327,8 +335,8 @@ Game.prototype.getVisible = function(robot) {
     var r = Math.floor(ROBOT_VISION/2);
     for (var _x=0; _x<ROBOT_VISION; _x++) {
         for (var _y=0; _y<ROBOT_VISION; _y++) {
-            var x = this._overflow(_x + robot.x - r);
-            var y = this._overflow(_y + robot.y - r);
+            var x = this._overflow_x(_x + robot.x - r);
+            var y = this._overflow_y(_y + robot.y - r);
 
             view[_y][_x] = this.shadow[y][x];
         }
@@ -361,9 +369,9 @@ Game.prototype._newPosCalc = function(x, y, dir) {
 
     // wrap position
     if (new_pos[0] < 0) new_pos[0] += this.shadow[0].length;
-    if (new_pos[0] >= this.shadow[1].length) new_pos[0] -= this.shadow[0].length;
+    if (new_pos[0] >= this.shadow[0].length) new_pos[0] -= this.shadow[0].length;
     if (new_pos[1] < 0) new_pos[1] += this.shadow.length;
-    if (new_pos[1] >= this.shadow[0].length) new_pos[1] -= this.shadow.length;
+    if (new_pos[1] >= this.shadow.length) new_pos[1] -= this.shadow.length;
 
     return new_pos;
 }
@@ -376,23 +384,23 @@ Game.prototype._applyNexi = function() {
     this.nexi = [];
 
     for (var r=0; r<this.shadow.length; r++) {
-        for (var c=0; r<this.shadow[0].length; r++) {
+        for (var c=0; c<this.shadow[0].length; c++) {
             // check if the square is a nexus.
             var o = this.shadow[r][c];
             if (o === -1) continue;
 
             var sides = [
-                this.shadow[this._overflow(r-1)][c],
-                this.shadow[this._overflow(r+1)][c],
-                this.shadow[r][this._overflow(c+1)],
-                this.shadow[r][this._overflow(c-1)]
+                this.shadow[this._overflow_y(r-1)][c],
+                this.shadow[this._overflow_y(r+1)][c],
+                this.shadow[r][this._overflow_x(c+1)],
+                this.shadow[r][this._overflow_x(c-1)]
             ];
 
             var corners = [
-                this.shadow[this._overflow(r-1)][this._overflow(c-1)],
-                this.shadow[this._overflow(r-1)][this._overflow(c+1)],
-                this.shadow[this._overflow(r+1)][this._overflow(c-1)],
-                this.shadow[this._overflow(r+1)][this._overflow(c+1)]
+                this.shadow[this._overflow_y(r-1)][this._overflow_x(c-1)],
+                this.shadow[this._overflow_y(r-1)][this._overflow_x(c+1)],
+                this.shadow[this._overflow_y(r+1)][this._overflow_x(c-1)],
+                this.shadow[this._overflow_y(r+1)][this._overflow_x(c+1)]
             ];
 
             var corners_good = true;
@@ -474,13 +482,15 @@ Game.prototype.enactTurn = function() {
         return "Robot not initialized.";
     }
 
+    let action = null;
+    let dump = this.getGameStateDump(robot);
+
     robot.start_time = wallClock();
 
-    let action = null;
-    
     try {
-        action = robot.hook(this.getGameStateDump(robot));
+        action = robot.hook(dump);
     } catch (e) {
+        //console.log(e);
         this.robotError(e.toString(), robot);
     }
     
