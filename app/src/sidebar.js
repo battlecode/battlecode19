@@ -42,7 +42,6 @@ class SideBar extends Component {
                         <NLink to="/team"><i className="pe-7s-users" />Team</NLink>
                         { this.state.on_team && <NLink to="/ide"><i className="pe-7s-pen" />IDE</NLink> }
                         { this.state.on_team && <NLink to="/scrimmaging"><i className="pe-7s-joy" />Scrimmaging</NLink> }
-                        { this.state.on_team && <NLink to="/tournaments"><i className="pe-7s-cup" />Tournaments</NLink> }
                     </ul>
                 </div>
             </div>

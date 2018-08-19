@@ -41,7 +41,7 @@ class Api {
 
     static search(query, callback) {
         $.get(URL+"/api/"+LEAGUE+"/team/?search="+encodeURIComponent(query), function(team_data, team_success) {
-            $.get(URL+"user/profile/?search="+encodeURIComponent(query), function(user_data, user_success) {
+            $.get(URL+"/api/user/profile/?search="+encodeURIComponent(query), function(user_data, user_success) {
                 callback(user_data.results, team_data.results);
             });
         });

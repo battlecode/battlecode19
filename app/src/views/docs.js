@@ -14,7 +14,7 @@ class Docs extends Component {
                                 </div>
                                 <div className="content">
                                     <p>In the distant future, almost all nature and technology have been wiped out by global catastrophe.  All that remains are two opposing factions of <i>microbots</i>, <span className="text-danger">red</span> and <span className="text-info">blue</span>, who live on  a wraparound grid randomly scattered with holes and obstacles.  Microbots start with 64HP, and are given a randomly generated integer ID at creation.</p>
-                                    <p>In each turn a microbots can either move to or attack a nearby square, and communicate using up to 4 bits of signalling.  Microbots have limited vision; they can only see within a surrounding 14x14 region, and can only view the ID and signal bits of other microbots.</p>
+                                    <p>In each turn a microbots can either move to or attack a nearby square, and communicate using up to 4 bits of signalling.  Microbots have limited vision; they can only see within a surrounding 7x7 region, and can only view the ID and signal bits of other microbots.</p>
                                     <p>Microbots can heal and reproduce through the joint formation of nexi.  If any 4 microbots of the same team are in the following formation, with empty corners:</p>
                                     <blockquote>
                                         <p style={{textAlign:'center'}}>X<br />X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X<br />X</p>
