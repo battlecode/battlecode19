@@ -16,13 +16,67 @@ function wallClock() {
  * @param {number} [tile_size=30] - The tile size to render games with.
  * @constructor
  */
-function Coldbrew(visualizer, seed, replay_eater) {
+function Coldbrew(visualizer, seed, player_one, player_two, replay_eater) {
     this.visualizer = visualizer;
     this.kill = false;
     this.seed = seed;
     this.replay_eater = replay_eater;
+    this.player_one = player_one;
+    this.player_two = player_two;
+    this.game = new Game(this.seed, false);
 }
 
+
+Coldbrew.prototype.emptyQueue = function() {
+    while (!this.kill && this.game.init_queue > 0) {
+        var robot = this.game.initializeRobot();
+        //console.log("Initializing robot " + robot.id);
+        var code = (robot.team==0) ? this.player_one : this.player_two;
+
+        var start_time = wallClock();
+    
+        try {
+            var v = new CrossVM(code);
+        } catch(error) {
+            this.game.robotError("Failed to initialize: " + error,robot);
+            continue;
+        }
+
+        if (wallClock() - start_time < 100) {
+            this.game.registerHook(v.turn.bind(v), robot.id);
+        } else {
+            this.game.robotError("Took too long to initialize.",robot);
+        }
+    }
+}
+
+Coldbrew.prototype.gameLoop = function() {
+    this.emptyQueue();
+    if (this.game.isOver() || this.kill) {
+        clearInterval(this.gameLoopInterval);
+        if (this.log_receiver) this.log_receiver(this.game.logs);
+        if (this.replay_eater) {
+            replay['logs'] = this.game.logs;
+            replay['win_condition'] = this.game.win_condition;
+            replay['winner'] = this.game.winner;
+            this.replay_eater(replay);
+        } else this.vis.gameOver(this.game.win_condition);
+    } else if (!(!this.replay_eater && this.vis.stopped())) {
+        if (this.round == 0 && !this.replay_eater) this.vis.starting();
+        this.game.enactTurn();
+
+        if (this.game.round != this.round) {
+            if (this.replay_eater) replay['rounds'].push(this.game.viewerMessage());
+            else {
+                this.vis.feedRound(this.round, this.game.viewerMessage());
+                this.vis.setRound(this.round);
+            }
+
+            if (this.log_receiver) this.log_receiver(this.game.logs);
+            this.round = this.game.round;
+        }
+    }
+}
 
 /**
  * Start a game.
@@ -33,71 +87,23 @@ function Coldbrew(visualizer, seed, replay_eater) {
  * @param {function} when_started - The function to call when the game has started.
  * @param {function} when_ended - The function to call when the game has ended.
  */
-Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
-    this.game = new Game(this.seed, false);
+Coldbrew.prototype.playGame = function(log_receiver) {
+    this.round = 0;
 
-    function emptyQueue() {
-        while (game.init_queue > 0) {
-            var robot = game.initializeRobot();
-
-            var code = (robot.team==0) ? player_one : player_two;
-
-            var start_time = wallClock();
-        
-            try {
-                var v = new CrossVM(code);
-            } catch(error) {
-                game.robotError("Failed to initialize: " + error,robot);
-                continue;
-            }
-
-            if (wallClock() - start_time < 100) {
-                game.registerHook(v.turn.bind(v), robot.id);
-            } else {
-                game.robotError("Took too long to initialize.",robot);
-            }
-        }
-    }
-
-    var round = -1;
-    var game = this.game;
-
+    this.log_receiver = log_receiver;
     if (this.replay_eater) {
-        var replay = {'rounds':[], 'seed':this.seed, 'logs':null, 'width':game.shadow[0].length, 'height':game.shadow.length, 'map': game.viewerMap()};
-        replay['rounds'].push(game.viewerMessage());
-    } else var vis = new Visualizer(this.visualizer, game.shadow[0].length, game.shadow.length, game.viewerMap());
+        var replay = {'rounds':[], 'seed':this.seed, 'logs':null, 'width':this.game.shadow[0].length, 'height':this.game.shadow.length, 'map': this.game.viewerMap()};
+        replay['rounds'].push(this.game.viewerMessage());
+    } else this.vis = new Visualizer(this.visualizer, this.game.shadow[0].length, this.game.shadow.length, this.game.viewerMap());
     
-    var gameLoop = setInterval(function() {
-        emptyQueue();
-        if (game.isOver() || this.kill) {
-            clearInterval(gameLoop);
-            if (log_receiver) log_receiver(game.logs);
-            if (this.replay_eater) {
-                replay['logs'] = game.logs;
-                replay['win_condition'] = game.win_condition;
-                replay['winner'] = game.winner;
-                this.replay_eater(replay);
-            } else vis.gameOver(game.win_condition);
-        } else if (!(!this.replay_eater && vis.stopped())) {
-            if (round == -1 && !this.replay_eater) vis.starting();
-            game.enactTurn();
-
-            if (game.round != round) {
-                if (this.replay_eater) replay['rounds'].push(game.viewerMessage());
-                else {
-                    vis.feedRound(round, game.viewerMessage());
-                    vis.setRound(round);
-                }
-
-                if (log_receiver) log_receiver(game.logs);
-                round = game.round;
-            }
-        }
-    }.bind(this),0);
+    this.gameLoopInterval = setInterval(this.gameLoop.bind(this),0);
 }
 
 Coldbrew.prototype.destroy = function() {
+    clearInterval(this.gameLoopInterval);
     this.kill = true;
+    this.game = null;
+    this.vis = null;
 }
 
 module.exports = {'Coldbrew': Coldbrew, 'Visualizer': Visualizer};

@@ -91,6 +91,16 @@ class BCAbstractRobot:
         else:
             return vis
 
+    def get_in_direction(self, direction):
+        if (direction == bc.NORTH)       return self.get_relative_pos(0, -1);
+        elif (direction == bc.SOUTH)     return self.get_relative_pos(0,  1);
+        elif (direction == bc.WEST)      return self.get_relative_pos(-1, 0);
+        elif (direction == bc.EAST)      return self.get_relative_pos(1,  0);
+        elif (direction == bc.SOUTHWEST) return self.get_relative_pos(-1, 1);
+        elif (direction == bc.NORTHWEST) return self.get_relative_pos(-1,-1);
+        elif (direction == bc.SOUTHEAST) return self.get_relative_pos(1,  1);
+        else return self.get_relative_pos(1,-1);
+
     def log(self, message):
         if self._bc_clear_logs:
             self._bc_logs = []
@@ -223,6 +233,21 @@ public class BCAbstractRobot {
 
     public int[][] getVisibleMap() {
         return gameState.shadow;
+    }
+
+    public int getRelativePos(int dX, int dY) {
+        return getVisibleMap()[3+dY][3+dX];
+    }
+
+    public int getInDirection(int direction) {
+        if (direction == bc.NORTH)          return getRelativePos(0, -1);
+        else if (direction == bc.SOUTH)     return getRelativePos(0,  1);
+        else if (direction == bc.WEST)      return getRelativePos(-1, 0);
+        else if (direction == bc.EAST)      return getRelativePos(1,  0);
+        else if (direction == bc.SOUTHWEST) return getRelativePos(-1, 1);
+        else if (direction == bc.NORTHWEST) return getRelativePos(-1,-1);
+        else if (direction == bc.SOUTHEAST) return getRelativePos(1,  1);
+        else return getRelativePos(1,-1);
     }
 
     public ArrayList<Robot> getVisibleRobots() {
@@ -395,10 +420,24 @@ class BCAbstractRobot {
     // Get the square dx, dy away.
     getRelativePos(dX, dY) {
         if (dX < -3 || dX > 3 || dY < -3 || dY > 3) return null;
-        var vis = this.getVisibleMap()[dY][dX];
+        var vis = this.getVisibleMap()[3+dY][3+dX];
 
         if (vis > 0) return this.getRobot(vis);
         else return vis;
+    }
+
+    getInDirection(direction) {
+        var pos = [];
+        if (direction === bc.NORTH) pos = [0,-1];
+        else if (direction === bc.SOUTH) pos = [0,1];
+        else if (direction === bc.WEST) pos = [-1,0];
+        else if (direction === bc.EAST) pos = [1,0];
+        else if (direction === bc.SOUTHWEST) pos = [-1,1];
+        else if (direction === bc.NORTHWEST) pos = [-1,-1];
+        else if (direction === bc.SOUTHEAST) pos = [1,1];
+        else pos = [1,-1];
+
+        return this.getRelativePos(pos[0], pos[1]);
     }
 
     // If in browser, direct print, otherwise put in message.

@@ -10,6 +10,8 @@ var NEXUS_INCUBATOR_HP = 1;
 var CHESS_INITIAL = 100;
 var CHESS_EXTRA = 20;
 
+var ROBOT_SPARSITY = 0.015;
+
 // Check whether in browser or node.
 function inBrowser() {
     return (typeof window !== "undefined");
@@ -75,6 +77,8 @@ Game.prototype.makeMap = function() {
 
     var width = 15 + Math.floor(16.0*random());
     var height = 15 + Math.floor(16.0*random());
+    if (height%2==1) height++; // ensure height is even
+
     this.shadow = new Array(height);
     for (var i=0; i<height; i++) {
         this.shadow[i] = new Array(width);
@@ -83,7 +87,7 @@ Game.prototype.makeMap = function() {
         }
     }
 
-    var players = 3 + Math.floor(6*random());
+    var players = Math.floor(width*height*ROBOT_SPARSITY);
     var player_odd = players/(0.8*height*width/2);
     
     var to_create = [];
@@ -110,7 +114,7 @@ Game.prototype.viewerMap = function() {
         }
     }
 
-    return map;
+    return insulate(map);
 }
 
 Game.prototype.viewerMessage = function() {
@@ -129,8 +133,9 @@ Game.prototype.viewerMessage = function() {
 Game.prototype.createItem = function(x,y,team) {
     var id = null;
 
-    do id = Math.floor(4096 * Math.random());
+    do id = 10+Math.floor(4086 * Math.random());
     while (this.ids.indexOf(id) >= 0);
+    this.ids.push(id);
 
     var robot         = {'type':'robot'};
     robot.id          = id;
@@ -140,7 +145,7 @@ Game.prototype.createItem = function(x,y,team) {
 
     robot.health      = INITIAL_HP;
     robot.initialized = false;
-    robot.hook        = undefined; // the turn function
+    robot.hook        = null; // the turn function
     robot.time        = CHESS_INITIAL; // time left in chess clock
     robot.start_time  = -1; // used for chess clock timing.
     robot.signal      = 0;
@@ -310,6 +315,7 @@ Game.prototype.initializeRobot = function() {
 Game.prototype.registerHook = function(hook, robot_id) {
     var robot = this.getItem(robot_id);
     robot.hook = hook;
+    //console.log("Registered Robot " + robot.id + " with " + robot.hook);
 }
 
 Game.prototype._overflow_y = function(val) {
@@ -332,8 +338,9 @@ Game.prototype._overflow_x = function(val) {
  */
 Game.prototype.getVisible = function(robot) {
     var view = Array(ROBOT_VISION);
-    for (var i=0; i<ROBOT_VISION; i++) view.push(Array(ROBOT_VISION));
+    for (var i=0; i<ROBOT_VISION; i++) view[i]=Array(ROBOT_VISION);
     var r = Math.floor(ROBOT_VISION/2);
+
     for (var _x=0; _x<ROBOT_VISION; _x++) {
         for (var _y=0; _y<ROBOT_VISION; _y++) {
             var x = this._overflow_x(_x + robot.x - r);
@@ -423,16 +430,7 @@ Game.prototype._applyNexi = function() {
                         baby.health = NEXUS_INCUBATOR_HP;
                     } else {
                         var center = this.getItem(o);
-                        if (center.team === side_team)
-                            center.health += (center.health >= INITIAL_HP)?0:NEXUS_INCUBATOR_HP;
-                        else sides.forEach(function(side) {
-                            side.health -= NEXUS_POISON_HP;
-                            if (side.health <= 0) {
-                                var index = this.robots.indexOf(side);
-                                this.robots.splice(index,1);
-                                if (index < this.robin) this.robin--;
-                            }
-                        });
+                        center.health += (center.health >= INITIAL_HP)?0:NEXUS_INCUBATOR_HP;
                     }
                 }
             }
@@ -459,6 +457,7 @@ Game.prototype.getGameStateDump = function(robot) {
         }.bind(this));
     }.bind(this));
 
+    if (shadow[3][3] === 0) console.log(shadow);
     return JSON.stringify({shadow:shadow, visible:visible});
 }
 
@@ -480,14 +479,17 @@ Game.prototype.enactTurn = function() {
 
     var robot = this.robots[this.robin];
     if (robot.hook === null || !robot.initialized) {
-        return "Robot not initialized.";
+        this.robotError("Robot not initialized", robot)
+        this.enactAction(robot, null, 0);
+        return
     }
 
     var action = null;
     var dump = this.getGameStateDump(robot);
 
     robot.start_time = wallClock();
-
+    //console.log(robot.id);
+    //console.log(robot);
     try {
         action = robot.hook(dump);
     } catch (e) {

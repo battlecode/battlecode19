@@ -19,7 +19,7 @@ class Docs extends Component {
                                     <blockquote>
                                         <p style={{textAlign:'center'}}>X<br />X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X<br />X</p>
                                     </blockquote>
-                                    <p>then a new microbot of that team will be created in the center square with 1HP.  If such a microbot already exists, it’s health will be increased by 1HP.  However, if a microbot of the opposing team is in the center square, all 4 microbots in the surrounding nexus will lose 1HP.</p>
+                                    <p>then a new microbot of that team will be created in the center square with 1HP.  If a microbot already exists in the spot, it’s health will be increased by 1HP.</p>
                                     <p>The game ends when either one team is totally annihilated, or 200 rounds have passed.  After 200 rounds, the team with greater total HP wins.  If both teams have equal HP after 200 rounds, the winner is determined by a coin flip.</p>
                                 </div>
                             </div>
