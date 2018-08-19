@@ -26,7 +26,7 @@ SECRET_KEY = '$(1%pjcr==l+-m@8eoqi9-ph&mdhfw!=&4l)payk&^_dkyo3!p'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -111,9 +111,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'battlecode',
-        'USER': 'postgres',
-        'PASSWORD': 'mysecretpassword',
-        'HOST': 'localhost',
+        'USER': 'battlecode',
+        'PASSWORD': os.environ['DB_PASS'],
+        'HOST': os.environ['DB_HOST'],
         'PORT': 5432,
     }
 }
@@ -167,7 +167,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/api-static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
