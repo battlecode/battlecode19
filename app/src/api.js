@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import * as Cookies from "js-cookie";
 
-var URL = "http://127.0.0.1:8000";
+var URL = "http://35.227.80.23:8000";
 var LEAGUE = 0
 
 class Api {

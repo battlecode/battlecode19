@@ -38,9 +38,9 @@ Coldbrew.prototype.playGame = function(player_one, player_two, log_receiver) {
 
     function emptyQueue() {
         while (game.init_queue > 0) {
-            let robot = game.initializeRobot();
+            var robot = game.initializeRobot();
 
-            let code = (robot.team==0) ? player_one : player_two;
+            var code = (robot.team==0) ? player_one : player_two;
 
             var start_time = wallClock();
         

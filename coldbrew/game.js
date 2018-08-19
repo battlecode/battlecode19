@@ -73,10 +73,10 @@ Game.prototype.makeMap = function() {
         return x - Math.floor(x);
     }.bind(this);
 
-    let width = 15 + Math.floor(16.0*random());
-    let height = 15 + Math.floor(16.0*random());
+    var width = 15 + Math.floor(16.0*random());
+    var height = 15 + Math.floor(16.0*random());
     this.shadow = new Array(height);
-    for (let i=0; i<height; i++) {
+    for (var i=0; i<height; i++) {
         this.shadow[i] = new Array(width);
         for (var j=0; j<width; j++) {
             this.shadow[i][j] = 0;
@@ -163,7 +163,7 @@ Game.prototype.createItem = function(x,y,team) {
 Game.prototype.getItem = function(item_id) {
     var robot = this.robots[0];
 
-    let i = 0;
+    var i = 0;
     do robot = this.robots[i++];
     while (robot.id !== item_id && i < this.robots.length);
 
@@ -180,7 +180,7 @@ Game.prototype.getItem = function(item_id) {
  */
 Game.prototype.robotError = function(message, robot) {
     if (this.debug) {
-        let team = robot.team===0?"red":"blue";
+        var team = robot.team===0?"red":"blue";
         if (inBrowser()) console.log("%c"+"[Robot "+robot.id+" Error] "
                                    + ("%c"+message),"color:"+team+";",
                                      "color:black;");
@@ -202,7 +202,7 @@ Game.prototype.robotError = function(message, robot) {
  */
 Game.prototype.robotLog = function(message, robot) {
     if (this.debug) {
-        let team = robot.team===0?"red":"blue";
+        var team = robot.team===0?"red":"blue";
         if (inBrowser()) console.log("%c"+"[Robot "+robot.id+" Log] "
                                    + ("%c"+message),"color:"+team+";",
                                      "color:black;");
@@ -308,7 +308,7 @@ Game.prototype.initializeRobot = function() {
  * @param {number} robot_id - The robot id the hook belongs to.
  */
 Game.prototype.registerHook = function(hook, robot_id) {
-    let robot = this.getItem(robot_id);
+    var robot = this.getItem(robot_id);
     robot.hook = hook;
 }
 
@@ -331,7 +331,8 @@ Game.prototype._overflow_x = function(val) {
  * @returns {number[][]} The subshadow.
  */
 Game.prototype.getVisible = function(robot) {
-    const view = Array(ROBOT_VISION).fill().map(() => Array(ROBOT_VISION).fill(0));
+    var view = Array(ROBOT_VISION);
+    for (var i=0; i<ROBOT_VISION; i++) view.push(Array(ROBOT_VISION));
     var r = Math.floor(ROBOT_VISION/2);
     for (var _x=0; _x<ROBOT_VISION; _x++) {
         for (var _y=0; _y<ROBOT_VISION; _y++) {
@@ -477,13 +478,13 @@ Game.prototype.enactTurn = function() {
 
     this._applyNexi();
 
-    let robot = this.robots[this.robin];
+    var robot = this.robots[this.robin];
     if (robot.hook === null || !robot.initialized) {
         return "Robot not initialized.";
     }
 
-    let action = null;
-    let dump = this.getGameStateDump(robot);
+    var action = null;
+    var dump = this.getGameStateDump(robot);
 
     robot.start_time = wallClock();
 
@@ -494,8 +495,8 @@ Game.prototype.enactTurn = function() {
         this.robotError(e.toString(), robot);
     }
     
-    let diff_time = wallClock() - robot.start_time;
-    let response = this.enactAction(robot, action, diff_time);
+    var diff_time = wallClock() - robot.start_time;
+    var response = this.enactAction(robot, action, diff_time);
 
     if (response !== "") {
         this.robotError(response, robot);
