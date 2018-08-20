@@ -80,6 +80,4 @@ if (cluster.isMaster) {
     cluster.on('exit', (worker, code, signal) => {
         console.log(`[Worker ${worker.process.pid}] Worker died`);
     });
-}
-
-setTimeout(playGame,Math.floor(5000*Math.random()));
+} else setTimeout(playGame,Math.floor(5000*Math.random()));
