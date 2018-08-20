@@ -16,6 +16,9 @@ const cn = {
 
 const db = pgp(cn);
 
+const CHESS_INITIAL = 100;
+const CHESS_EXTRA = 20;
+
 const queue = `
 WITH t as (
     SELECT s.id as id, s.red_team_id as red_id, s.blue_team_id as blue_id,
@@ -48,7 +51,7 @@ function playGame() {
     db.one(queue).then(function(scrimmage) {
         console.log(`[Worker ${process.pid}] Running match ${scrimmage.id}`);
         var seed = Math.floor(10000*Math.random());
-        let c = new Coldbrew(null, seed, scrimmage.red, scrimmage.blue, function(replay) {
+        let c = new Coldbrew(null, seed, scrimmage.red, scrimmage.blue, CHESS_INITIAL, CHESS_EXTRA, function(replay) {
             var r = JSON.stringify(replay);
             db.one(publish_replay,[r]).then(function(replay_id) {
                 console.log(`[Worker ${process.pid}] Match ${scrimmage.id} complete.`);

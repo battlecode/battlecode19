@@ -13,12 +13,14 @@ class ScrimmageRequest extends Component {
     accept() {
         Api.acceptScrimmage(this.props.id, function() {
             this.setState({'open':false});
+            this.props.refresh();
         }.bind(this));
     }
 
     reject() {
         Api.rejectScrimmage(this.props.id, function() {
             this.setState({'open':false});
+            this.props.refresh();
         }.bind(this));
     }
 
@@ -37,18 +39,24 @@ class ScrimmageRequests extends Component {
     constructor() {
         super();
         this.state = {'requests':[]};
+
+        this.refresh = this.refresh.bind(this);
     }
 
-    componentDidMount() {
+    refresh() {
         Api.getScrimmageRequests(function(r) {
             this.setState({requests:r});
         }.bind(this));
     }
 
+    componentDidMount() {
+        this.refresh();
+    }
+
     render() {
         return (
             <div className="col-md-12">
-                { this.state.requests.map(r => <ScrimmageRequest key={r.id} id={r.id} team={r.team} />) }
+                { this.state.requests.map(r => <ScrimmageRequest refresh={this.props.refresh} key={r.id} id={r.id} team={r.team} />) }
             </div>
         );
     }
@@ -66,7 +74,10 @@ class ScrimmageRequestor extends Component {
     request() {
         this.setState({'up':'<i class="fa fa-circle-o-notch fa-spin"></i>'});
         Api.requestScrimmage(this.state.input, function(response) {
-            if (response) this.setState({'up':'<i class="fa fa-check"></i>'});
+            if (response) {
+                this.setState({'up':'<i class="fa fa-check"></i>'});
+                this.props.refresh();
+            }
             else this.setState({'up':'Team not found'});
             setTimeout(function() {
                 this.setState({'up':'Request'});
@@ -100,12 +111,18 @@ class ScrimmageHistory extends Component {
     constructor() {
         super();
         this.state = {'scrimmages':[]};
+
+        this.refresh = this.refresh.bind(this);
     }
 
-    componentDidMount() {
+    refresh() {
         Api.getScrimmageHistory(function(s) {
             this.setState({ scrimmages: s });
         }.bind(this));
+    }
+
+    componentDidMount() {
+        this.refresh();
     }
 
     playReplay(e) {
@@ -119,7 +136,7 @@ class ScrimmageHistory extends Component {
             <div className="col-md-12">
                 <div className="card">
                     <div className="header">
-                        <h4 className="title">Scrimmage History</h4>
+                        <h4 className="title">Scrimmage History <span style={{marginLeft:"10px"}} className="category"><a href="#" onClick={this.props.refresh}>Refresh</a></span></h4>
                     </div>
                     <div className="content table-responsive table-full-width">
                         <table className="table table-hover table-striped">
@@ -154,15 +171,26 @@ class ScrimmageHistory extends Component {
 }
 
 class Scrimmaging extends Component {
+    constructor() {
+        super();
+
+        this.refresh = this.refresh.bind(this);
+    }
+
+    refresh() {
+        this.requests.refresh();
+        this.history.refresh();
+    }
+
     render() {
         return (
             <div className="content">
                 <div className="content">
                     <div className="container-fluid">
                         <div className="row">
-                            <ScrimmageRequests />
-                            <ScrimmageRequestor />
-                            <ScrimmageHistory />
+                            <ScrimmageRequests ref={requests => {this.requests = requests}} refresh={this.refresh} />
+                            <ScrimmageRequestor refresh={this.refresh} />
+                            <ScrimmageHistory ref={history => {this.history = history}} refresh={this.refresh} />
                         </div>
                     </div>
                 </div>

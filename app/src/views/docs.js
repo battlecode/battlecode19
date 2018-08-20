@@ -48,6 +48,7 @@ class Docs extends Component {
                                         <li><code>this.getVisibleRobots()</code>: Returns a list of all robot objects visible to you.</li>
                                         <li><code>this.getVisibleMap()</code>: Returns a 7x7 2d int array of your robot's current vision, where a value of <code>bc.EMPTY</code> means there's nothing there, <code>bc.HOLE</code> means the square is impassable, and if the value is neither hole or empty, the ID of the robot occupying that space.</li>
                                         <li><code>this.getRelativePos(dX,dY)</code>: A shortcut to get what's in the square <code>(dX,dY)</code> away.  Returns a robot object if one is there, otherwise <code>bc.EMPTY</code> or <code>bc.HOLE</code>.</li>
+                                        <li><code>this.getInDirection(direction)</code>: Returns the output of <code>this.getRelativePos</code> in the specified direction.</li>
                                         <li><code>this.move(direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>this.attack(direction)</code>: Returns an action to attack in a given direction.</li>
                                     </ul>
@@ -76,6 +77,7 @@ class Docs extends Component {
                                         <li><code>self.get_visible_robots()</code>: Returns a list of all robot dicts visible to you.</li>
                                         <li><code>self.get_visible_map()</code>: Returns a 7x7 2d int array of your robot's current vision, where a value of <code>bc.EMPTY</code> means there's nothing there, <code>bc.HOLE</code> means the square is impassable, and if the value is neither hole or empty, the ID of the robot occupying that space.</li>
                                         <li><code>self.get_relative_pos(dX,dY)</code>: A shortcut to get what's in the square <code>(dX,dY)</code> away.  Returns a robot dict if one is there, otherwise <code>bc.EMPTY</code> or <code>bc.HOLE</code>.</li>
+                                        <li><code>self.get_in_direction(direction)</code>: Returns the output of <code>self.get_relative_pos</code> in the specified direction.</li>
                                         <li><code>self.move(direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>self.attack(direction)</code>: Returns an action to attack in a given direction.</li>
                                     </ul>
@@ -105,6 +107,8 @@ class Docs extends Component {
                                         <li><code>Robot getRobot(int id)</code>: Returns a <code>Robot</code> object with the given integer ID.  Returns null if such a robot is not in your vision.  Note that if the robot ID is not yours, the team and health will be censored.</li>
                                         <li><code>ArrayList&lt;Robot&gt; getVisibleRobots()</code>: Returns a list of all robot objects visible to you.</li>
                                         <li><code>int[][] getVisibleMap()</code>: Returns a 7x7 2d int array of your robot's current vision, where a value of <code>bc.EMPTY</code> means there's nothing there, <code>bc.HOLE</code> means the square is impassable, and if the value is neither hole or empty, the ID of the robot occupying that space.</li>
+                                        <li><code>int getRelativePos(int dX, int dY)</code>: A shortcut to get what's in the square <code>(dX,dY)</code> away.  Returns an integer that is either a robot id, <code>bc.EMPTY</code> or <code>bc.HOLE</code>.</li>
+                                        <li><code>int getInDirection(int direction)</code>: Returns the output of <code>getRelativePos</code> in the specified direction.</li>
                                         <li><code>Action move(int direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>Action attack(int direction)</code>: Returns an action to attack in a given direction.</li>
                                     </ul>

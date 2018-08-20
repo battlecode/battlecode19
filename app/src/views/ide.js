@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Api from '../api';
 import Coldsys from 'coldbrew';
 import Compiler from '../compiler';
+import * as Cookies from "js-cookie";
 
 var Coldbrew = Coldsys.Coldbrew;
 
@@ -20,9 +21,28 @@ window.firebase.initializeApp(firebase_config);
 class IDE extends Component {
     constructor() {
         super();
-        this.state = {menu:false, theater:false, logs:[[],[]], loading:false, error:false, errors:''};
 
-        this.lang = 'javascript';
+        var l = Cookies.get('lang');
+        var t = Cookies.get('theme');
+        var ci = Cookies.get('chess_init');
+        var ce = Cookies.get('chess_extra');
+
+        this.state = {
+            menu:false,
+            theater:false,
+            logs:[[],[]],
+            loading:true,
+            error:false,
+            errors:'',
+            chess_init:(ci ? ci : 100),
+            chess_extra:(ce ? ce : 30),
+            lang:(l ? l : 'javascript'),
+            theme:(t ? t : 'light'),
+            vimkeys:Cookies.get('vimkeys'),
+            seed:Cookies.get('seed'),
+            auto:Cookies.get('auto')
+        };
+
         this.storage = {};
 
         this.push = this.push.bind(this);
@@ -47,19 +67,21 @@ class IDE extends Component {
             var hash = t.id + "|" + t.team_key;
             var ref = window.firebase.database().ref().child(hash);
             this.firepad = window.Firepad.fromACE(ref, this.editor);
+            this.firepad.on('ready', function() {
+                this.setState({loading:false});
+            }.bind(this));
         }.bind(this));
 
-        this.editor.resize();
         this.editor.commands.addCommand({
             name: 'run',
             bindKey: {win: 'Ctrl-B',  mac: 'Command-B'},
             exec: this.run,
             readOnly: true
-        });
+        }); this.componentDidUpdate();
     }
 
     push() {
-        Compiler.Compile(this.lang, this.firepad.getText(), function(code) {
+        Compiler.Compile(this.state.lang, this.firepad.getText(), function(code) {
             Api.pushTeamCode(code, function() {});
         }, function(errors) {
             this.setState({error: true, errors:errors});
@@ -69,10 +91,14 @@ class IDE extends Component {
     run() {
         this.setState({loading:true});
 
-        Compiler.Compile(this.lang, this.firepad.getText(), function(code) {
+        Compiler.Compile(this.state.lang, this.firepad.getText(), function(code) {
             this.setState({theater:true, loading:false});
-            this.c = new Coldbrew("viewer", Math.floor(10000*Math.random()), code, code);
-            this.c.playGame(function(logs) {
+            var seed = (this.state.seed === '') ? Math.floor(10000*Math.random()) : parseInt(this.state.seed,10);
+            this.c = new Coldbrew(
+                "viewer", seed, code, code,
+                parseInt(this.state.chess_init,10),
+                parseInt(this.state.chess_extra,10)
+            ); this.c.playGame(function(logs) {
                 this.setState({logs:logs});
             }.bind(this));
         }.bind(this), function(errors) {
@@ -86,6 +112,14 @@ class IDE extends Component {
         element.scrollTop = element.scrollHeight;
         element = document.getElementById("blueConsole");
         element.scrollTop = element.scrollHeight;
+
+        this.session.setMode("ace/mode/" + this.state.lang);
+        this.editor.setTheme("ace/theme/" + this.state.theme);
+        this.editor.setOptions({
+            enableBasicAutocompletion: this.state.auto==='true',
+            enableSnippets: this.state.auto==='true',
+            enableLiveAutocompletion: this.state.auto==='true'
+        }); this.editor.setKeyboardHandler(this.state.vimkeys);
     }
 
     exitTheater() {
@@ -108,19 +142,12 @@ class IDE extends Component {
     changeHandler(e) {
         var id = e.target.id;
         var val = e.target.value;
-
-        if (id === "lang") {
-            this.session.setMode("ace/mode/" + val);
-            this.lang = val;
-        }
-
-        else if (id === "theme") this.editor.setTheme("ace/theme/" + val);
-        else if (id === "tab") this.session.setTabSize(val);
-        else if (id === "auto") this.editor.setOptions({
-            enableBasicAutocompletion: val,
-            enableSnippets: val,
-            enableLiveAutocompletion: val
-        }); else if (id === "vimkeys") this.editor.setKeyboardHandler(val);
+        
+        Cookies.set(id, val);
+        this.setState(function(prev, props) {
+            prev[id] = val;
+            return prev;
+        });
     }
 
     hideSidebar() {
@@ -313,7 +340,7 @@ class IDE extends Component {
                     }}>
                         <div className="form-group" style={{padding:"10px"}}>
                             <label>Language</label>
-                            <select className="form-control" id="lang" onChange={ this.changeHandler }>
+                            <select className="form-control" id="lang" value={ this.state.lang } onChange={ this.changeHandler }>
                                 <option value='javascript'>Javascript</option>
                                 <option value='python'>Python</option>
                                 <option value='java'>Java</option>
@@ -321,32 +348,33 @@ class IDE extends Component {
                         </div>
                         <div className="form-group" style={{padding:"10px", marginTop:"-20px"}}>
                             <label>Theme</label>
-                            <select className="form-control" id="theme" onChange={ this.changeHandler }>
+                            <select className="form-control" id="theme" value={ this.state.theme }  onChange={ this.changeHandler }>
                                 <option value='textmate'>Light</option>
                                 <option value='monokai'>Dark</option>
                             </select>
                         </div>
                         <div className="form-group" style={{padding:"10px", marginTop:"-20px"}}>
-                            <label>Tab Size</label>
-                            <select className="form-control" id="tab" onChange={ this.changeHandler }>
-                                <option value={4}>4 spaces</option>
-                                <option value={3}>3 spaces</option>
-                                <option value={2}>2 spaces</option>
-                            </select>
-                        </div>
-                        <div className="form-group" style={{padding:"10px", marginTop:"-20px"}}>
                             <label>Autocomplete</label>
-                            <select className="form-control" id="auto" onChange={ this.changeHandler }>
+                            <select className="form-control" id="auto"  value={ this.state.auto } onChange={ this.changeHandler }>
                                 <option value={false}>Off</option>
                                 <option value={true}>On</option>
                             </select>
                         </div>
                         <div className="form-group" style={{padding:"10px", marginTop:"-20px"}}>
                             <label>Vimkeys</label>
-                            <select className="form-control" id="vimkeys" onChange={ this.changeHandler }>
+                            <select className="form-control" id="vimkeys" value={ this.state.vimkeys } onChange={ this.changeHandler }>
                                 <option value="">Off</option>
                                 <option value="ace/keyboard/vim">On</option>
                             </select>
+                        </div>
+                        <div className="form-group" style={{padding:"10px", marginTop:"-20px"}}>
+                            <label>Mapgen Seed</label>
+                            <input className="form-control" id="seed"  value={ this.state.seed } onChange={ this.changeHandler } />
+                        </div>
+                        <div className="form-group" style={{padding:"10px", marginTop:"-20px"}}>
+                            <label>Chess Timer</label>
+                            <input className="form-control" style={{width:'45%', 'float':'left'}} id="chess_init" value={this.state.chess_init} onChange={ this.changeHandler } />
+                            <input className="form-control" style={{width:'45%', 'float':'right'}} id="chess_extra" value={this.state.chess_extra} onChange={ this.changeHandler } />
                         </div>
                     </div>
                     <div id="firepad-container" style={{

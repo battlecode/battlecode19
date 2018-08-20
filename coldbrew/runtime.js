@@ -16,13 +16,13 @@ function wallClock() {
  * @param {number} [tile_size=30] - The tile size to render games with.
  * @constructor
  */
-function Coldbrew(visualizer, seed, player_one, player_two, replay_eater) {
+function Coldbrew(visualizer, seed, player_one, player_two, chess_init, chess_extra, replay_eater) {
     this.kill = false;
     this.seed = seed;
     this.replay_eater = replay_eater;
     this.player_one = player_one;
     this.player_two = player_two;
-    this.game = new Game(this.seed, false);
+    this.game = new Game(this.seed, chess_init, chess_extra, false);
     
     if (visualizer) this.vis = new Visualizer(visualizer, this.game.shadow[0].length, this.game.shadow.length, this.game.viewerMap());
 }

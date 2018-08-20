@@ -1,14 +1,10 @@
 var ROBOT_VISION = 7;
-var ATTACK_PENALTY = 1;
+var ATTACK_PENALTY = 2;
 var INITIAL_HP = 64;
 var COMMUNICATION_BITS = 8;
 var MAX_ROUNDS = 200;
 
-var NEXUS_POISON_HP = 2;
 var NEXUS_INCUBATOR_HP = 1;
-
-var CHESS_INITIAL = 100;
-var CHESS_EXTRA = 20;
 
 var ROBOT_SPARSITY = 0.015;
 
@@ -39,9 +35,12 @@ function wallClock() {
 * @param {number} seed - The seed for map generation.
  * @param {boolean} [debug=false] - Enables debug mode (default false).
  */
-function Game(seed, debug) {    
+function Game(seed, chess_initial, chess_extra, debug) {    
     this.robots = [] // objects active in the game.
     this.ids = []; // list of "spent" item ids.
+
+    this.chess_initial = chess_initial;
+    this.chess_extra = chess_extra;
 
     this.seed = seed;
     this.round = 0;
@@ -146,7 +145,7 @@ Game.prototype.createItem = function(x,y,team) {
     robot.health      = INITIAL_HP;
     robot.initialized = false;
     robot.hook        = null; // the turn function
-    robot.time        = CHESS_INITIAL; // time left in chess clock
+    robot.time        = this.chess_initial; // time left in chess clock
     robot.start_time  = -1; // used for chess clock timing.
     robot.signal      = 0;
     this.init_queue++;
@@ -528,7 +527,7 @@ Game.prototype.enactAction = function(robot, action, time) {
         this.robin--;
         this.shadow[robot.y][robot.x] = 0;
         return "Timed out by " + robot.time*-1 + "ms.";
-    } else robot.time += CHESS_EXTRA;
+    } else robot.time += this.chess_extra;
 
 
     if (action === null) return "";
