@@ -61,12 +61,14 @@ Coldbrew.prototype.gameLoop = function() {
             this.replay['win_condition'] = this.game.win_condition;
             this.replay['winner'] = this.game.winner;
             this.replay_eater(this.replay);
-        } else this.vis.gameOver(this.game.win_condition);
+        } else this.vis.gameOver(this.game.winner, this.game.win_condition);
     } else if (!(!this.replay_eater && this.vis.stopped())) {
         if (this.round == 0 && !this.replay_eater) this.vis.starting();
         this.game.enactTurn();
 
         if (this.game.round != this.round) {
+            this.round = this.game.round;
+            
             if (this.replay_eater) this.replay['rounds'].push(this.game.viewerMessage());
             else {
                 this.vis.feedRound(this.round, this.game.viewerMessage());
@@ -74,7 +76,6 @@ Coldbrew.prototype.gameLoop = function() {
             }
 
             if (this.log_receiver) this.log_receiver(this.game.logs);
-            this.round = this.game.round;
         }
     }
 }

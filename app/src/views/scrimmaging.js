@@ -136,7 +136,7 @@ class ScrimmageHistory extends Component {
             <div className="col-md-12">
                 <div className="card">
                     <div className="header">
-                        <h4 className="title">Scrimmage History <span style={{marginLeft:"10px"}} className="category"><a href="#" onClick={this.props.refresh}>Refresh</a></span></h4>
+                        <h4 className="title">Scrimmage History <button onClick={this.props.refresh} style={{marginLeft:"10px"}} type="button" className="btn btn-primary btn-sm">Refresh</button></h4>
                     </div>
                     <div className="content table-responsive table-full-width">
                         <table className="table table-hover table-striped">

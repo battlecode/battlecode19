@@ -273,7 +273,7 @@ Game.prototype.isOver = function() {
         if (red > blue) {
             this.winner = 0;
             if (this.debug) console.log("Game over, red won by greater health.");
-        } else if (blue < red) {
+        } else if (blue > red) {
             this.winner = 1;
             if (this.debug) console.log("Game over, blue won by greater health.");
         } else {
@@ -422,10 +422,9 @@ Game.prototype._applyNexi = function() {
                 if (teams[0] === 4 || teams[1] === 4) { // all red or blue
                     this.nexi.push(sides);
 
-                    var side_team = (teams[0] === 4) ? 0 : 1;
-                    if (o === side_team) {
+                    if (o === 0) {
                         // create a side_team robot in r,c
-                        var baby = this.createItem(c, r, side_team);
+                        var baby = this.createItem(c, r, (teams[0] === 4) ? 0 : 1);
                         baby.health = NEXUS_INCUBATOR_HP;
                     } else {
                         var center = this.getItem(o);

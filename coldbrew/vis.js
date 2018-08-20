@@ -5,6 +5,8 @@ function Visualizer(canvas, mapWidth, mapHeight, map, replay) {
         this.width = the_replay.width;
         this.height = the_replay.height;
         this.map = the_replay.map;
+        this.winner = the_replay.winner;
+        this.win_condition = the_replay.win_condition;
 
         this.replay = true;
     } else {
@@ -12,6 +14,9 @@ function Visualizer(canvas, mapWidth, mapHeight, map, replay) {
         this.width = mapWidth;
         this.height = mapHeight;
         this.map = map;
+
+        this.winner = null;
+        this.win_condition = null;
 
         this.replay = false;
     }
@@ -185,6 +190,37 @@ Visualizer.prototype.renderInfoBox = function() {
     this.ctx.fill();
 }
 
+Visualizer.prototype.renderWinnerBox = function() {
+    if (this.winner === null) return;
+
+    this.ctx.beginPath();
+
+    this.ctx.shadowBlur = 0;
+    this.ctx.shadowOffsetX = 0;
+    this.ctx.shadowOffsetY = 0;
+    this.ctx.fillStyle = "#000";
+    this.ctx.strokeStyle = "#fff"
+    this.ctx.font = "15px Roboto Mono, monospace";
+    this.ctx.textAlign = "left";
+
+    var box_width = 200;
+    var box_height = 50;
+
+    this.ctx.rect(this.canvas.width-box_width,0,this.canvas.width,box_height);
+    this.ctx.fill();
+    this.ctx.stroke();
+
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "#00ff00";
+
+    var win_message = "Winner: " + (this.winner===0?"Red":"Blue");
+    var win_reason = "Reason: " + (this.win_condition===0?"Annihilation":(this.win_condition===1?"Greater Health":"Coin Flip"));
+
+    this.ctx.fillText(win_message, this.canvas.width-box_width+10, 20); 
+    this.ctx.fillText(win_reason, this.canvas.width-box_width+10, 40); 
+    this.ctx.fill();
+}
+
 Visualizer.prototype.renderControlBox = function() {
     this.ctx.beginPath();
 
@@ -245,8 +281,10 @@ Visualizer.prototype.renderControlBox = function() {
 
 }
 
-Visualizer.prototype.gameOver = function(reason) {
-
+Visualizer.prototype.gameOver = function(winner, reason) {
+    this.winner = winner;
+    this.win_condition = reason;
+    this.render();
 }
 
 Visualizer.prototype.starting = function() {
@@ -317,6 +355,9 @@ Visualizer.prototype.render = function(time_to_render) {
 
     // Render the info box.
     this.renderInfoBox();
+
+    // Render the winner box.
+    this.renderWinnerBox();
 
     // Render the control box.
     this.renderControlBox();

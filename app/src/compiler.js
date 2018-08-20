@@ -372,7 +372,7 @@ class BCAbstractRobot {
     // Action template
     _bc_action(dir, action) {
         return {
-            'signal': this.signal,
+            'signal': this._bc_signal,
             'logs': this._bc_logs,
             'dir': dir,
             'action': action
@@ -382,14 +382,14 @@ class BCAbstractRobot {
     // Action template
     _bc_null_action() {
         return {
-            'signal': this.signal,
+            'signal': this._bc_signal,
             'logs': this._bc_logs
         };
     }
     
     // Set signal value.
     signal(value) {
-        this.signal = value;
+        this._bc_signal = value;
     }
 
     // Get robot of a given ID
