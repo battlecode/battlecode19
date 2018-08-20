@@ -93,7 +93,7 @@ class IDE extends Component {
 
         Compiler.Compile(this.state.lang, this.firepad.getText(), function(code) {
             this.setState({theater:true, loading:false});
-            var seed = (this.state.seed === '') ? Math.floor(10000*Math.random()) : parseInt(this.state.seed,10);
+            var seed = (!this.state.seed || this.state.seed === '') ? Math.floor(10000*Math.random()) : parseInt(this.state.seed,10);
             this.c = new Coldbrew(
                 "viewer", seed, code, code,
                 parseInt(this.state.chess_init,10),

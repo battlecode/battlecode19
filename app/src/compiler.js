@@ -344,6 +344,10 @@ let bc = {
     'HOLE':     -1
 }
 
+function insulate(content) {
+    return JSON.parse(JSON.stringify(content));
+}
+
 class BCAbstractRobot {
     constructor() {
         // Internal robot state representation
@@ -362,8 +366,9 @@ class BCAbstractRobot {
     _do_turn(game_state) {
         this._bc_game_state = game_state;
         if (!this.id) this.id = this.me().id;
+        if (!this.id) this.team = this.me().team;
         var t = this.turn();
-        if (t === null) t = this._bc_null_action();
+        if (!t) t = this._bc_null_action();
 
         this._bc_clear_logs = true;
         return t;
@@ -397,19 +402,19 @@ class BCAbstractRobot {
         if (id <= 0) return null;
         for (var i=0; i<this._bc_game_state.visible.length; i++) {
             if (this._bc_game_state.visible[i].id === id) {
-                return this._bc_game_state.visible[i];
+                return insulate(this._bc_game_state.visible[i]);
             }
         } return null;
     }
 
     // Get current robot vision.
     getVisibleMap() {
-        return this._bc_game_state.shadow;
+        return insulate(this._bc_game_state.shadow);
     }
 
     // Get a list of robots visible to you.
     getVisibleRobots() {
-        return this._bc_game_state.visible;
+        return insulate(this._bc_game_state.visible);
     }
 
     // Get me.
@@ -447,8 +452,8 @@ class BCAbstractRobot {
             this._bc_clear_logs = false;
         }
 
-        if (this._bc_in_browser) _bc_browser_log(this.id, message);
-        else this._bc_logs.push(message);
+        if (this._bc_in_browser) _bc_browser_log(this.id, ""+message);
+        else this._bc_logs.push(""+message);
     }
 
     // Move in a direction

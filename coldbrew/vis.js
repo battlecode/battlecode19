@@ -203,7 +203,7 @@ Visualizer.prototype.renderWinnerBox = function() {
     this.ctx.font = "15px Roboto Mono, monospace";
     this.ctx.textAlign = "left";
 
-    var box_width = 200;
+    var box_width = 250;
     var box_height = 50;
 
     this.ctx.rect(this.canvas.width-box_width,0,this.canvas.width,box_height);

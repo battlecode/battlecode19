@@ -5,8 +5,7 @@ var COMMUNICATION_BITS = 8;
 var MAX_ROUNDS = 200;
 
 var NEXUS_INCUBATOR_HP = 1;
-
-var ROBOT_SPARSITY = 0.015;
+var MAP_SPARSITY = 0.8;
 
 // Check whether in browser or node.
 function inBrowser() {
@@ -76,7 +75,7 @@ Game.prototype.makeMap = function() {
 
     var width = 15 + Math.floor(16.0*random());
     var height = 15 + Math.floor(16.0*random());
-    if (height%2==1) height++; // ensure height is even
+    if (height%2 === 1) height++; // ensure height is even
 
     this.shadow = new Array(height);
     for (var i=0; i<height; i++) {
@@ -86,20 +85,22 @@ Game.prototype.makeMap = function() {
         }
     }
 
-    var players = Math.floor(width*height*ROBOT_SPARSITY);
-    var player_odd = players/(0.8*height*width/2);
+    var players = 6 + Math.floor(6*random());
+    var player_odd = players/(0.8*height*width);
     
     var to_create = [];
     for (var r=0; r<height/2; r++) {
         for (var c=0; c<width; c++) {
-            this.shadow[r][c] = this.shadow[height-1-r][width-1-c] = random() > 0.8 ? -1 : 0;
+            this.shadow[r][c] = this.shadow[height-1-r][width-1-c] = random() > MAP_SPARSITY ? -1 : 0;
             if (random() < player_odd && this.shadow[r][c] !== -1) {
                 var team = random() > 0.5 ? 1 : 0;
                 to_create.push({ team: team, x: c, y: r });
                 to_create.push({ team: 1-team, x:width-1-c, y:height-1-r });
             }
         }
-    }    
+    }
+
+    if (to_create.length < 10) return this.makeMap();
 
     return to_create;
 }
@@ -455,7 +456,6 @@ Game.prototype.getGameStateDump = function(robot) {
         }.bind(this));
     }.bind(this));
 
-    if (shadow[3][3] === 0) console.log(shadow);
     return JSON.stringify({shadow:shadow, visible:visible});
 }
 
@@ -486,8 +486,7 @@ Game.prototype.enactTurn = function() {
     var dump = this.getGameStateDump(robot);
 
     robot.start_time = wallClock();
-    //console.log(robot.id);
-    //console.log(robot);
+
     try {
         action = robot.hook(dump);
     } catch (e) {
@@ -537,9 +536,10 @@ Game.prototype.enactAction = function(robot, action, time) {
         return "Malformed move.";
     }
 
-    if ('logs' in action) {
+    if ('logs' in action && 'length' in action['logs']) {
         for (var l=0; l<action['logs'].length; l++) {
-            this.robotLog(action['logs'][l], robot);
+            if (typeof action['logs'][l] === "string") this.robotLog(action['logs'][l], robot);
+            else console.log(action['logs'][l]);
         }
     }
 
@@ -564,7 +564,7 @@ Game.prototype.enactAction = function(robot, action, time) {
                 // space is occupied, so don't move.
                 return "Attempted to move into occupied square."
             }
-        } else return "Malformed move.";        
+        } else return "Malformed move.";   
     } else if (valid && action.action === 'attack') {
         if ('dir' in action && Number.isInteger(action.dir) && action.dir >= 0 && action.dir < 8) {
             var new_pos = this._newPosCalc(robot.x,robot.y,action.dir);
