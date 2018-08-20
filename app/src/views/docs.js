@@ -91,13 +91,16 @@ class Docs extends Component {
                                 </div>
                                 <div className="content">
                                     <p>Below is a bare minimum Java bot example:</p>
-                                    <pre>{`public class MyRobot extends BCAbstractRobot {
+                                    <pre>{`package robot;
+
+public class MyRobot extends BCAbstractRobot {
     public Action turn() {
         return move(bc.NORTH);
     }
 }`}</pre>
                                     <p>The main container of your bot code is the <code>MyRobot</code> class, which must be a subclass of <code>BCAbstractRobot</code>. <code>BCAbstractRobot</code> contains all sorts of useful methods that will make developing your bot easier.</p>
                                     <p>When your bot is spawned, a <code>MyRobot</code> object is created in its own global scope.  For every turn, the <code>turn()</code> method of your class is called.  This is where the heart of your robot code lives.  At the end of the <code>turn()</code> method, if you want to perform an action (move or attack), you must return <code>move(direction)</code> or <code>attack(direction)</code>, where <code>direction</code> can be <code>bc.NORTH</code>, <code>bc.SOUTHWEST</code>, or any similarly formatted direction.</p>
+                                    <p>You cannot create new classes at the same level as <code>MyRobot</code>.  Instead, declare nested classes inside of the <code>MyRobot</code> class, as all of your code must live inside it.</p>
                                     <hr /><h6>API Reference</h6><hr />
                                     <p>There are a number of useful methods you can use to explore and impact the world around you as a bot.  We'll detail them here.</p>
                                     <ul>

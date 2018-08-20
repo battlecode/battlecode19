@@ -213,6 +213,7 @@ public class BCAbstractRobot {
         id = me().id;
 
         Action t = turn();
+        if (t == null) t = new Action(signal, logs);;
         clearLogs = true;
 
         return t;
@@ -268,15 +269,31 @@ public class BCAbstractRobot {
     }
 
     public Action move(int direction) {
-        return new Action("move",direction,signal,logs);
+        return new ActiveAction("move",direction,signal,logs);
     }
 
     public Action attack(int direction) {
-        return new Action("attack",direction,signal,logs);
+        return new ActiveAction("attack",direction,signal,logs);
     }
     
     public Action turn() {
         return null;
+    }
+}
+`
+
+let active_action = `
+package robot;
+import java.util.ArrayList;
+
+public class ActiveAction extends Action {
+    String action;
+    int dir;
+    
+    public ActiveAction(String type, int direction, int signal, ArrayList<String> logs) {
+        super(signal, logs);
+        this.dir = direction;
+        this.action = type;
     }
 }
 `
@@ -286,19 +303,14 @@ package robot;
 import java.util.ArrayList;
 
 public class Action {
-    String action;
-    int dir;
     int signal;
     ArrayList<String> logs;
     
-    public Action(String type, int direction, int signal, ArrayList<String> logs) {
-        this.dir = direction;
-        this.action = type;
+    public Action(int signal, ArrayList<String> logs) {
         this.signal = signal;
         this.logs = logs;
     }
-}
-`
+}`
 
 let message = {'lang':'java', 'src':[
     {'filename':'BCAbstractRobot.java', 'source':abstract_robot},
@@ -306,7 +318,8 @@ let message = {'lang':'java', 'src':[
     {'filename':'MyRobot.java', 'source':code},
     {'filename':'GameState.java', 'source':game_state},
     {'filename':'Robot.java', 'source':robot},
-    {'filename':'bc.java', 'source':bc}
+    {'filename':'bc.java', 'source':bc},
+    {'filename':'ActiveAction.java','source':active_action}
 ]}
 
 let postfix = "\nvar robot = {'robot':new robot.MyRobot()};";
