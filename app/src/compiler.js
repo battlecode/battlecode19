@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-const TRANSPILER_TARGET = 'http://35.233.200.194/compile'
+const TRANSPILER_TARGET = 'https://hack.battlecode.org/compile'
 
 class Compiler {
 
