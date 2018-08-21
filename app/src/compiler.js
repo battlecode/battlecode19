@@ -92,14 +92,22 @@ class BCAbstractRobot:
             return vis
 
     def get_in_direction(self, direction):
-        if (direction == bc.NORTH)       return self.get_relative_pos(0, -1);
-        elif (direction == bc.SOUTH)     return self.get_relative_pos(0,  1);
-        elif (direction == bc.WEST)      return self.get_relative_pos(-1, 0);
-        elif (direction == bc.EAST)      return self.get_relative_pos(1,  0);
-        elif (direction == bc.SOUTHWEST) return self.get_relative_pos(-1, 1);
-        elif (direction == bc.NORTHWEST) return self.get_relative_pos(-1,-1);
-        elif (direction == bc.SOUTHEAST) return self.get_relative_pos(1,  1);
-        else return self.get_relative_pos(1,-1);
+        if direction == bc.NORTH:
+            return self.get_relative_pos(0, -1)
+        elif direction == bc.SOUTH:
+            self.get_relative_pos(0,  1)
+        elif direction == bc.WEST:
+            return self.get_relative_pos(-1, 0)
+        elif direction == bc.EAST:
+            return self.get_relative_pos(1,  0)
+        elif direction == bc.SOUTHWEST:
+            return self.get_relative_pos(-1, 1)
+        elif direction == bc.NORTHWEST:
+            return self.get_relative_pos(-1,-1)
+        elif direction == bc.SOUTHEAST:
+            return self.get_relative_pos(1,  1)
+        else:
+            return self.get_relative_pos(1,-1)
 
     def log(self, message):
         if self._bc_clear_logs:
@@ -119,7 +127,8 @@ class BCAbstractRobot:
 
 ${code}
 
-robot = MyRobot()`
+robot = MyRobot()
+`
 
 let message = {'lang':'python', 'src':source}
 
