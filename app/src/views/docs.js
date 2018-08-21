@@ -43,7 +43,7 @@ class Docs extends Component {
                                     <ul>
                                         <li><code>this.me()</code>: Returns an object containing details about your bot, including <code>.health</code> and <code>.id</code>.</li>
                                         <li><code>this.log(message)</code>: Print a message to the command line.  You cannot use ordinary <code>console.log</code> in Battlehack for security reasons.</li>
-                                        <li><code>this.signal(integer)</code>: Set your signal bits to a certain value 0 to 3 inclusive.</li>
+                                        <li><code>this.signal(integer)</code>: Set your signal bits to a certain value 0 to 15 inclusive.</li>
                                         <li><code>this.getRobot(id)</code>: Returns a robot object with the given integer ID.  Returns null if such a robot is not in your vision.</li>
                                         <li><code>this.getVisibleRobots()</code>: Returns a list of all robot objects visible to you.</li>
                                         <li><code>this.getVisibleMap()</code>: Returns a 7x7 2d int array of your robot's current vision, where a value of <code>bc.EMPTY</code> means there's nothing there, <code>bc.HOLE</code> means the square is impassable, and if the value is neither hole or empty, the ID of the robot occupying that space.</li>
@@ -72,7 +72,7 @@ class Docs extends Component {
                                     <ul>
                                         <li><code>self.me()</code>: Returns an dict containing details about your bot, including <code>.health</code> and <code>.id</code>.</li>
                                         <li><code>self.log(message)</code>: Print a message to the command line.  You cannot use ordinary <code>print</code> in Battlehack for security reasons.</li>
-                                        <li><code>self.signal(integer)</code>: Set your signal bits to a certain value 0 to 3 inclusive.</li>
+                                        <li><code>self.signal(integer)</code>: Set your signal bits to a certain value 0 to 15 inclusive.</li>
                                         <li><code>self.get_robot(id)</code>: Returns a robot dict with the given integer ID.  Returns null if such a robot is not in your vision.</li>
                                         <li><code>self.get_visible_robots()</code>: Returns a list of all robot dicts visible to you.</li>
                                         <li><code>self.get_visible_map()</code>: Returns a 7x7 2d int array of your robot's current vision, where a value of <code>bc.EMPTY</code> means there's nothing there, <code>bc.HOLE</code> means the square is impassable, and if the value is neither hole or empty, the ID of the robot occupying that space.</li>
@@ -106,7 +106,7 @@ public class MyRobot extends BCAbstractRobot {
                                     <ul>
                                         <li><code>Robot me()</code>: Returns a <code>Robot</code> object containing details about your bot, including <code>.health</code> and <code>.id</code>.</li>
                                         <li><code>void log(String message)</code>: Print a message to the command line.  You cannot use ordinary <code>console.log</code> in Battlehack for security reasons.</li>
-                                        <li><code>void signal(int signal)</code>: Set your signal bits to a certain value 0 to 3 inclusive.</li>
+                                        <li><code>void signal(int signal)</code>: Set your signal bits to a certain value 0 to 15 inclusive.</li>
                                         <li><code>Robot getRobot(int id)</code>: Returns a <code>Robot</code> object with the given integer ID.  Returns null if such a robot is not in your vision.  Note that if the robot ID is not yours, the team and health will be censored.</li>
                                         <li><code>ArrayList&lt;Robot&gt; getVisibleRobots()</code>: Returns a list of all robot objects visible to you.</li>
                                         <li><code>int[][] getVisibleMap()</code>: Returns a 7x7 2d int array of your robot's current vision, where a value of <code>bc.EMPTY</code> means there's nothing there, <code>bc.HOLE</code> means the square is impassable, and if the value is neither hole or empty, the ID of the robot occupying that space.</li>

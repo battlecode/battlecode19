@@ -42,7 +42,7 @@ class BCAbstractRobot:
             this.id = self.me().id
         
         t = self.turn()
-        if t is None:
+        if not t:
             t = self._bc_null_action()
         
         self._bc_clear_logs = True
@@ -85,7 +85,7 @@ class BCAbstractRobot:
         if dx < -3 or dx > 3 or dy < -3 or dy > 3:
             return None
 
-        vis = self.get_visible_map()[dy][dx]
+        vis = self.get_visible_map()[dy+3][dx+3]
         if vis > 0:
             return self.get_robot(vis)
         else:
@@ -95,7 +95,7 @@ class BCAbstractRobot:
         if direction == bc.NORTH:
             return self.get_relative_pos(0, -1)
         elif direction == bc.SOUTH:
-            self.get_relative_pos(0,  1)
+            return self.get_relative_pos(0,  1)
         elif direction == bc.WEST:
             return self.get_relative_pos(-1, 0)
         elif direction == bc.EAST:
@@ -114,7 +114,7 @@ class BCAbstractRobot:
             self._bc_logs = []
             self._bc_clear_logs = False
 
-        self._bc_logs.append(message)
+        self._bc_logs.append(str(message))
 
     def move(self, direction):
         return self._bc_action(direction, 'move')

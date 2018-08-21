@@ -27,27 +27,29 @@ function Coldbrew(visualizer, seed, player_one, player_two, chess_init, chess_ex
     if (visualizer) this.vis = new Visualizer(visualizer, this.game.shadow[0].length, this.game.shadow.length, this.game.viewerMap());
 }
 
+Coldbrew.prototype.initializeRobot = function() {
+    var robot = this.game.initializeRobot();
+    var code = (robot.team==0) ? this.player_one : this.player_two;
+
+    var start_time = wallClock();
+
+    try {
+        var v = new CrossVM(code);
+    } catch(error) {
+        this.game.robotError("Failed to initialize: " + error,robot);
+        return;
+    }
+
+    if (wallClock() - start_time < 100) {
+        this.game.registerHook(v.turn.bind(v), robot.id);
+    } else {
+        this.game.robotError("Took too long to initialize.",robot);
+    }
+}
 
 Coldbrew.prototype.emptyQueue = function() {
     while (!this.kill && this.game.init_queue > 0) {
-        var robot = this.game.initializeRobot();
-        //console.log("Initializing robot " + robot.id);
-        var code = (robot.team==0) ? this.player_one : this.player_two;
-
-        var start_time = wallClock();
-    
-        try {
-            var v = new CrossVM(code);
-        } catch(error) {
-            this.game.robotError("Failed to initialize: " + error,robot);
-            continue;
-        }
-
-        if (wallClock() - start_time < 100) {
-            this.game.registerHook(v.turn.bind(v), robot.id);
-        } else {
-            this.game.robotError("Took too long to initialize.",robot);
-        }
+        this.initializeRobot();
     }
 }
 

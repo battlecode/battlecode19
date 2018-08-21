@@ -1,12 +1,11 @@
 function Visualizer(canvas, mapWidth, mapHeight, map, replay) {
     if (replay) {
-        var the_replay = JSON.parse(replay);
-        this.rounds = the_replay.rounds;
-        this.width = the_replay.width;
-        this.height = the_replay.height;
-        this.map = the_replay.map;
-        this.winner = the_replay.winner;
-        this.win_condition = the_replay.win_condition;
+        this.rounds = replay.rounds;
+        this.width = replay.width;
+        this.height = replay.height;
+        this.map = replay.map;
+        this.winner = replay.winner;
+        this.win_condition = replay.win_condition;
 
         this.replay = true;
     } else {

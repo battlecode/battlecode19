@@ -128,7 +128,7 @@ class ScrimmageHistory extends Component {
     playReplay(e) {
         e.preventDefault();
         var url = e.target.href;
-        window.open(url, "replay_window", "scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=600,height=600");
+        window.open(url, "replay_window", "scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=600,height=750");
     }
 
     render() {

@@ -2,7 +2,6 @@ if [ "$1" == "deploy" ]
 then
 	npm run build
 	cd build
-	gsutil -m rm gs://battleserve/**
 	gsutil -m cp -r * gs://battleserve
 	cd ..
 elif [ "$1" == "clean" ]

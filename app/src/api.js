@@ -139,7 +139,7 @@ class Api {
 
     static getReplayFromURL(url, callback) {
         $.get(url, function(data, succcess) {
-            callback(data.content);
+            callback(JSON.parse(data.content));
         });
     }
 
