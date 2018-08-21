@@ -34,7 +34,10 @@ class YesTeam extends Component {
 
     changeHandler(e) {
         var id = e.target.id;
-        var val = e.target.value;
+        var val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+
+        if (!id) id = e.target.parentElement.id;
+
         this.setState(function(prevState, props) {
             prevState.team[id] = val;
             return prevState;
@@ -102,14 +105,10 @@ class YesTeam extends Component {
                             </div>
                             <div className="row">
                                 <div className="col-md-6">
-                                    <div className="checkbox" onClick={ this.checkHandler } id="auto_accept_unranked">
-                                        <label id="auto_accept_unranked"><input type="checkbox" data-toggle="checkbox" readOnly checked={ !!this.state.team.auto_accept_unranked } className="form-control" /> Auto-accept scrimmages.</label>
-                                    </div>
+                                    <label id="auto_accept_unranked"><input type="checkbox" checked={ this.state.team.auto_accept_unranked } onChange={this.changeHandler} className="form-control" /> Auto-accept scrimmages.</label>
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="checkbox" onClick={ this.checkHandler } id="auto_accept_ranked">
-                                        <label id="auto_accept_ranked"><input type="checkbox" data-toggle="checkbox" readOnly checked={ !!this.state.team.auto_accept_ranked } className="form-control" /> Auto-run ranking scrimmages.</label>
-                                    </div>
+                                    <label id="auto_accept_ranked"><input type="checkbox" checked={ this.state.team.auto_accept_ranked } onChange={this.changeHandler} className="form-control" /> Auto-run ranking scrimmages.</label>
                                 </div>
                             </div>
                             <div className="row">
