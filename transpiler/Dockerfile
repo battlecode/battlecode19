@@ -31,7 +31,7 @@ RUN mvn generate-sources
 
 WORKDIR /app
 
-ENV LISTEN_PORT 8080
+ENV LISTEN_PORT 80
 ENV NGINX_MAX_UPLOAD 1m
 
 copy . /app
