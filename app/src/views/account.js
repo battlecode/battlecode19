@@ -341,7 +341,7 @@ class Account extends Component {
                                     </div>
                                     <div className="content">
                                         <div className="author">
-                                            <img className="avatar border-gray" src={ this.state.user.avatar } alt="..." />
+                                            <img className="avatar border-gray" src={ this.state.user.avatar===''?'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==':this.state.user.avatar } alt="User Avatar" />
                                             <h4 className="title">{ this.state.user.first_name + " " + this.state.user.last_name }<br /><small>{ this.state.user.username }</small></h4>
                                         </div>
                                         <p className="description text-center">{ this.state.user.bio }</p>
