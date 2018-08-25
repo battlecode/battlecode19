@@ -114,7 +114,10 @@ class BCAbstractRobot:
             self._bc_logs = []
             self._bc_clear_logs = False
 
-        self._bc_logs.append(str(message))
+        if isinstance(message,str):
+            self._bc_logs.append(message)
+        else:
+            self._bc_logs.append(str(message))
 
     def move(self, direction):
         return self._bc_action(direction, 'move')
