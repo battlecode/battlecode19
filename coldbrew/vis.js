@@ -1,4 +1,4 @@
-function Visualizer(canvas, mapWidth, mapHeight, map, replay) {
+function Visualizer(canvas, mapWidth, mapHeight, map, replay, tournament) {
     if (replay) {
         this.rounds = replay.rounds;
         this.width = replay.width;
@@ -22,6 +22,7 @@ function Visualizer(canvas, mapWidth, mapHeight, map, replay) {
 
     this.canvas = document.getElementById(canvas);
     this.ctx = this.canvas.getContext("2d");
+    this.ROUND_TIME = tournament ? 100 : 50;
 
     this.round = 0;
     this.nextRound = 0;
@@ -50,7 +51,7 @@ Visualizer.prototype.startPlayingReplay = function() {
                 this.running = false;
                 this.startPlayingReplay();
             }
-        }.bind(this),50);
+        }.bind(this),this.ROUND_TIME);
     }
 }
 

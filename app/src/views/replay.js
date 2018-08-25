@@ -7,11 +7,11 @@ var Visualizer = Coldsys.Visualizer;
 class ReplayViewer extends Component {
     constructor() {
         super();
-        this.state = {logs:[[],[]]}
+        this.state = {logs:[[],[]], tournament:window.location.href.indexOf("#tournament") !== -1}
     }
     componentDidMount() {
         Api.getReplayFromURL(window.location.href.split("?")[1], function(replay) {
-            this.vis = new Visualizer("viewer", null, null, null, replay);
+            this.vis = new Visualizer("viewer", null, null, null, replay, this.state.tournament);
             this.setState({logs:replay.logs});
         }.bind(this));
     }
@@ -27,7 +27,7 @@ class ReplayViewer extends Component {
                                 top:"80px",
                                 left:"20px",
                                 width:"calc(100% - 40px)",
-                                height:"calc(70% - 160px)",
+                                height:this.state.tournament?"calc(100% - 160px)":"calc(70% - 160px)",
                                 border:"1px solid #ddd"
                             }}></canvas>
                             <div id="console" style={{
@@ -39,7 +39,8 @@ class ReplayViewer extends Component {
                                 backgroundColor:"#333",
                                 color:"#fff",
                                 fontFamily:"Roboto Mono, monospace",
-                                fontSize:"0.9em"
+                                fontSize:"0.9em",
+                                display:this.state.tournament?"none":"block"
                             }}>
                                 <div id="redConsole" style={{
                                     width:"calc(50% - 3px)",
