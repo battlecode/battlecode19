@@ -412,7 +412,7 @@ Game.prototype._applyNexi = function() {
             ];
 
             var corners_good = true;
-            for (var i=0; i<4; i++) corners_good &= (corners[i] === 0);
+            for (var i=0; i<4; i++) corners_good &= (corners[i] === 0 || corners[1] === -1);
 
             if (corners_good) {
                 // make sure that all sides are robots on same team.
@@ -543,8 +543,10 @@ Game.prototype.enactAction = function(robot, action, time) {
         }
     }
 
-    if ('signal' in action && Number.isInteger(action.signal) && action.signal >= 0 && action.signal < Math.pow(2,COMMUNICATION_BITS)) {
-        robot.signal = action.signal;
+    if ('signal' in action && action['signal'] !== null) {
+        if (Number.isInteger(action.signal) && action.signal >= 0 && action.signal < Math.pow(2,COMMUNICATION_BITS)) {
+            robot.signal = action.signal;
+        } else return "Invalid signal message.";
     }
 
     valid = valid && 'action' in action && ['move','attack'].indexOf(action['action']) >= 0;

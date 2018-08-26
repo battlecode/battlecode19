@@ -39,7 +39,14 @@ class BCAbstractRobot:
     def _do_turn(self, game_state):
         self._bc_game_state = game_state
         if not self.id:
-            this.id = self.me().id
+            self.id = self.me().id
+
+        for i in range(len(self._bc_game_state.visible)):
+            r = self._bc_game_state.visible[i]
+            if r.id == self.id:
+                self._bc_game_state.visible[i] = {'id':r.id,'x':r.x,'y':r.y,'signal':r.signal,'health':r.health,'team':r.team}
+            else:
+                self._bc_game_state.visible[i] = {'id':r.id,'x':r.x,'y':r.y,'signal':r.signal}
         
         t = self.turn()
         if not t:
@@ -50,7 +57,7 @@ class BCAbstractRobot:
 
     def _bc_action(self, dir, action):
         return {
-            'signal': self.signal,
+            'signal': self._bc_signal,
             'logs': self._bc_logs,
             'dir': dir,
             'action': action
@@ -58,12 +65,12 @@ class BCAbstractRobot:
 
     def _bc_null_action(self):
         return {
-            'signal': self.signal,
+            'signal': self._bc_signal,
             'logs': self._bc_logs
         }
 
     def signal(self, value):
-        self.signal = value
+        self._bc_signal = value
 
     def get_robot(self, id):
         if id <= 0:
@@ -183,7 +190,7 @@ public class bc {
     public static final int WEST = 4;
     public static final int NORTHWEST = 3;
     public static final int EMPTY = 0;
-    public static final int HOLE = 1;
+    public static final int HOLE = -1;
 }
 `
 
@@ -193,15 +200,14 @@ package robot;
 @jsweet.lang.Interface
 public class Robot {
     public int id;
+    public int signal;
+    public int x;
+    public int y;
 
     @jsweet.lang.Optional
     public int health;
     @jsweet.lang.Optional
     public int team;
-    @jsweet.lang.Optional
-    public int x;
-    @jsweet.lang.Optional
-    public int y;
 }
 `
 
