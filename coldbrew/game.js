@@ -412,7 +412,7 @@ Game.prototype._applyNexi = function() {
             ];
 
             var corners_good = true;
-            for (var i=0; i<4; i++) corners_good &= (corners[i] === 0 || corners[1] === -1);
+            for (var i=0; i<4; i++) corners_good &= (corners[i] === 0 || corners[i] === -1);
 
             if (corners_good) {
                 // make sure that all sides are robots on same team.
