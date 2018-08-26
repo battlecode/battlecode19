@@ -4,10 +4,11 @@
   "private": true,
   "main": "runtime.js",
   "dependencies": {
+    "@google-cloud/storage": "^1.7.0",
     "esm": "^3.0.74",
     "pg-promise": "^8.4.6",
-    "vm2": "^3.6.3",
-    "vm-browserify": "^1.1.0"
+    "vm-browserify": "^1.1.0",
+    "vm2": "^3.6.3"
   },
   "browser": {
     "./vm.js": "./vm_browser.js"
