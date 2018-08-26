@@ -417,8 +417,9 @@ Game.prototype._applyNexi = function() {
             if (corners_good) {
                 // make sure that all sides are robots on same team.
                 var teams = [0,0];
-                for (var i=0; i<4; i++) if (sides[i] > 0) 
-                    teams[this.getItem(sides[i]).team] += 1;
+                for (var k=0; k<4; k++) {
+                    if (sides[k] > 0) teams[this.getItem(sides[k]).team] += 1;
+                }
                 
                 if (teams[0] === 4 || teams[1] === 4) { // all red or blue
                     this.nexi.push(sides);
