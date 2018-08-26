@@ -22,7 +22,8 @@ function Coldbrew(visualizer, seed, player_one, player_two, chess_init, chess_ex
     this.replay_eater = replay_eater;
     this.player_one = player_one;
     this.player_two = player_two;
-    this.game = new Game(this.seed, chess_init, chess_extra, false);
+    this.chess_init = chess_init;
+    this.game = new Game(this.seed, this.chess_init, chess_extra, false);
     
     if (visualizer) this.vis = new Visualizer(visualizer, this.game.shadow[0].length, this.game.shadow.length, this.game.viewerMap());
 }
@@ -40,7 +41,7 @@ Coldbrew.prototype.initializeRobot = function() {
         return;
     }
 
-    if (wallClock() - start_time < 100) {
+    if (wallClock() - start_time < this.chess_init) {
         this.game.registerHook(v.turn.bind(v), robot.id);
     } else {
         this.game.robotError("Took too long to initialize.",robot);

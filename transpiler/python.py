@@ -26,7 +26,7 @@ def compile(source, min=True):
 
     # Launch compiler.
     p = subprocess.Popen(['python3', '-m', 'transcrypt', 
-                     '-m', '-b', '-p', '.none', 'robot.py'],
+                     '-b', '-p', '.none', 'robot.py'],
                      cwd=dir,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT)
@@ -40,7 +40,6 @@ def compile(source, min=True):
     success = False
     errors = ""
     js = ""
-    source_map = ""
 
     if o.split("\n")[-2] == "Ready":
         success = True
@@ -49,15 +48,9 @@ def compile(source, min=True):
             with open(dir + "/__javascript__/robot.min.js") as f:
                 js = f.read()
 
-            with open(dir + "/__javascript__/extra/sourcemap/robot.min.js.map") as f:
-                source_map = f.read()
         else:
             with open(dir + "/__javascript__/robot.js") as f:
                 js = f.read()
-
-            with open(dir + "/__javascript__/extra/sourcemap/robot.js.map") as f:
-                source_map = f.read()
-
 
     else:
         path = os.getcwd() + "/" + dir + "/"
@@ -66,4 +59,4 @@ def compile(source, min=True):
     # Cleanup working file.
     shutil.rmtree(dir)
 
-    return {'success':success, 'error':errors, 'js':js, 'map':source_map}
+    return {'success':success, 'error':errors, 'js':js}
