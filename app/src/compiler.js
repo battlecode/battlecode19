@@ -4,6 +4,7 @@ const TRANSPILER_TARGET = 'https://hack.battlecode.org/compile'
 
 class Compiler {
 
+//precondition you fools
 static Compile(lang, code, callback, error) {
     if (lang === 'java') this.Java(code, callback, error);
     else if (lang === 'javascript') this.JS(code, callback, error);
