@@ -23,6 +23,9 @@ Always work in your virtual environment.
 
 `workon web`
 
+Install requirements using
+`pip install -r requirements.txt`
+
 Then start the backend:
 
 `python manage.py makemigrations`
