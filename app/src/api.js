@@ -1,40 +1,11 @@
 import $ from 'jquery';
 import * as Cookies from "js-cookie";
+import Cache from "./cache";
 
 var URL = "https://hack.battlecode.org";
-var LEAGUE = 0
+var LEAGUE = 0;
 
 class Api {
-    static setCache(url, data) {
-        data['expiry_time'] = (new Date()).getTime() + 300000;
-        window.sessionStorage.setItem(url, JSON.stringify(data));
-        console.log("Store:");
-        console.log(data);
-    }
-
-    static getCache(url) {
-        var cachedResult = window.sessionStorage.getItem(url);
-        console.log("getCache from url:");
-        console.log(url);
-        console.log(cachedResult);
-        console.log((new Date()).getTime());
-        if (cachedResult===null) {
-            return null;
-        } else {
-            var parsedResult = JSON.parse(cachedResult);
-            if ((new Date()).getTime() < parsedResult['expiry_time']) {
-                console.log("Cache Hit");
-                return parsedResult;
-            } else {
-                return null;
-            }
-        } 
-    }
-
-    static deleteCache(url) {
-        window.sessionStorage.removeItem(url);
-    }
-
     static getUpcomingDates(callback) {
         var new_state = [
             {id: 0, date: 'hi', data: 'message'},
@@ -78,18 +49,40 @@ class Api {
     }
 
     static getUserTeam(callback) {
-        $.get(URL+"/api/"+LEAGUE+"/team/?username="+encodeURIComponent(Cookies.get('username'))).done(function(data, status){
+        var requestURL = URL+"/api/"+LEAGUE+"/team/?username="+encodeURIComponent(Cookies.get('username'));
+        var data = Cache.getCache(requestURL);
+
+        if (data!==null) {
             if (data.results.length === 0) callback(null);
             else {
-                Cookies.set('team_id',data.results[0].id);
-                Cookies.set('team_name',data.results[0].name);
-                $.get(URL+"/api/"+LEAGUE+"/team/"+data.results[0].id+"/").done(function(data, status) {
+                var secRequestURL = URL+"/api/"+LEAGUE+"/team/"+data.results[0].id+"/";
+                var secData = Cache.getCache(secRequestURL);
+                if (secData!==null) {
                     callback(data);
-                });
+                } else {
+                    $.get(secRequestURL).done(function(data, status) {
+                        callback(data);
+                        Cache.setCache(secRequestURL, data);
+                    });
+                }
             }
-        }).fail(function(xhr, status, error) {
-            callback(false);
-        });
+        } else {
+            $.get(requestURL).done(function(data, status){
+                if (data.results.length === 0) callback(null);
+                else {
+                    Cookies.set('team_id',data.results[0].id);
+                    Cookies.set('team_name',data.results[0].name);
+                    var secRequestURL = URL+"/api/"+LEAGUE+"/team/"+data.results[0].id+"/";
+                    $.get(secRequestURL).done(function(data, status) {
+                        callback(data);
+                        Cache.setCache(secRequestURL, data);
+                    });
+                }
+                Cache.setCache(requestURL, data);
+            }).fail(function(xhr, status, error) {
+                callback(false);
+            });
+        }
     }
 
     static updateTeam(params, callback) {
@@ -244,15 +237,16 @@ class Api {
 
     static getUserProfile(callback) {
         var profileURL = URL+"/api/user/profile/"+encodeURIComponent(Cookies.get('username'))+"/";
-        var data = Api.getCache(profileURL);
+        var data = Cache.getCache(profileURL);
+
         if (data!==null) {
             callback(data);
-            var userURLData = Api.getCache(data.url);
+            var userURLData = Cache.getCache(data.url);
             if (userURLData!==null) {
                 callback(userURLData);
             } else {
                 $.get(data.url).done(function(userURLData, success) {
-                    Api.setCache(data.url, userURLData);
+                    Cache.setCache(data.url, userURLData);
                     callback(userURLData);
                 }).fail(function(xhr, status, error) {
                     console.log(error);
@@ -260,11 +254,11 @@ class Api {
             }
         } else {
             $.get(profileURL).done(function(data, status) {
-                Api.setCache(profileURL, data);
+                Cache.setCache(profileURL, data);
                 Cookies.set('user_url', data.url);
                 
                 $.get(data.url).done(function(userURLData, success) {
-                    Api.setCache(data.url, userURLData);
+                    Cache.setCache(data.url, userURLData);
                     callback(userURLData);
                 }).fail(function(xhr, status, error) {
                     console.log(error);
@@ -274,8 +268,8 @@ class Api {
     }
 
     static updateUser(profile, callback) {
-        Api.deleteCache(URL+"/api/user/profile/"+encodeURIComponent(Cookies.get('username'))+"/");
-        Api.deleteCache(Cookies.get('user_url'));
+        Cache.deleteCache(URL+"/api/user/profile/"+encodeURIComponent(Cookies.get('username'))+"/");
+        Cache.deleteCache(Cookies.get('user_url'));
 
         $.ajax({
             url:Cookies.get('user_url'),
@@ -307,6 +301,7 @@ class Api {
     static logout(callback) {
         Cookies.set('token',"");
         Cookies.set('refresh',"");
+        Cache.clearCache();
         callback();
     }
 
