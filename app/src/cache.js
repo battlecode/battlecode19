@@ -1,7 +1,7 @@
 
 export default class Cache {
-    static setCache(url, data) {
-        data['expiry_time'] = (new Date()).getTime() + 300000;
+    static setCache(url, data, timeout = 1800) {
+        data['expiry_time'] = (new Date()).getTime() + timeout * 1000;
         window.localStorage.setItem(url, JSON.stringify(data));
         console.log("Store:");
         console.log(data);
