@@ -17,6 +17,7 @@ router.register('(?P<league_id>[^/.]+)/scrimmage', views.ScrimmageViewSet, base_
 router.register('(?P<league_id>[^/.]+)/tournament', views.TournamentViewSet, base_name='tournament')
 router.register('replay', views.ReplayViewSet, base_name='replay')
 router.register('userteam/(?P<username>[^/.]+)', views.UserTeamViewSet, base_name='userteam')
+router.register('createrandomusers', views.RandomUsersViewSet, base_name='createrandomusers')
 
 
 urlpatterns = router.urls
