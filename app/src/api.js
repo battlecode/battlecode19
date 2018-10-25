@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import * as Cookies from "js-cookie";
 
-//var URL = "https://hack.battlecode.org";
-var URL = "http://localhost:8000"; // DEVELOPMENT
+var URL = "https://hack.battlecode.org";
+//var URL = "http://localhost:8000"; // DEVELOPMENT
 var LEAGUE = 0
 
 class Api {
