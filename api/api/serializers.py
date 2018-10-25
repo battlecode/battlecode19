@@ -20,6 +20,20 @@ class LeagueHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
         kwargs['league_id'] = self.context['league_id']
         return reverse(view_name, kwargs=kwargs, request=request, format=format)
 
+class BasicTeamSerializer(serializers.HyperlinkedModelSerializer):
+    #serializer_url_field = LeagueHyperlinkedIdentityField
+    league = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
+
+    class Meta:
+        model = Team
+        fields = ('id', 'league', 'name', 'avatar', 'wins', 'losses', 'draws',
+            'bio', 'divisions', 'code', 'auto_accept_ranked', 'auto_accept_unranked')
+        extra_kwargs = {
+            'code': {'write_only': True}
+        }
+        read_only_fields = ('id',)
+
+
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     serializer_url_field = LeagueHyperlinkedIdentityField
     league = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')

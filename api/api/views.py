@@ -63,6 +63,27 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 
+class UserTeamViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    list:
+    Returns a list of every team a specific user is on.
+
+    retrieve:
+    Returns the team the specific user in is on in the specific league.
+    """
+    serializer_class = BasicTeamSerializer
+    permission_classes = (IsAuthenticatedOrSafeMethods,)
+    lookup_field = 'league'
+
+    def get_queryset(self):
+        """
+        Only teams the user is on are visible.
+        """
+        return Team.objects.filter(users__username=self.kwargs['username'])
+
+
+
+
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     """
     list:
@@ -129,14 +150,13 @@ class TeamViewSet(viewsets.GenericViewSet,
         return super().get_queryset().filter(league_id=self.kwargs['league_id'])
 
     def list(self, request, *args, **kwargs):
+        """
+        If used, do one of the following:
+            (1) Paginate.
+            (2) Modify team serializer. Maybe something like https://www.peterbe.com/plog/efficient-m2m-django-rest-framework.
+        """
         res = super().list(request)
-        if 'username' in request.GET:
-            username = request.GET['username']
-            new_data = []
-            for data in res.data.get('results'):
-                if username in data.get('users'):
-                    new_data.append(data)
-            res.data['results'] = new_data
+
         return res
 
     def get_serializer_context(self):
