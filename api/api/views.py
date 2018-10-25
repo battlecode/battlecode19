@@ -83,46 +83,6 @@ class UserTeamViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 
-class RandomUsersViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    list:
-    Create a lot of random users.
-
-    retrieve:
-    Does nothing.
-    """
-    serializer_class = TeamSerializer
-    permission_classes = (IsAuthenticatedOrSafeMethods,)
-
-    def list(self, request):
-
-        for i in range(1004,1006):
-            thisusername1 = 'test1' + str(i)
-            user1 = User.objects.create_user(thisusername1, password='tstt', date_of_birth='1997-12-03', email=thisusername1+"@testetstet.edu")
-            thisusername2 = 'test2' + str(i)
-            user2 = User.objects.create_user(thisusername2, password='tstt', date_of_birth='1997-12-03', email=thisusername2+"@testestest.edu")
-            thisusername3 = 'test3' + str(i)
-            user3 = User.objects.create_user(thisusername3, password='tstt', date_of_birth='1998-10-03', email=thisusername3+"@testetstest.edu")
-
-            user1.save()
-            user2.save()
-            user3.save()
-
-            thisteamname = thisusername1 + "team"
-
-            team = {}
-            team['league'] = '0'
-            team['name'] = thisteamname
-            team['users'] = [thisusername1,thisusername2,thisusername3]
-
-            serializer = self.get_serializer(data=team)
-            if serializer.is_valid():
-                serializer.save()
-
-
-        return Response({'message': 'random users created!!!'}, status.HTTP_200_OK)
-
-
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     """
