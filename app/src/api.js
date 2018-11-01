@@ -2,6 +2,7 @@ import $ from 'jquery';
 import * as Cookies from "js-cookie";
 
 var URL = "https://hack.battlecode.org";
+//var URL = "http://localhost:8000"; // DEVELOPMENT
 var LEAGUE = 0
 
 class Api {
@@ -48,17 +49,16 @@ class Api {
     }
 
     static getUserTeam(callback) {
-        $.get(URL+"/api/"+LEAGUE+"/team/?username="+encodeURIComponent(Cookies.get('username'))).done(function(data, status){
-            if (data.results.length === 0) callback(null);
-            else {
-                Cookies.set('team_id',data.results[0].id);
-                Cookies.set('team_name',data.results[0].name);
-                $.get(URL+"/api/"+LEAGUE+"/team/"+data.results[0].id+"/").done(function(data, status) {
-                    callback(data);
-                });
-            }
+        $.get(URL+"/api/userteam/"+encodeURIComponent(Cookies.get('username'))+"/"+LEAGUE+"/").done(function(data, status){
+            Cookies.set('team_id',data.id);
+            Cookies.set('team_name',data.name);
+            
+            $.get(URL+"/api/"+LEAGUE+"/team/"+data.id+"/").done(function(data, status) {
+                callback(data);
+            });
         }).fail(function(xhr, status, error) {
-            callback(false);
+            // possibly dangerous???
+            callback(null);
         });
     }
 
