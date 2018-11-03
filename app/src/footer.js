@@ -18,7 +18,7 @@ class Footer extends Component {
                                 </a>
                             </li>
                             <li>
-                                <a href="https://blog.battlecode.org/terms">
+                                <a href="https://battlecode.org/terms">
                                     Usage Terms
                                 </a>
                             </li>
