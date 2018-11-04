@@ -11,8 +11,9 @@ class ReplayViewer extends Component {
     }
     componentDidMount() {
         Api.getReplayFromURL(window.location.href.split("?")[1].split("#")[0], function(replay) {
-            this.vis = new Visualizer("viewer", null, null, null, replay, this.state.tournament);
-            this.setState({logs:replay.logs});
+            var r = JSON.parse(replay);
+            this.vis = new Visualizer("viewer", null, null, null, r, this.state.tournament);
+            this.setState({'logs':r.logs});
         }.bind(this));
     }
 

@@ -436,6 +436,19 @@ Visualizer.prototype.renderRound = function() {
 
     // Draw booms
     // INSERT CODE HERE
+    //console.log(booms);
+    //console.log(booms.length);
+    for (var i=0; i<booms.length; i++) {
+        var radius = this.movePercent * this.BLOCK_SIZE * 5;
+
+        this.ctx.beginPath();
+        this.ctx.fillStyle = "rgba(0.5,0.5,0,0.4)";
+        this.ctx.arc((booms[i][0] + 0.5)*this.BLOCK_SIZE,
+                     (booms[i][1] + 0.5)*this.BLOCK_SIZE,
+                     radius,
+                     0, 2*Math.PI);
+        this.ctx.fill();
+    }
 
     this.ctx.shadowBlur = 10;
     this.ctx.shadowColor = '#333';

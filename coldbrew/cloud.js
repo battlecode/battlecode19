@@ -45,7 +45,7 @@ FROM t WHERE api_scrimmage.id = (
 `
 
 const end_match = `
-UPDATE api_scrimmage SET status = $1, replay_id = $2 WHERE id = $3;
+UPDATE api_scrimmage SET status = $1, replay = $2 WHERE id = $3;
 `
 
 
@@ -59,11 +59,11 @@ function playGame() {
             var file = bucket.file('replays/' + replay_name);
             var stream = file.createWriteStream({});
             stream.on('finish', ()=> {
-                var url = 'https://storage.googleapis.com/battlehack/replays/' + replay_name;
+                var url = 'https://hack.battlecode.org/replays/' + replay_name;
                     console.log(`[Worker ${process.pid}] Match ${scrimmage.id} complete.`);
                     db.none(end_match,[
                         replay.winner===0?'redwon':'bluewon',
-                        replay_name, url
+                        url, scrimmage.id
                     ]).then(playGame);
                     c.destroy();
             });
@@ -73,6 +73,7 @@ function playGame() {
         setTimeout(playGame,Math.floor(5000*Math.random()));
     });
 }
+
 
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} started, creating ${numCPUs} workers`);
