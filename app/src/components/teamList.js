@@ -2,7 +2,53 @@ import React, { Component } from 'react';
 
 import PaginationControl from './paginationControl';
 
+const SUCCESS_TIMEOUT = 2000
+
 class TeamList extends Component {
+
+    state = {
+        pendingRequests: {},
+        successfulRequests: {},
+    }
+
+    onTeamRequest = (team) => {
+        this.setState(prevState => {
+            return {
+                pendingRequests: {
+                    ...prevState.pendingRequests,
+                    [team] : true,
+                }
+            }
+        });
+    }
+
+    onRequestSuccess = (team) => {
+        this.setState(prevState => {
+            return {
+                pendingRequests: {
+                    ...prevState.pendingRequests,
+                    [team]: false,
+                },
+                successfulRequests: {
+                    ...prevState.successfulRequests,
+                    [team]: true,
+                }
+            }
+        });
+
+        setTimeout(() => this.successTimeoutRevert(team), SUCCESS_TIMEOUT);
+    }
+
+    successTimeoutRevert = (team) => {
+        this.setState(prevState => {
+            return {
+                successfulRequests: {
+                    ...prevState.successfulRequests,
+                    [team]: false,
+                }
+            }
+        });
+    }
 
     render() {
         const { props }  = this;
