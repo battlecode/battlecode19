@@ -47,7 +47,7 @@ class BCAbstractRobot:
             if r.id == self.id:
                 self._bc_game_state.visible[i] = {'id':r.id,'x':r.x,'y':r.y,'signal':r.signal,'health':r.health,'team':r.team}
             else:
-                self._bc_game_state.visible[i] = {'id':r.id,'x':r.x,'y':r.y,'signal':r.signal}
+                self._bc_game_state.visible[i] = {'id':r.id,'x':r.x,'y':r.y,'signal':r.signal,'team':r.team}
         
         t = self.turn()
         if not t:
@@ -133,6 +133,13 @@ class BCAbstractRobot:
     def attack(self, direction):
         return self._bc_action(direction, 'attack')
 
+    def fuse(self):
+        return {
+            'signal': self._bc_signal,
+            'logs': self._bc_logs,
+            'action': 'fuse'
+        }
+
     def turn(self):
         return None
 
@@ -204,11 +211,10 @@ public class Robot {
     public int signal;
     public int x;
     public int y;
+    public int team;
 
     @jsweet.lang.Optional
     public int health;
-    @jsweet.lang.Optional
-    public int team;
 }
 `
 
@@ -232,7 +238,7 @@ public class BCAbstractRobot {
         id = me().id;
 
         Action t = turn();
-        if (t == null) t = new Action(signal, logs);;
+        if (t == null) t = new Action(signal, logs);
         clearLogs = true;
 
         return t;
@@ -294,6 +300,10 @@ public class BCAbstractRobot {
     public Action attack(int direction) {
         return new ActiveAction("attack",direction,signal,logs);
     }
+
+    public Action fuse() {
+        return new FuseAction(signal,logs);
+    }
     
     public Action turn() {
         return null;
@@ -313,6 +323,20 @@ public class ActiveAction extends Action {
         super(signal, logs);
         this.dir = direction;
         this.action = type;
+    }
+}
+`
+
+let fuse_action = `
+package robot;
+import java.util.ArrayList;
+
+public class FuseAction extends Action {
+    String action;
+    
+    public ActiveAction(int signal, ArrayList<String> logs) {
+        super(signal, logs);
+        this.action = "fuse";
     }
 }
 `
@@ -338,7 +362,8 @@ let message = {'lang':'java', 'src':[
     {'filename':'GameState.java', 'source':game_state},
     {'filename':'Robot.java', 'source':robot},
     {'filename':'bc.java', 'source':bc},
-    {'filename':'ActiveAction.java','source':active_action}
+    {'filename':'ActiveAction.java','source':active_action},
+    {'filename': 'FuseAction.java', 'source':fuse_action }
 ]}
 
 let postfix = "\nvar robot = {'robot':new robot.MyRobot()};";
@@ -496,6 +521,15 @@ class BCAbstractRobot {
     // Attack in a direction
     attack(direction) {
         return this._bc_action(direction, 'attack');
+    }
+
+    // Deploy your N second fuse
+    fuse() {
+        return {
+            'signal': this._bc_signal,
+            'logs': this._bc_logs,
+            'action': 'fuse'
+        };
     }
 
     turn() {
