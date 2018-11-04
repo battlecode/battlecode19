@@ -411,6 +411,7 @@ Visualizer.prototype.renderRound = function() {
 
     var robots = this.rounds[this.nextRound].robots;
     var nexi = this.rounds[this.nextRound].nexi;
+    var booms = this.rounds[this.nextRound].booms;
 
     var past_robots = [];
     if (this.round in this.rounds) {
@@ -425,7 +426,6 @@ Visualizer.prototype.renderRound = function() {
     this.ctx.strokeStyle = "#fd5f00";
     this.ctx.lineWidth = 0.5;
 
-    // For each nexus list
     for (var n=0; n<nexi.length; n++) {
         this.ctx.moveTo(this.BLOCK_SIZE*(nexi[n][0][1]+0.5),
                         this.BLOCK_SIZE*(nexi[n][0][0]+0.5));
@@ -433,6 +433,9 @@ Visualizer.prototype.renderRound = function() {
                         this.BLOCK_SIZE*(nexi[n][1][0]+0.5));
         this.ctx.stroke();
     }
+
+    // Draw booms
+    // INSERT CODE HERE
 
     this.ctx.shadowBlur = 10;
     this.ctx.shadowColor = '#333';

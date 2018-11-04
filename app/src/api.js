@@ -139,7 +139,17 @@ class Api {
 
     static getReplayFromURL(url, callback) {
         $.get(url, function(data, succcess) {
-            callback(JSON.parse(data.content));
+            if ($.ajaxSettings && $.ajaxSettings.headers) {
+                delete $.ajaxSettings.headers.Authorization;
+            }
+
+            $.get(data.content, function(replay, super_sucess) {
+                $.ajaxSetup({
+                    headers: { 'Authorization': 'Bearer ' + Cookies.get('token') }
+                });
+                
+                callback(replay);
+            });            
         });
     }
 

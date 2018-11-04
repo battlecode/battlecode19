@@ -9,17 +9,14 @@ class Docs extends Component {
                         <div className="col-md-12">
                             <div className="card">
                                 <div className="header">
-                                    <h4 className="title">Battlecode Nexus Game Spec</h4>
+                                    <h4 className="title">Battlecode Boom Game Spec</h4>
                                     <p className="category">Updated 8/8/17 2:00PM PST</p>
                                 </div>
                                 <div className="content">
-                                    <p>In the distant future, almost all nature and technology have been wiped out by global catastrophe.  All that remains are two opposing factions of <i>microbots</i>, <span className="text-danger">red</span> and <span className="text-info">blue</span>, who live on  a wraparound grid randomly scattered with holes and obstacles.  Microbots start with 64HP, and are given a randomly generated integer ID at creation.  The map starts with ~6-12 microbots per team, and is sized between 15x15 and 31x32.  Maps always have an even height, and are radially symmetric.</p>
-                                    <p>In each turn a microbots can either move to or attack a nearby square, and communicate using up to 4 bits of signalling.  Microbots have limited vision; they can only see within a surrounding 7x7 region, and can only view the ID and signal bits of other microbots.</p>
-                                    <p>Microbots can heal and reproduce through the joint formation of nexi.  If any 4 microbots of the same team are in the following formation, with empty corners:</p>
-                                    <blockquote>
-                                        <p style={{textAlign:'center'}}>X<br />X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X<br />X</p>
-                                    </blockquote>
-                                    <p>then a new microbot of that team will be created in the center square with 1HP.  If a microbot already exists in the spot, it’s health will be increased by 1HP.</p>
+                                    <p>In the distant future, almost all nature and technology have been wiped out by global catastrophe.  All that remains are two opposing factions of <i>microbots</i>, <span className="text-danger">red</span> and <span className="text-info">blue</span>, who live on  a wraparound grid randomly scattered with holes and obstacles.  Microbots start with 64HP, and are given a randomly generated integer ID at creation.  The map starts with ~6-12 microbots per team, and is sized between 16x16 and 32x32.  Maps always have an even width and height, and are radially symmetric.</p>
+                                    <p>In each turn a microbots can either move, attack a nearby microbot, or deploy a fuse to <bold>explode</bold> in 3 rounds.  Bots can also communicate using up to 4 bits of signalling.  Microbots have limited vision; they can only see within a surrounding 7x7 region, and cannot view the health of other microbots.</p>
+                                    <p>When a microbot explodes, nearby squares also receive damage.  INSERT DAMAGE SCEME HERE</p>
+                                    <p>Microbots can heal and reproduce through the joint formation of nexi.  If at the end of the round any 2 microbots of the same team have exactly one space between them, then a new microbot of that team will be created in the center square with 1HP.  If a microbot already exists in the spot, it’s health will be increased by 1HP.</p>
                                     <p>The game ends when either one team is totally annihilated, or 200 rounds have passed.  After 200 rounds, the team with greater total HP wins.  If both teams have equal HP after 200 rounds, the winner is determined by a coin flip.</p>
                                 </div>
                             </div>
@@ -51,6 +48,7 @@ class Docs extends Component {
                                         <li><code>this.getInDirection(direction)</code>: Returns the output of <code>this.getRelativePos</code> in the specified direction.</li>
                                         <li><code>this.move(direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>this.attack(direction)</code>: Returns an action to attack in a given direction.</li>
+                                        <li><code>this.fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -80,6 +78,7 @@ class Docs extends Component {
                                         <li><code>self.get_in_direction(direction)</code>: Returns the output of <code>self.get_relative_pos</code> in the specified direction.</li>
                                         <li><code>self.move(direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>self.attack(direction)</code>: Returns an action to attack in a given direction.</li>
+                                        <li><code>self.fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -114,6 +113,7 @@ public class MyRobot extends BCAbstractRobot {
                                         <li><code>int getInDirection(int direction)</code>: Returns the output of <code>getRelativePos</code> in the specified direction.</li>
                                         <li><code>Action move(int direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>Action attack(int direction)</code>: Returns an action to attack in a given direction.</li>
+                                        <li><code>Action fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
                                     </ul>
                                 </div>
                             </div>
