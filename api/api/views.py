@@ -2,13 +2,18 @@
 The view that is returned in a request.
 """
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 from django.db.models import Q
 from rest_framework import permissions, status, mixins, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 from api.serializers import *
 from api.permissions import *
+
+class SearchResultsPagination(PageNumberPagination):
+    page_size = 10
 
 
 class PartialUpdateModelMixin(mixins.UpdateModelMixin):
@@ -60,6 +65,7 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
 
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
+    pagination_class = SearchResultsPagination
 
 
 
@@ -139,6 +145,7 @@ class TeamViewSet(viewsets.GenericViewSet,
     """
     queryset = Team.objects.all().order_by('name').exclude(deleted=True)
     serializer_class = TeamSerializer
+    pagination_class = SearchResultsPagination
     permission_classes = (LeagueActiveOrSafeMethods, IsAuthenticatedOrSafeMethods)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)

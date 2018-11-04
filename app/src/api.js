@@ -1,9 +1,10 @@
 import $ from 'jquery';
 import * as Cookies from "js-cookie";
 
-var URL = "https://hack.battlecode.org";
-//var URL = "http://localhost:8000"; // DEVELOPMENT
-var LEAGUE = 0
+const URL = "https://hack.battlecode.org";
+// const URL = 'http://localhost:8000'; // DEVELOPMENT
+const LEAGUE = 0;
+const PAGE_LIMIT = 10;
 
 class Api {
     static getUpcomingDates(callback) {
@@ -41,9 +42,43 @@ class Api {
     }
 
     static search(query, callback) {
-        $.get(URL+"/api/"+LEAGUE+"/team/?search="+encodeURIComponent(query), function(team_data, team_success) {
-            $.get(URL+"/api/user/profile/?search="+encodeURIComponent(query), function(user_data, user_success) {
-                callback(user_data.results, team_data.results);
+        const encoded_query = encodeURIComponent(query);
+        const teamUrl = URL + "/api/"+LEAGUE+"/team/?search=" + encoded_query + "&page=1";
+        const userUrl = URL+"/api/user/profile/?search=" + encoded_query + "&page=1";
+        $.get(teamUrl, teamData => {
+            $.get(userUrl, userData => {
+                const teamLimit = parseInt(teamData.count / PAGE_LIMIT, 10) + !!(teamData.count % PAGE_LIMIT);
+                const userLimit = parseInt(userData.count / PAGE_LIMIT, 10) + !!(userData.count % PAGE_LIMIT);
+                callback({
+                    users: userData.results,
+                    userLimit,
+                    userPage: 1,
+                    teams: teamData.results,
+                    teamLimit,
+                    teamPage: 1,
+                });
+            });
+        });
+    }
+
+    static searchTeam(query, page, callback) {
+        const enc_query = encodeURIComponent(query);
+        const teamUrl = URL + "/api/" + LEAGUE + "/team/?search=" + enc_query + "&page=" + page;
+        $.get(teamUrl, teamData => {
+            callback({
+                teamPage: page,
+                teams: teamData.results,
+            });
+        });
+    }
+
+    static searchUser(query, page, callback) {
+        const enc_query = encodeURIComponent(query);
+        const userUrl = URL + "/api/user/profile/?search=" + enc_query + "&page=" + page;
+        $.get(userUrl, userData => {
+            callback({
+                userPage: page,
+                users: userData.results,
             });
         });
     }
