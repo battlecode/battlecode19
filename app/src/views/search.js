@@ -1,48 +1,9 @@
 import React, { Component } from 'react';
 import Api from '../api';
 
-class PaginatedList extends Component {
-    renderPagination = () => {
-        const { props } = this;
+import PaginationControl from '../components/paginationControl';
 
-        if (!props.pageLimit || props.pageLimit<= 1) { 
-            return null;
-        };
-
-        const items = [];
-        const isFirst = props.page === 1;
-        const isLast = props.page === props.pageLimit;
-
-        items.push(
-            <li className={isFirst ? "page-item disabled" : "page-item"} key="prev">
-                <a className="page-link" onClick={() => props.onPageClick(props.page - 1)}>Previous</a>
-            </li>
-        );
-
-
-        for (let i = 1; i <= props.pageLimit; i++) {
-            items.push(
-                <li className = {i === props.page ? "page-item active" : "page-item"} key={i}>
-                    <a className="page-link" onClick = {() => props.onPageClick(i)}>{i}</a>
-                </li>
-            )
-        }
-
-        items.push(
-            <li className={isLast ? "page-item disabled" : "page-item"} key="next">
-                <a className="page-link" onClick={() => props.onPageClick(props.page + 1)}>Next</a>
-            </li>
-        );
-
-        return (
-            <ul className="pagination"> 
-                {items}
-            </ul>
-        )
-    }
-}
-
-class UserList extends PaginatedList {
+class UserList extends Component {
 
     render() {
         const { props } = this;
@@ -79,16 +40,22 @@ class UserList extends PaginatedList {
                         </table>
                     </div>
                 </div>
-                {this.renderPagination()}
+                <PaginationControl 
+                    page={props.page} 
+                    pageLimit={props.pageLimit} 
+                    onPageClick={props.onPageClick}
+                />
             </div>
         );
     }
 }
 
-class TeamList extends PaginatedList {
+class TeamList extends Component {
 
     render() {
-        if (this.props.teams.length > 0) return (
+        const { props }  = this;
+
+        if (props.teams.length > 0) return (
             <div>
                 <div className="card">
                     <div className="header">
@@ -105,7 +72,7 @@ class TeamList extends PaginatedList {
                             </thead>
                             <tbody>
                                 { 
-                                    this.props.teams.map(team => 
+                                    props.teams.map(team => 
                                         <tr key={ team.id }>
                                         <td>{ team.name }</td>
                                         <td>{ team.users.join(", ") }</td>
@@ -116,8 +83,11 @@ class TeamList extends PaginatedList {
                         </table>
                     </div>
                 </div>
-                {this.renderPagination()}
-            </div>
+                <PaginationControl 
+                    page={props.page} 
+                    pageLimit={props.pageLimit} 
+                    onPageClick={props.onPageClick}
+                />            </div>
         );
         else return (<div></div>);
     }
