@@ -10,22 +10,7 @@ class ScrimmageRequestor extends Component {
         teamLimit: 0,
         teamPage: 1,
         input: "",
-    };    
-
-
-    request = () => {
-        this.setState({'up':'<i class="fa fa-circle-o-notch fa-spin"></i>'});
-        Api.requestScrimmage(this.state.input, function(response) {
-            if (response) {
-                this.setState({'up':'<i class="fa fa-check"></i>'});
-                this.props.refresh();
-            }
-            else this.setState({'up':'Team not found'});
-            setTimeout(function() {
-                this.setState({'up':'Request'});
-            }.bind(this),2000);
-        }.bind(this))
-    }
+    };
 
     handleInput = (e) => {
         this.setState({input: e.target.value});
@@ -72,6 +57,7 @@ class ScrimmageRequestor extends Component {
                         pageLimit = {state.teamLimit}
                         onPageClick = {this.onPageClick}
                         canRequest = {true}
+                        onRequestSuccess = {props.refresh}
                     />
                 </div>
             </div>
