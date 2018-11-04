@@ -65,20 +65,18 @@ class TeamList extends Component {
 
 
 class Search extends Component {
-    constructor() {
-        super();
-        this.state = {users:[], teams:[]};
 
-        this.handleChange = this.handleChange.bind(this);
-        this.search = this.search.bind(this);
-        
-    }
+    state = {
+        users:[], 
+        teams:[], 
+        input: "",
+    };        
 
-    handleChange(e) {
+    handleChange = (e) => {
         this.setState({ input: e.target.value });
     } 
 
-    search() {
+    search = () => {
         Api.search(this.state.input, function(users, teams) {
             this.setState({
                 teams: teams,
@@ -95,14 +93,14 @@ class Search extends Component {
                         <div className="row">
                             <div className="col-md-12">
                                 <div className="card">
-                                <div className="content">
-                                    <div className="input-group">
-                                        <input type="text" className="form-control" onChange={this.handleChange} placeholder="Search for..." />
-                                        <span className="input-group-btn">
-                                            <button className="btn btn-default" onClick={this.search} type="button">Go!</button>
-                                        </span>
+                                    <div className="content">
+                                        <div className="input-group">
+                                            <input type="text" className="form-control" onChange={this.handleChange} placeholder="Search for..." />
+                                            <span className="input-group-btn">
+                                                <button className="btn btn-default" onClick={this.search} type="button">Go!</button>
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
                                 </div>
                             </div>
                             <div className="col-md-12">
