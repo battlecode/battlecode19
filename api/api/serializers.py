@@ -133,9 +133,8 @@ class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Scrimmage
         fields = ('url', 'id', 'league', 'red_team', 'blue_team', 'ranked',
-            'status', 'replay', 'red_logs', 'blue_logs',
-            'requested_by', 'requested_at', 'started_at', 'updated_at')
-        read_only_fields = ('url', 'replay', 'red_logs', 'blue_logs', 'requested_at', 'started_at', 'updated_at')
+            'status', 'replay', 'requested_by', 'requested_at', 'started_at', 'updated_at')
+        read_only_fields = ('url', 'replay', 'requested_at', 'started_at', 'updated_at')
 
 
 class TournamentSerializer(serializers.HyperlinkedModelSerializer):
