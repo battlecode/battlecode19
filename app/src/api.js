@@ -44,7 +44,7 @@ class Api {
     static search(query, callback) {
         const encoded_query = encodeURIComponent(query);
         const teamUrl = URL + "/api/"+LEAGUE+"/team/?search=" + encoded_query + "&page=1";
-        const userUrl = URL+"/api/user/profile/?search=" + encoded_query + "&page=1";
+        const userUrl = URL + "/api/user/profile/?search=" + encoded_query + "&page=1";
         $.get(teamUrl, teamData => {
             $.get(userUrl, userData => {
                 const teamLimit = parseInt(teamData.count / PAGE_LIMIT, 10) + !!(teamData.count % PAGE_LIMIT);
@@ -65,9 +65,11 @@ class Api {
         const enc_query = encodeURIComponent(query);
         const teamUrl = URL + "/api/" + LEAGUE + "/team/?search=" + enc_query + "&page=" + page;
         $.get(teamUrl, teamData => {
+            const teamLimit = parseInt(teamData.count / PAGE_LIMIT, 10) + !!(teamData.count % PAGE_LIMIT);
             callback({
-                teamPage: page,
                 teams: teamData.results,
+                teamLimit,
+                teamPage: page,
             });
         });
     }
@@ -135,18 +137,22 @@ class Api {
 
     static getScrimmageRequests(callback) {
         this.getAllTeamScrimmages(function(scrimmages) {
-            var requests = []
-            for (let i=0; i<scrimmages.length; i++) {
-                if (scrimmages[i].status !== "pending") continue;
-                if (scrimmages[i].requested_by !== parseInt(Cookies.get('team_id'),10)
-                    || scrimmages[i].blue_team === scrimmages[i].red_team) {
-                    requests.push({
-                        id:scrimmages[i].id,
-                        team_id:scrimmages[i].requested_by,
-                        team:(Cookies.get('team_name')===scrimmages[i].red_team)?scrimmages[i].blue_team:scrimmages[i].red_team
-                    });
+            var requests = scrimmages.filter(scrimmage => {
+                if (scrimmage.status !== "pending") {
+                    return false;
                 }
-            }
+                if (scrimmage.blue_team === scrimmage.red_team) {
+                    return true;
+                }
+                return  scrimmage.requested_by !== parseInt(Cookies.get('team_id'),10);
+            }).map(scrimmage => {
+                const { blue_team, red_team } = scrimmage;
+                return {
+                    id:scrimmage.id,
+                    team_id:scrimmage.requested_by,
+                    team: (Cookies.get('team_name')===red_team) ? blue_team : red_team,
+                };
+            });
             callback(requests);
         });
     }

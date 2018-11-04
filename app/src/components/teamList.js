@@ -7,8 +7,18 @@ class TeamList extends Component {
     render() {
         const { props }  = this;
 
-
-        if (props.teams.length > 0) {
+        if (!props.teams) {
+            return null;
+        } else if (props.teams.length === 0) { 
+            return (
+                <div className="card">
+                    <div className="header">
+                        <h4 className="title">No Teams Found!</h4>
+                    </div> 
+                </div>
+            )
+        }
+        else {
             const teamRows = props.teams.map(team => {
                 return (
                     <tr key={ team.id }>
@@ -47,12 +57,10 @@ class TeamList extends Component {
                         page={props.page} 
                         pageLimit={props.pageLimit} 
                         onPageClick={props.onPageClick}
-                    />            </div>
+                    />            
+                </div>
             );
-        } 
-        else {
-            return (<div></div>)
-        };
+        }
     }
 }
 

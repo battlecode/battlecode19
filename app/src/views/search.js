@@ -8,10 +8,10 @@ import UserList from '../components/userList';
 class Search extends Component {
 
     state = {
-        users:[],
+        users: null,
         userLimit: 0,
         userPage: 1,
-        teams:[],
+        teams: null,
         teamLimit: 0,
         teamPage: 1,
         input: "",
