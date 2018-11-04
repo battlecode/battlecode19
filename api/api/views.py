@@ -103,14 +103,6 @@ class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.AllowAny,)
 
 
-class ReplayViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Replay.objects.all()
-    serializer_class = ReplaySerializer
-    permission_classes = (permissions.AllowAny,)
-
-    def list(self, request):
-        return Response({'message': 'Must lookup specific replay'}, status.HTTP_400_BAD_REQUEST)
-
 
 class TeamViewSet(viewsets.GenericViewSet,
                   mixins.CreateModelMixin,

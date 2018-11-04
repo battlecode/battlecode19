@@ -123,18 +123,12 @@ class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'team', 'name', 'filename', 'submitted_at')
 
 
-class ReplaySerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Replay
-        fields = '__all__'
-
 class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):
     serializer_url_field = LeagueHyperlinkedIdentityField
     league          = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
     red_team        = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='name')
     blue_team       = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='name')
     requested_by    = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='id')
-    replay          = serializers.HyperlinkedRelatedField(view_name='replay-detail',read_only=True)
 
     class Meta:
         model = Scrimmage

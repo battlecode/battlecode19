@@ -76,6 +76,7 @@ Game.prototype.makeMap = function() {
     var width = 15 + Math.floor(16.0*random());
     var height = 15 + Math.floor(16.0*random());
     if (height%2 === 1) height++; // ensure height is even
+    if (width%2  === 1) width++;
 
     this.shadow = new Array(height);
     for (var i=0; i<height; i++) {
@@ -149,6 +150,7 @@ Game.prototype.createItem = function(x,y,team) {
     robot.time        = this.chess_initial; // time left in chess clock
     robot.start_time  = -1; // used for chess clock timing.
     robot.signal      = 0;
+    robot.counter     = 0;
     this.init_queue++;
 
     if (this.shadow[robot.y][robot.x] === 0) this.shadow[robot.y][robot.x] = robot.id;
@@ -393,45 +395,42 @@ Game.prototype._applyNexi = function() {
 
     for (var r=0; r<this.shadow.length; r++) {
         for (var c=0; c<this.shadow[0].length; c++) {
-            // check if the square is a nexus.
+            // Check if the square is occupied
             var o = this.shadow[r][c];
-            if (o === -1) continue;
+            if (o === -1 || o === 0) continue;
+            var this_robot = this.getItem(o);
 
-            var sides = [
-                this.shadow[this._overflow_y(r-1)][c],
-                this.shadow[this._overflow_y(r+1)][c],
-                this.shadow[r][this._overflow_x(c+1)],
-                this.shadow[r][this._overflow_x(c-1)]
+            // List of (nexus_center, opposer)
+            var neighbors = [
+                [[this._overflow_y(r-1),  c],                   [this._overflow_y(r-2), c]],
+                [[this._overflow_y(r+1),this._overflow_x(c-1)], [this._overflow_y(r+2), this._overflow_x(c-2)]],
+                [[this._overflow_y(r-1),this._overflow_x(c-1)], [this._overflow_y(r-2), this._overflow_x(c-2)]],
+                [[r, this._overflow_x(c-1)],                    [r, this._overflow_x(c-2)]],
             ];
 
-            var corners = [
-                this.shadow[this._overflow_y(r-1)][this._overflow_x(c-1)],
-                this.shadow[this._overflow_y(r-1)][this._overflow_x(c+1)],
-                this.shadow[this._overflow_y(r+1)][this._overflow_x(c-1)],
-                this.shadow[this._overflow_y(r+1)][this._overflow_x(c+1)]
-            ];
+            for (var i=0; i<neighbors.length; i++) {
+                var center_coords = neighbors[i][0];
+                var opposed_coords = neighbors[i][1];
+                var center = this.shadow[center_coords[0]][center_coords[1]];
+                var opposed = this.shadow[opposed_coords[0]][opposed_coords[1]];
 
-            var corners_good = true;
-            for (var i=0; i<4; i++) corners_good &= (corners[i] === 0 || corners[i] === -1);
+                if (opposed <= 0 || center === -1) continue;
+                var opposing_robot = this.getItem(opposed);
+                if (opposing_robot.team !== this_robot.team) continue;
 
-            if (corners_good) {
-                // make sure that all sides are robots on same team.
-                var teams = [0,0];
-                for (var k=0; k<4; k++) {
-                    if (sides[k] > 0) teams[this.getItem(sides[k]).team] += 1;
+                // If center square is empty
+                if (center === 0) {
+                    this.createItem(center_coords[1], center_coords[0], this_robot.team).health = NEXUS_INCUBATOR_HP;
+                    this.nexi.push([[r,c], opposed_coords]);
+                    continue;
                 }
-                
-                if (teams[0] === 4 || teams[1] === 4) { // all red or blue
-                    this.nexi.push(sides);
 
-                    if (o === 0) {
-                        // create a side_team robot in r,c
-                        var baby = this.createItem(c, r, (teams[0] === 4) ? 0 : 1);
-                        baby.health = NEXUS_INCUBATOR_HP;
-                    } else {
-                        var center = this.getItem(o);
-                        center.health += (center.health >= INITIAL_HP)?0:NEXUS_INCUBATOR_HP;
-                    }
+                var center_robot = this.getItem(center);
+
+                // If center square is occupied by friend
+                if (center_robot.team === this_robot.team) {
+                    if (center_robot.health < INITIAL_HP) center_robot.health++;
+                    this.nexi.push([[r,c], opposed_coords]);
                 }
             }
         }
@@ -451,7 +450,6 @@ Game.prototype.getGameStateDump = function(robot) {
             delete r.start_time;
             if (robot.id !== r.id) {
                 delete r.health;
-                delete r.team;
             }
             visible.push(r);
         }.bind(this));
@@ -470,11 +468,11 @@ Game.prototype.getGameStateDump = function(robot) {
  */
 Game.prototype.enactTurn = function() {
     if (this.robin >= this.robots.length) {
+        this._applyNexi();
         this.robin = 0;
         this.round++;
-    }
 
-    this._applyNexi();
+    }
 
     var robot = this.robots[this.robin];
     if (robot.hook === null || !robot.initialized) {
