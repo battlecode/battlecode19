@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import * as Cookies from "js-cookie";
 
-// const URL = "https://hack.battlecode.org";
-const URL = 'http://localhost:8000'; // DEVELOPMENT
+const URL = "https://hack.battlecode.org";
+// const URL = 'http://localhost:8000'; // DEVELOPMENT
 const LEAGUE = 0;
 const PAGE_LIMIT = 10;
 
@@ -157,18 +157,15 @@ class Api {
         });
     }
 
-    static requestScrimmage(team_name, callback) {
-        $.get(URL+"/api/"+LEAGUE+"/team/?search="+encodeURIComponent(team_name), function(team_data, team_success) {
-            if (team_data.results.length === 0) return callback(false);
-            $.post(URL+"/api/"+LEAGUE+"/scrimmage/", {
-                red_team:Cookies.get('team_id'),
-                blue_team:team_data.results[0].id,
-                ranked:false
-            }).done(function(data, status) {
-                callback(true)
-            }).fail(function() {
-                callback(false);
-            });
+    static requestScrimmage(teamId, callback) {
+        $.post(URL+"/api/"+LEAGUE+"/scrimmage/", {
+            red_team: Cookies.get('team_id'),
+            blue_team: teamId,
+            ranked:false,
+        }).done(function(data, status) {
+            callback(teamId, true)
+        }).fail(function() {
+            callback(teamId, false);
         });
     }
 

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Api from '../api';
 
 import PaginationControl from './paginationControl';
 
@@ -11,47 +12,55 @@ class TeamList extends Component {
         successfulRequests: {},
     }
 
-    onTeamRequest = (team) => {
+    onTeamRequest = (teamId) => {
+        const { state } = this;
+        if (state.pendingRequests[teamId]) {
+            return;
+        }
+
         this.setState(prevState => {
             return {
                 pendingRequests: {
                     ...prevState.pendingRequests,
-                    [team] : true,
+                    [teamId] : true,
                 }
             }
         });
+        Api.requestScrimmage(teamId, this.onRequestFinish);
     }
 
-    onRequestSuccess = (team) => {
+    onRequestFinish = (teamId, success) => {
         this.setState(prevState => {
             return {
                 pendingRequests: {
                     ...prevState.pendingRequests,
-                    [team]: false,
+                    [teamId]: false,
                 },
-                successfulRequests: {
+                successfulRequests: success && {
                     ...prevState.successfulRequests,
-                    [team]: true,
+                    [teamId]: true,
                 }
             }
         });
-
-        setTimeout(() => this.successTimeoutRevert(team), SUCCESS_TIMEOUT);
+        if (success) {
+            this.props.onRequestSuccess();
+            setTimeout(() => this.successTimeoutRevert(teamId), SUCCESS_TIMEOUT);
+        }
     }
 
-    successTimeoutRevert = (team) => {
+    successTimeoutRevert = (teamId) => {
         this.setState(prevState => {
             return {
                 successfulRequests: {
                     ...prevState.successfulRequests,
-                    [team]: false,
+                    [teamId]: false,
                 }
             }
         });
     }
 
     render() {
-        const { props }  = this;
+        const { props, state }  = this;
 
         if (!props.teams) {
             return null;
@@ -66,13 +75,19 @@ class TeamList extends Component {
         }
         else {
             const teamRows = props.teams.map(team => {
+                let buttonContent = "Request";
+                if (state.pendingRequests[team.id]) {
+                    buttonContent = <i className="fa fa-circle-o-notch fa-spin"></i>;
+                } else if (state.successfulRequests[team.id]) {
+                    buttonContent = <i className="fa fa-check"></i>;
+                }
                 return (
                     <tr key={ team.id }>
                         <td>{ team.name }</td>
                         <td>{ team.users.join(", ") }</td>
                         <td>{ team.bio }</td>
                         {props.canRequest && (
-                            <td><button className="btn btn-xs">Request</button></td>
+                            <td><button className="btn btn-xs" onClick={() => this.onTeamRequest(team.id)}>{buttonContent}</button>  </td>
                         )}
                     </tr>
                 )
