@@ -70,19 +70,22 @@ class Search extends Component {
         users:[], 
         teams:[], 
         input: "",
-    };        
+    };    
+    
+    componentDidMount() {
+        this.search();
+    }
 
     handleChange = (e) => {
         this.setState({ input: e.target.value });
     } 
 
+    onDataLoad = (users, teams) => {
+        this.setState({ teams, users });
+    }
+
     search = () => {
-        Api.search(this.state.input, function(users, teams) {
-            this.setState({
-                teams: teams,
-                users: users
-            });
-        }.bind(this));
+        Api.search(this.state.input, this.onDataLoad);
     }
 
     render() {
