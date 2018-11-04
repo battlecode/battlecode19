@@ -7,8 +7,16 @@ class UserList extends Component {
     render() {
         const { props } = this;
 
-        if (props.users.length === 0) {
+        if (!props.users) {
             return null;
+        } else if (props.users.length === 0) { 
+            return (
+                <div className="card">
+                    <div className="header">
+                        <h4 className="title">No Users Found!</h4>
+                    </div> 
+                </div>
+            )
         }
         
         return (
