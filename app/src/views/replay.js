@@ -10,7 +10,7 @@ class ReplayViewer extends Component {
         this.state = {logs:[[],[]], tournament:window.location.href.indexOf("#tournament") !== -1}
     }
     componentDidMount() {
-        Api.getReplayFromURL(window.location.href.split("?")[1], function(replay) {
+        Api.getReplayFromURL(window.location.href.split("?")[1].split("#")[0], function(replay) {
             this.vis = new Visualizer("viewer", null, null, null, replay, this.state.tournament);
             this.setState({logs:replay.logs});
         }.bind(this));

@@ -138,19 +138,17 @@ class Api {
     }
 
     static getReplayFromURL(url, callback) {
-        $.get(url, function(data, succcess) {
-            if ($.ajaxSettings && $.ajaxSettings.headers) {
-                delete $.ajaxSettings.headers.Authorization;
-            }
+        if ($.ajaxSettings && $.ajaxSettings.headers) {
+            delete $.ajaxSettings.headers.Authorization;
+        }
 
-            $.get(data.content, function(replay, super_sucess) {
-                $.ajaxSetup({
-                    headers: { 'Authorization': 'Bearer ' + Cookies.get('token') }
-                });
-                
-                callback(replay);
-            });            
-        });
+        $.get(url, function(replay, super_sucess) {
+            $.ajaxSetup({
+                headers: { 'Authorization': 'Bearer ' + Cookies.get('token') }
+            });
+
+            callback(replay);
+        });            
     }
 
     static getScrimmageHistory(callback) {
