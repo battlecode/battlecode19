@@ -2,13 +2,18 @@
 The view that is returned in a request.
 """
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 from django.db.models import Q
 from rest_framework import permissions, status, mixins, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 from api.serializers import *
 from api.permissions import *
+
+class SearchResultsPagination(PageNumberPagination):
+    page_size = 10
 
 
 class PartialUpdateModelMixin(mixins.UpdateModelMixin):
@@ -60,6 +65,28 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
 
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
+    pagination_class = SearchResultsPagination
+
+
+
+class UserTeamViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    list:
+    Returns a list of every team a specific user is on.
+
+    retrieve:
+    Returns the team the specific user in is on in the specific league.
+    """
+    serializer_class = BasicTeamSerializer
+    permission_classes = (IsAuthenticatedOrSafeMethods,)
+    lookup_field = 'league'
+
+    def get_queryset(self):
+        """
+        Only teams the user is on are visible.
+        """
+        return Team.objects.filter(users__username=self.kwargs['username'])
+
 
 
 
@@ -75,14 +102,6 @@ class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LeagueSerializer
     permission_classes = (permissions.AllowAny,)
 
-
-class ReplayViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Replay.objects.all()
-    serializer_class = ReplaySerializer
-    permission_classes = (permissions.AllowAny,)
-
-    def list(self, request):
-        return Response({'message': 'Must lookup specific replay'}, status.HTTP_400_BAD_REQUEST)
 
 
 class TeamViewSet(viewsets.GenericViewSet,
@@ -118,6 +137,7 @@ class TeamViewSet(viewsets.GenericViewSet,
     """
     queryset = Team.objects.all().order_by('name').exclude(deleted=True)
     serializer_class = TeamSerializer
+    pagination_class = SearchResultsPagination
     permission_classes = (LeagueActiveOrSafeMethods, IsAuthenticatedOrSafeMethods)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
@@ -129,14 +149,13 @@ class TeamViewSet(viewsets.GenericViewSet,
         return super().get_queryset().filter(league_id=self.kwargs['league_id'])
 
     def list(self, request, *args, **kwargs):
+        """
+        If used, do one of the following:
+            (1) Paginate.
+            (2) Modify team serializer. Maybe something like https://www.peterbe.com/plog/efficient-m2m-django-rest-framework.
+        """
         res = super().list(request)
-        if 'username' in request.GET:
-            username = request.GET['username']
-            new_data = []
-            for data in res.data.get('results'):
-                if username in data.get('users'):
-                    new_data.append(data)
-            res.data['results'] = new_data
+
         return res
 
     def get_serializer_context(self):

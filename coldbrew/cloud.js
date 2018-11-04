@@ -32,24 +32,20 @@ const queue = `
 WITH t as (
     SELECT s.id as id, s.red_team_id as red_id, s.blue_team_id as blue_id,
            r.code as red, b.code as blue
-    FROM api_scrimmage_hidden as s
+    FROM api_scrimmage as s
     INNER JOIN api_team r ON r.id=s.red_team_id
     INNER JOIN api_team b ON b.id=s.blue_team_id
     WHERE s.status = 'queued' ORDER BY id LIMIT 1
 )
-UPDATE api_scrimmage_hidden SET status = 'running'
-FROM t WHERE api_scrimmage_hidden.id = (
-    SELECT id FROM api_scrimmage_hidden WHERE status = 'queued'
+UPDATE api_scrimmage SET status = 'running'
+FROM t WHERE api_scrimmage.id = (
+    SELECT id FROM api_scrimmage WHERE status = 'queued'
     ORDER BY id LIMIT 1
 ) RETURNING t.id as id, t.red_id as red_id, t.blue_id as blue_id, t.red as red, t.blue as blue;
 `
 
-const publish_replay = `
-INSERT INTO api_replay (id, content) VALUES (DEFAULT, $1) RETURNING id;
-`
-
 const end_match = `
-UPDATE api_scrimmage_hidden SET status = $1, replay_id = $2 WHERE id = $3;
+UPDATE api_scrimmage SET status = $1, replay_id = $2 WHERE id = $3;
 `
 
 
@@ -63,17 +59,13 @@ function playGame() {
             var file = bucket.file('replays/' + replay_name);
             var stream = file.createWriteStream({});
             stream.on('finish', ()=> {
-                var url = 'https://storage.googleapis.com/battlehack/replays/' + replay_name;      
-
-                db.one(publish_replay,[url]).then(function(replay_id) {
+                var url = 'https://storage.googleapis.com/battlehack/replays/' + replay_name;
                     console.log(`[Worker ${process.pid}] Match ${scrimmage.id} complete.`);
                     db.none(end_match,[
                         replay.winner===0?'redwon':'bluewon',
-                        replay_id.id,
-                        scrimmage.id
+                        replay_name, url
                     ]).then(playGame);
                     c.destroy();
-                });
             });
             stream.end(Buffer.from(r, 'utf8'));
         }); c.playGame();

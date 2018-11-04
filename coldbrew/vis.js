@@ -411,6 +411,7 @@ Visualizer.prototype.renderRound = function() {
 
     var robots = this.rounds[this.nextRound].robots;
     var nexi = this.rounds[this.nextRound].nexi;
+    var booms = this.rounds[this.nextRound].booms;
 
     var past_robots = [];
     if (this.round in this.rounds) {
@@ -425,40 +426,22 @@ Visualizer.prototype.renderRound = function() {
     this.ctx.strokeStyle = "#fd5f00";
     this.ctx.lineWidth = 0.5;
 
-    var i = 0;
-
-    // For each nexus list
     for (var n=0; n<nexi.length; n++) {
-        var coords = [];
-        
-        // For each id in the nexus, find the coords
-        for (i=0; i<nexi[n].length; i++) {
-            for (var r=0; r<robots.length; r++) {
-                if (robots[r].id === nexi[n][i]) {
-                    coords.push({x:robots[r].x, y:robots[r].y});
-                    break;
-                }
-            }
-        }
-
-        for (i=0; i<coords.length-1; i++) {
-            this.ctx.moveTo(this.BLOCK_SIZE*(coords[i].x+0.5),
-                            this.BLOCK_SIZE*(coords[i].y+0.5));
-            this.ctx.lineTo(this.BLOCK_SIZE*(coords[i+1].x+0.5),
-                            this.BLOCK_SIZE*(coords[i+1].y+0.5));
-        } this.ctx.moveTo(this.BLOCK_SIZE*(coords[0].x+0.5),
-                          this.BLOCK_SIZE*(coords[0].y+0.5));
-        this.ctx.lineTo(this.BLOCK_SIZE*(coords[coords.length-1].x+0.5),
-                        this.BLOCK_SIZE*(coords[coords.length-1].y+0.5));
+        this.ctx.moveTo(this.BLOCK_SIZE*(nexi[n][0][1]+0.5),
+                        this.BLOCK_SIZE*(nexi[n][0][0]+0.5));
+        this.ctx.lineTo(this.BLOCK_SIZE*(nexi[n][1][1]+0.5),
+                        this.BLOCK_SIZE*(nexi[n][1][0]+0.5));
+        this.ctx.stroke();
     }
 
-    this.ctx.stroke();
+    // Draw booms
+    // INSERT CODE HERE
 
     this.ctx.shadowBlur = 10;
     this.ctx.shadowColor = '#333';
 
     // Draw robots
-    for (i=0; i<robots.length; i++) {
+    for (var i=0; i<robots.length; i++) {
         var robot = robots[i];
 
         var past_robot = robot;
