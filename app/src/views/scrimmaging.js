@@ -3,21 +3,19 @@ import Api from '../api';
 
 
 class ScrimmageRequest extends Component {
-    constructor() {
-        super();
-        this.state = {'open':true};
-        this.accept = this.accept.bind(this);
-        this.reject = this.reject.bind(this);
+
+    state = {
+        open: true,
     }
 
-    accept() {
+    accept = () => {
         Api.acceptScrimmage(this.props.id, function() {
             this.setState({'open':false});
             this.props.refresh();
         }.bind(this));
     }
 
-    reject() {
+    reject = () => {
         Api.rejectScrimmage(this.props.id, function() {
             this.setState({'open':false});
             this.props.refresh();
@@ -36,14 +34,13 @@ class ScrimmageRequest extends Component {
 }
 
 class ScrimmageRequests extends Component {
-    constructor() {
-        super();
-        this.state = {'requests':[]};
 
-        this.refresh = this.refresh.bind(this);
-    }
+    state = {
+        requests: [],
+    };
 
-    refresh() {
+
+    refresh = () => {
         Api.getScrimmageRequests(function(r) {
             this.setState({requests:r});
         }.bind(this));
@@ -63,15 +60,14 @@ class ScrimmageRequests extends Component {
 }
 
 class ScrimmageRequestor extends Component {
-    constructor() {
-        super();
 
-        this.state = {up:"Request", input:""};
-        this.changeHandler = this.changeHandler.bind(this);
-        this.request = this.request.bind(this);
-    }
+    state = {
+        up: "Request", 
+        input:"",
+    };
 
-    request() {
+
+    request = () => {
         this.setState({'up':'<i class="fa fa-circle-o-notch fa-spin"></i>'});
         Api.requestScrimmage(this.state.input, function(response) {
             if (response) {
@@ -85,7 +81,7 @@ class ScrimmageRequestor extends Component {
         }.bind(this))
     }
 
-    changeHandler(e) {
+    changeHandler = (e) => {
         this.setState({input: e.target.value});
     }
 
@@ -97,7 +93,7 @@ class ScrimmageRequestor extends Component {
                         <div className="input-group">
                             <input type="text" className="form-control" onChange={ this.changeHandler } placeholder="Team to request..." />
                             <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onClick={ this.request } dangerouslySetInnerHTML={{__html:this.state.up }}></button>
+                                <button className="btn btn-default" type="button" onClick={ this.request } >{this.state.up}</button>
                             </span>
                         </div>
                     </div>
@@ -108,14 +104,13 @@ class ScrimmageRequestor extends Component {
 }
 
 class ScrimmageHistory extends Component {
-    constructor() {
-        super();
-        this.state = {'scrimmages':[]};
 
-        this.refresh = this.refresh.bind(this);
-    }
+    state = {
+        scrimmages: [],
+    };
 
-    refresh() {
+
+    refresh = () => {
         Api.getScrimmageHistory(function(s) {
             this.setState({ scrimmages: s });
         }.bind(this));
@@ -171,13 +166,8 @@ class ScrimmageHistory extends Component {
 }
 
 class Scrimmaging extends Component {
-    constructor() {
-        super();
 
-        this.refresh = this.refresh.bind(this);
-    }
-
-    refresh() {
+    refresh = () => {
         this.requests.refresh();
         this.history.refresh();
     }
