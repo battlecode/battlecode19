@@ -450,7 +450,6 @@ Game.prototype.getGameStateDump = function(robot) {
             delete r.start_time;
             if (robot.id !== r.id) {
                 delete r.health;
-                delete r.team;
             }
             visible.push(r);
         }.bind(this));
