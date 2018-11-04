@@ -3,6 +3,8 @@ var ATTACK_PENALTY = 2;
 var INITIAL_HP = 64;
 var COMMUNICATION_BITS = 4;
 var MAX_ROUNDS = 200;
+var INITIAL_FUSE_COUNTER = 3;
+var EXPLOSION_DAMAGE = 5;
 
 var NEXUS_INCUBATOR_HP = 1;
 var MAP_SPARSITY = 0.8;
@@ -50,6 +52,8 @@ function Game(seed, chess_initial, chess_extra, debug) {
     this.debug = debug || false;
     this.logs = [[],[]]; // list of JSON logs for each team
     this.nexi = [];
+    this.booms = [];
+    this.current_booms = [];
 
     // The shadow is a 2d map where 0 signifies empty, -1 impassable, and anything
     // else is the id of the robot/item occupying the square.  This is updated
@@ -119,7 +123,7 @@ Game.prototype.viewerMap = function() {
 }
 
 Game.prototype.viewerMessage = function() {
-    return insulate({robots:this.robots, nexi:this.nexi});
+    return insulate({robots:this.robots, nexi:this.nexi, booms:this.booms});
 }
 
 /**
@@ -150,7 +154,7 @@ Game.prototype.createItem = function(x,y,team) {
     robot.time        = this.chess_initial; // time left in chess clock
     robot.start_time  = -1; // used for chess clock timing.
     robot.signal      = 0;
-    robot.counter     = 0;
+    robot.counter     = 0; // used for the fuse action. if positive, fuse is in progress
     this.init_queue++;
 
     if (this.shadow[robot.y][robot.x] === 0) this.shadow[robot.y][robot.x] = robot.id;
@@ -470,8 +474,9 @@ Game.prototype.enactTurn = function() {
     if (this.robin >= this.robots.length) {
         this._applyNexi();
         this.robin = 0;
+        this.booms = this.current_booms;
         this.round++;
-
+        this.current_booms = [];
     }
 
     var robot = this.robots[this.robin];
@@ -498,6 +503,49 @@ Game.prototype.enactTurn = function() {
 
     if (response !== "") {
         this.robotError(response, robot);
+    }
+
+    if (robot.counter === 1) {
+        // explode
+        this.current_booms.push([robot.x,robot.y])
+
+        // decrease health of robots around it
+        /*var neighbors = [
+            [this._overflow_y(r-1),  c],                   
+            [this._overflow_y(r+1),this._overflow_x(c-1)],
+            [this._overflow_y(r-1),this._overflow_x(c-1)],
+            [r, this._overflow_x(c-1)]
+            [this._overflow_y(r+1),  c],                   
+            [this._overflow_y(r+1),this._overflow_x(c+1)],
+            [this._overflow_y(r-1),this._overflow_x(c+1)],
+            [r, this._overflow_x(c+1)]
+        ];*/
+        for (var yd=-5; yd <= 5; yd++) {
+            for (var xd=-5; xd <= 5; xd++) {
+                if (yd == 0 && xd == 0) continue;
+                neighbor_coords = [this._overflow_y(robot.y+yd),this._overflow_x(robot.x+xd)];
+                neighbor = this.shadow[neighbor_coords[0]][neighbor_coords[1]];
+                neighbor_dist = Math.abs(xd) + Math.abs(yd);
+
+                // don't do anything if there is no robot here
+                if (neighbor <= 0) continue;
+
+                neighbor_robot = this.getItem(neighbor);
+
+                // decrease the health
+                damage = EXPLOSION_DAMAGE-neighbor_dist+1;
+                if (damage > 0) {
+                    this._damageRobot(neighbor_robot, damage);
+                }
+                
+            }
+        }
+        
+
+        // delete this robot
+        this._deleteRobot(robot);
+    } else if (robot.counter > 0) {
+        robot.counter--;
     }
 }
 
@@ -548,7 +596,17 @@ Game.prototype.enactAction = function(robot, action, time) {
         } else return "Invalid signal message.";
     }
 
-    valid = valid && 'action' in action && ['move','attack'].indexOf(action['action']) >= 0;
+
+    valid = valid && 'action' in action && ['move','attack','fuse'].indexOf(action['action']) >= 0;
+
+    // if the robot is currently in fuse, then we don't allow any action
+    if (robot.counter > 0) {
+        if (valid) {
+            return "Attempted to perform another action after a fuse action.";
+        } else {
+            return "";
+        }
+    }
 
     if (valid && action.action === 'move') {
         if ('dir' in action && Number.isInteger(action.dir) && action.dir >= 0 && action.dir < 8) {
@@ -573,25 +631,43 @@ Game.prototype.enactAction = function(robot, action, time) {
             if (this.shadow[new_pos[1]][new_pos[0]] > 0) {
                 // space has a robot in it.
                 var victim = this.getItem(this.shadow[new_pos[1]][new_pos[0]]);
-                victim.health -= ATTACK_PENALTY;
-
-                if (victim.health === 0) {
-                    this.shadow[new_pos[1]][new_pos[0]] = 0;
-
-                    // delete robot
-                    var victim_index = this.robots.indexOf(victim);
-                    this.robots.splice(victim_index, 1);
-
-                    if (victim_index < this.robin) this.robin--;
-                }
+                this._damageRobot(victim, ATTACK_PENALTY);
             } else {
                 // space is occupied, so don't move.
                 return "Attempted to attack a space without a robot."
             }
         } else return "Malformed move.";        
-    }    
+    } else if (valid && action.action === 'fuse') {
+        // set robot's fuse counter to something
+
+        robot.counter = INITIAL_FUSE_COUNTER+1;
+    }
+            
 
     return "";
 }
+
+
+Game.prototype._deleteRobot = function(robot) {
+    this.shadow[robot.y][robot.x] = 0;
+
+    // delete robot
+    var robot_index = this.robots.indexOf(robot);
+    this.robots.splice(robot_index, 1);
+
+    if (robot_index < this.robin) this.robin--;
+}
+
+// inflict damage on robot. if health is less than or equal to 0, then kill the robot
+Game.prototype._damageRobot = function(robot, damage) {
+    robot.health -= damage;
+
+    if (robot.health <= 0) {
+        this._deleteRobot(robot);
+    }
+}
+
+
+
 
 module.exports = Game;
