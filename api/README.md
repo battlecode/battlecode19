@@ -23,8 +23,12 @@ Always work in your virtual environment.
 
 `workon web`
 
+Install requirements using
+`pip install -r requirements.txt`
+
 Then start the backend:
 
+`export DJANGO_SETTINGS_MODULE="dev_settings"`
 `python manage.py makemigrations`
 `python manage.py migrate`
 `python manage.py runserver`

@@ -20,6 +20,20 @@ class LeagueHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
         kwargs['league_id'] = self.context['league_id']
         return reverse(view_name, kwargs=kwargs, request=request, format=format)
 
+class BasicTeamSerializer(serializers.HyperlinkedModelSerializer):
+    #serializer_url_field = LeagueHyperlinkedIdentityField
+    league = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
+
+    class Meta:
+        model = Team
+        fields = ('id', 'league', 'name', 'avatar', 'wins', 'losses', 'draws',
+            'bio', 'divisions', 'code', 'auto_accept_ranked', 'auto_accept_unranked')
+        extra_kwargs = {
+            'code': {'write_only': True}
+        }
+        read_only_fields = ('id',)
+
+
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     serializer_url_field = LeagueHyperlinkedIdentityField
     league = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
@@ -109,18 +123,12 @@ class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'team', 'name', 'filename', 'submitted_at')
 
 
-class ReplaySerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Replay
-        fields = '__all__'
-
 class ScrimmageSerializer(serializers.HyperlinkedModelSerializer):
     serializer_url_field = LeagueHyperlinkedIdentityField
     league          = serializers.SlugRelatedField(queryset=League.objects.all(), slug_field='id')
     red_team        = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='name')
     blue_team       = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='name')
     requested_by    = serializers.SlugRelatedField(queryset=Team.objects.all(), slug_field='id')
-    replay          = serializers.HyperlinkedRelatedField(view_name='replay-detail',read_only=True)
 
     class Meta:
         model = Scrimmage

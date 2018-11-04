@@ -1,8 +1,10 @@
 import $ from 'jquery';
 import * as Cookies from "js-cookie";
 
-var URL = "https://hack.battlecode.org";
-var LEAGUE = 0
+const URL = "https://hack.battlecode.org";
+// const URL = 'http://localhost:8000'; // DEVELOPMENT
+const LEAGUE = 0;
+const PAGE_LIMIT = 10;
 
 class Api {
     static getUpcomingDates(callback) {
@@ -40,25 +42,58 @@ class Api {
     }
 
     static search(query, callback) {
-        $.get(URL+"/api/"+LEAGUE+"/team/?search="+encodeURIComponent(query), function(team_data, team_success) {
-            $.get(URL+"/api/user/profile/?search="+encodeURIComponent(query), function(user_data, user_success) {
-                callback(user_data.results, team_data.results);
+        const encoded_query = encodeURIComponent(query);
+        const teamUrl = URL + "/api/"+LEAGUE+"/team/?search=" + encoded_query + "&page=1";
+        const userUrl = URL+"/api/user/profile/?search=" + encoded_query + "&page=1";
+        $.get(teamUrl, teamData => {
+            $.get(userUrl, userData => {
+                const teamLimit = parseInt(teamData.count / PAGE_LIMIT, 10) + !!(teamData.count % PAGE_LIMIT);
+                const userLimit = parseInt(userData.count / PAGE_LIMIT, 10) + !!(userData.count % PAGE_LIMIT);
+                callback({
+                    users: userData.results,
+                    userLimit,
+                    userPage: 1,
+                    teams: teamData.results,
+                    teamLimit,
+                    teamPage: 1,
+                });
+            });
+        });
+    }
+
+    static searchTeam(query, page, callback) {
+        const enc_query = encodeURIComponent(query);
+        const teamUrl = URL + "/api/" + LEAGUE + "/team/?search=" + enc_query + "&page=" + page;
+        $.get(teamUrl, teamData => {
+            callback({
+                teamPage: page,
+                teams: teamData.results,
+            });
+        });
+    }
+
+    static searchUser(query, page, callback) {
+        const enc_query = encodeURIComponent(query);
+        const userUrl = URL + "/api/user/profile/?search=" + enc_query + "&page=" + page;
+        $.get(userUrl, userData => {
+            callback({
+                userPage: page,
+                users: userData.results,
             });
         });
     }
 
     static getUserTeam(callback) {
-        $.get(URL+"/api/"+LEAGUE+"/team/?username="+encodeURIComponent(Cookies.get('username'))).done(function(data, status){
-            if (data.results.length === 0) callback(null);
-            else {
-                Cookies.set('team_id',data.results[0].id);
-                Cookies.set('team_name',data.results[0].name);
-                $.get(URL+"/api/"+LEAGUE+"/team/"+data.results[0].id+"/").done(function(data, status) {
-                    callback(data);
-                });
-            }
+        $.get(URL+"/api/userteam/"+encodeURIComponent(Cookies.get('username'))+"/"+LEAGUE+"/").done(function(data, status){
+            Cookies.set('team_id',data.id);
+            Cookies.set('team_name',data.name);
+            
+            $.get(URL+"/api/"+LEAGUE+"/team/"+data.id+"/").done(function(data, status) {
+                callback(data);
+            });
         }).fail(function(xhr, status, error) {
-            callback(false);
+            // possibly dangerous???
+            callback(null);
         });
     }
 
@@ -138,9 +173,17 @@ class Api {
     }
 
     static getReplayFromURL(url, callback) {
-        $.get(url, function(data, succcess) {
-            callback(JSON.parse(data.content));
-        });
+        if ($.ajaxSettings && $.ajaxSettings.headers) {
+            delete $.ajaxSettings.headers.Authorization;
+        }
+
+        $.get(url, function(replay, super_sucess) {
+            $.ajaxSetup({
+                headers: { 'Authorization': 'Bearer ' + Cookies.get('token') }
+            });
+
+            callback(replay);
+        });            
     }
 
     static getScrimmageHistory(callback) {
