@@ -307,8 +307,6 @@ Game.prototype.initializeRobot = function() {
     var robot = this.robots[0];
     for (var i=0; robot.initialized; i++) {
         robot = this.robots[i];
-        //console.log(i);
-        //console.log(this.robots.length);
     } robot.initialized = true;
     this.init_queue--;
 
@@ -657,6 +655,11 @@ Game.prototype.enactAction = function(robot, action, time) {
 
 Game.prototype._deleteRobot = function(robot) {
     this.shadow[robot.y][robot.x] = 0;
+
+    if (!robot.initialized) {
+        console.log(this.init_queue);
+        this.init_queue--;
+    }
 
     // delete robot
     var robot_index = this.robots.indexOf(robot);

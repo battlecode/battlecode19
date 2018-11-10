@@ -180,6 +180,11 @@ class Api {
             delete $.ajaxSettings.headers.Authorization;
         }
 
+        // If `https` not in current url, replace `https` with `http` in above
+        if (window.location.href.indexOf("http://") > -1) {
+            url = url.replace("https://", "http://");
+        }
+
         $.get(url, function(replay, super_sucess) {
             $.ajaxSetup({
                 headers: { 'Authorization': 'Bearer ' + Cookies.get('token') }

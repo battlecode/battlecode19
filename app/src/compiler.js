@@ -40,6 +40,7 @@ class BCAbstractRobot:
 
     def _do_turn(self, game_state):
         self._bc_game_state = game_state
+        self._bc_logs = []
         if not self.id:
             self.id = self.me().id
 
@@ -54,7 +55,6 @@ class BCAbstractRobot:
         if not t:
             t = self._bc_null_action()
         
-        self._bc_clear_logs = True
         return t
 
     def _bc_action(self, dir, action):
@@ -124,10 +124,6 @@ class BCAbstractRobot:
             return self.get_relative_pos(1,-1)
 
     def log(self, message):
-        if self._bc_clear_logs:
-            self._bc_logs = []
-            self._bc_clear_logs = False
-
         if isinstance(message,str):
             self._bc_logs.append(message)
         else:

@@ -47,7 +47,7 @@ class Docs extends Component {
                                         <li><code>this.getRelativePos(dX,dY)</code>: A shortcut to get what's in the square <code>(dX,dY)</code> away.  Returns a robot object if one is there, otherwise <code>bc.EMPTY</code> or <code>bc.HOLE</code>.</li>
                                         <li><code>this.getInDirection(direction)</code>: Returns the output of <code>this.getRelativePos</code> in the specified direction.</li>
                                         <li><code>this.move(direction)</code>: Returns an action to move in a given direction.</li>
-                                        <li><code>this.attack(direction)</code>: Returns an action to attack in a given direction.</li>
+                                        <li><code>this.attack(direction)</code>: Returns an action to attack in a given direction, dealing 2HP damage.</li>
                                         <li><code>this.fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
                                         <li><code>this.nexus(direction)</code>:  Point Nexus creation in a given direction.  Does not have to be returned, and can be performed in synchrony with another action.</li>
                                     </ul>
@@ -78,7 +78,7 @@ class Docs extends Component {
                                         <li><code>self.get_relative_pos(dX,dY)</code>: A shortcut to get what's in the square <code>(dX,dY)</code> away.  Returns a robot dict if one is there, otherwise <code>bc.EMPTY</code> or <code>bc.HOLE</code>.</li>
                                         <li><code>self.get_in_direction(direction)</code>: Returns the output of <code>self.get_relative_pos</code> in the specified direction.</li>
                                         <li><code>self.move(direction)</code>: Returns an action to move in a given direction.</li>
-                                        <li><code>self.attack(direction)</code>: Returns an action to attack in a given direction.</li>
+                                        <li><code>self.attack(direction)</code>: Returns an action to attack in a given direction, dealing 2HP damage.</li>
                                         <li><code>self.fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
                                         <li><code>self.nexus(direction)</code>:  Point Nexus creation in a given direction.  Does not have to be returned, and can be performed in synchrony with another action.</li>
                                     </ul>
@@ -114,7 +114,7 @@ public class MyRobot extends BCAbstractRobot {
                                         <li><code>int getRelativePos(int dX, int dY)</code>: A shortcut to get what's in the square <code>(dX,dY)</code> away.  Returns an integer that is either a robot id, <code>bc.EMPTY</code> or <code>bc.HOLE</code>.</li>
                                         <li><code>int getInDirection(int direction)</code>: Returns the output of <code>getRelativePos</code> in the specified direction.</li>
                                         <li><code>Action move(int direction)</code>: Returns an action to move in a given direction.</li>
-                                        <li><code>Action attack(int direction)</code>: Returns an action to attack in a given direction.</li>
+                                        <li><code>Action attack(int direction)</code>: Returns an action to attack in a given direction, dealing 2HP damage.</li>
                                         <li><code>Action fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
                                         <li><code>void nexus(direction)</code>:  Point Nexus creation in a given direction.  Does not have to be returned, and can be performed in synchrony with another action.</li>
                                     </ul>
