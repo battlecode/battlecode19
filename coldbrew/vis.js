@@ -55,6 +55,20 @@ Visualizer.prototype.startPlayingReplay = function() {
     }
 }
 
+Visualizer.prototype.diffRound = function(diff) {
+    if ((this.round - diff) in this.rounds) {
+        this.nextRound = this.round - diff;
+        this.render();
+    }
+}
+
+Visualizer.prototype.pauseUnpause = function() {
+    this.running = !this.running;
+    this.dragStart = null;
+    this.render();
+    this.startPlayingReplay();
+}
+
 Visualizer.prototype.initializeCanvas = function() {
     this.canvas.setAttribute('width', window.getComputedStyle(this.canvas, null).getPropertyValue("width"));
     this.canvas.setAttribute('height', window.getComputedStyle(this.canvas, null).getPropertyValue("height"));
@@ -98,24 +112,21 @@ Visualizer.prototype.initializeCanvas = function() {
             var original = JSON.parse(JSON.stringify(this.dragStart));
             var r = Math.sqrt(Math.pow(original.x-47,2) + Math.pow(original.y-this.canvas.height+25,2));
             if (r <= 15) {
-                this.running = !this.running;
-                this.dragStart = null;
-                this.render();
-                this.startPlayingReplay()
+                this.pauseUnpause();
                 return
             } else if (!this.running) {
                 r = Math.sqrt(Math.pow(original.x-20,2) + Math.pow(original.y-this.canvas.height+25,2));
                 if (r <= 10) {
-                    if ((this.round - 1) in this.rounds) this.nextRound = this.round - 1;
+                    this.diffRound(-1);
                     this.dragStart = null;
-                    this.render();
+                    
                     return
                 }
                 r = Math.sqrt(Math.pow(original.x-74,2) + Math.pow(original.y-this.canvas.height+25,2));
                 if (r <= 10) {
-                    if ((this.round + 1) in this.rounds) this.nextRound = this.round + 1;
+                    this.diffRound(1);
                     this.dragStart = null;
-                    this.render();
+                    
                     return
                 }
             }
@@ -144,6 +155,12 @@ Visualizer.prototype.initializeCanvas = function() {
         }
 
         this.dragStart = null;
+    }.bind(this),false);
+
+    window.addEventListener('keydown', function(e) {
+        if (e.keyCode == 39)      this.diffRound(-1);
+        else if (e.keyCode == 37) this.diffRound(1);
+        else if (e.keyCode == 32) this.pauseUnpause();
     }.bind(this),false);
 }
 

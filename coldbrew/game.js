@@ -307,6 +307,8 @@ Game.prototype.initializeRobot = function() {
     var robot = this.robots[0];
     for (var i=0; robot.initialized; i++) {
         robot = this.robots[i];
+        //console.log(i);
+        //console.log(this.robots.length);
     } robot.initialized = true;
     this.init_queue--;
 

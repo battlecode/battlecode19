@@ -31,6 +31,7 @@ class LoginRegister extends Component {
             // ensure that all fields are correct
             if (this.state.username.length < 4) this.setState({error:"Username must be at least 4 characters."});
             else if (this.state.email.length < 4) this.setState({error:"Email must be at least 4 characters."});
+            else if (this.state.username.indexOf('.') > -1) this.setState({error:"Username must not contain dots."});
             else if (this.state.first.length < 1) this.setState({error:"Must provide first name."});
             else if (this.state.last.length < 1) this.setState({error:"Must provide last name."});
             else if (this.state.dob.split("-").length !== 3 || this.state.dob.length !== 10) this.setState({error:"Must provide DOB in YYYY-MM-DD form."})

@@ -69,10 +69,10 @@ class Docs extends Component {
                                     <hr /><h6>API Reference</h6><hr />
                                     <p>There are a number of useful methods you can use to explore and impact the world around you as a bot.  We'll detail them here.</p>
                                     <ul>
-                                        <li><code>self.me()</code>: Returns an dict containing details about your bot, including <code>.health</code> and <code>.id</code>.</li>
+                                        <li><code>self.me()</code>: Returns an dict containing details about your bot, including <code>.health</code>, <code>.id</code>, <code>.x</code>, <code>.y</code>, <code>.fuse</code>, <code>.signal</code>, and <code>.team</code>.</li>
                                         <li><code>self.log(message)</code>: Print a message to the command line.  You cannot use ordinary <code>print</code> in Battlehack for security reasons.</li>
                                         <li><code>self.signal(integer)</code>: Set your signal bits to a certain value 0 to 15 inclusive.</li>
-                                        <li><code>self.get_robot(id)</code>: Returns a robot dict with the given integer ID.  Returns null if such a robot is not in your vision.</li>
+                                        <li><code>self.get_robot(id)</code>: Returns a robot dict with the given integer ID.  Returns null if such a robot is not in your vision. This contains all the properties of <code>this.me()</code> except <code>.health</code>, assuming the gotten robot is not you.</li>
                                         <li><code>self.get_visible_robots()</code>: Returns a list of all robot dicts visible to you.</li>
                                         <li><code>self.get_visible_map()</code>: Returns a 7x7 2d int array of your robot's current vision, where a value of <code>bc.EMPTY</code> means there's nothing there, <code>bc.HOLE</code> means the square is impassable, and if the value is neither hole or empty, the ID of the robot occupying that space.</li>
                                         <li><code>self.get_relative_pos(dX,dY)</code>: A shortcut to get what's in the square <code>(dX,dY)</code> away.  Returns a robot dict if one is there, otherwise <code>bc.EMPTY</code> or <code>bc.HOLE</code>.</li>
@@ -105,10 +105,10 @@ public class MyRobot extends BCAbstractRobot {
                                     <hr /><h6>API Reference</h6><hr />
                                     <p>There are a number of useful methods you can use to explore and impact the world around you as a bot.  We'll detail them here.</p>
                                     <ul>
-                                        <li><code>Robot me()</code>: Returns a <code>Robot</code> object containing details about your bot, including <code>.health</code> and <code>.id</code>.</li>
+                                        <li><code>Robot me()</code>: Returns a <code>Robot</code> object containing details about your bot, including <code>.health</code>, <code>.id</code>, <code>.x</code>, <code>.y</code>, <code>.fuse</code>, <code>.signal</code>, and <code>.team</code>.</li>
                                         <li><code>void log(String message)</code>: Print a message to the command line.  You cannot use ordinary <code>console.log</code> in Battlehack for security reasons.</li>
                                         <li><code>void signal(int signal)</code>: Set your signal bits to a certain value 0 to 15 inclusive.</li>
-                                        <li><code>Robot getRobot(int id)</code>: Returns a <code>Robot</code> object with the given integer ID.  Returns null if such a robot is not in your vision.  Note that if the robot ID is not yours, the team and health will be censored.</li>
+                                        <li><code>Robot getRobot(int id)</code>: Returns a <code>Robot</code> object with the given integer ID.  Returns null if such a robot is not in your vision.  Note that if the robot ID is not yours, the health will be censored.</li>
                                         <li><code>ArrayList&lt;Robot&gt; getVisibleRobots()</code>: Returns a list of all robot objects visible to you.</li>
                                         <li><code>int[][] getVisibleMap()</code>: Returns a 7x7 2d int array of your robot's current vision, where a value of <code>bc.EMPTY</code> means there's nothing there, <code>bc.HOLE</code> means the square is impassable, and if the value is neither hole or empty, the ID of the robot occupying that space.</li>
                                         <li><code>int getRelativePos(int dX, int dY)</code>: A shortcut to get what's in the square <code>(dX,dY)</code> away.  Returns an integer that is either a robot id, <code>bc.EMPTY</code> or <code>bc.HOLE</code>.</li>
