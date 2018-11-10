@@ -416,6 +416,7 @@ Game.prototype._applyNexi = function() {
         if (opposed <= 0 || center === -1) continue;
         var opposing_robot = this.getItem(opposed);
         if (opposing_robot.team !== this_robot.team) continue;
+        if (opposing_robot.nexus < 0 || opposing_robot.nexus > 7) continue;
 
         // ensure opposing_robot.nexus points to center_coords
         var op_point = this._newPosCalc(opposing_robot.x, opposing_robot.y, opposing_robot.nexus);
@@ -423,8 +424,8 @@ Game.prototype._applyNexi = function() {
 
         // If center square is empty
         if (center === 0) {
-            this.createItem(center_coords[1], center_coords[0], this_robot.team).health = NEXUS_INCUBATOR_HP;
-            this.nexi.push([[y,x], opposed_coords]);
+            this.createItem(center_coords[0], center_coords[1], this_robot.team).health = NEXUS_INCUBATOR_HP;
+            this.nexi.push([[x,y], opposed_coords]);
             continue;
         }
 
@@ -433,7 +434,7 @@ Game.prototype._applyNexi = function() {
         // If center square is occupied by friend
         if (center_robot.team === this_robot.team) {
             if (center_robot.health < INITIAL_HP) center_robot.health++;
-            this.nexi.push([[y,x], opposed_coords]);
+            this.nexi.push([[x,y], opposed_coords]);
         }
     }
 }
