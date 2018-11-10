@@ -67,6 +67,7 @@ class Api {
         $.get(teamUrl, teamData => {
             const teamLimit = parseInt(teamData.count / PAGE_LIMIT, 10) + !!(teamData.count % PAGE_LIMIT);
             callback({
+                query,
                 teams: teamData.results,
                 teamLimit,
                 teamPage: page,
