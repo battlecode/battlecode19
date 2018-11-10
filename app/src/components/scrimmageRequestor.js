@@ -22,7 +22,9 @@ class ScrimmageRequestor extends Component {
             input: newInput,
             autocompleteOptions: [],
         });
-        Api.searchTeam(newInput, 1, this.onAutocompleteReturn);
+        if (newInput) {
+            Api.searchTeam(newInput, 1, this.onAutocompleteReturn)
+        };
     }
 
     onAutocompleteReturn = ({query, teams}) => {
