@@ -154,7 +154,7 @@ Game.prototype.createItem = function(x,y,team) {
     robot.time        = this.chess_initial; // time left in chess clock
     robot.start_time  = -1; // used for chess clock timing.
     robot.signal      = 0;
-    robot.counter     = 0; // used for the fuse action. if positive, fuse is in progress
+    robot.fuse        = 0; // used for the fuse action. if positive, fuse is in progress
     robot.nexus       = -1; // either -1, or a direction.
     this.init_queue++;
 
@@ -504,7 +504,7 @@ Game.prototype.enactTurn = function() {
         this.robotError(response, robot);
     }
 
-    if (robot.counter === 1) {
+    if (robot.fuse === 1) {
         // explode
         this.current_booms.push([robot.x,robot.y])
 
@@ -543,8 +543,8 @@ Game.prototype.enactTurn = function() {
 
         // delete this robot
         this._deleteRobot(robot);
-    } else if (robot.counter > 0) {
-        robot.counter--;
+    } else if (robot.fuse > 0) {
+        robot.fuse--;
     }
 }
 
@@ -605,7 +605,7 @@ Game.prototype.enactAction = function(robot, action, time) {
     valid = valid && 'action' in action && ['move','attack','fuse'].indexOf(action['action']) >= 0;
 
     // if the robot is currently in fuse, then we don't allow any action
-    if (robot.counter > 0) {
+    if (robot.fuse > 0) {
         if (valid) {
             return "Attempted to perform another action after a fuse action.";
         } else {
@@ -645,7 +645,7 @@ Game.prototype.enactAction = function(robot, action, time) {
     } else if (valid && action.action === 'fuse') {
         // set robot's fuse counter to something
 
-        robot.counter = INITIAL_FUSE_COUNTER+1;
+        robot.fuse = INITIAL_FUSE_COUNTER+1;
     }
             
 
