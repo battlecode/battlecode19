@@ -62,6 +62,7 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.AllowAny,)
     lookup_field = 'username'
     lookup_url_kwarg = 'username'
+    lookup_value_regex = '.*'
 
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
