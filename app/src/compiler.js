@@ -347,7 +347,7 @@ import java.util.ArrayList;
 public class FuseAction extends Action {
     String action;
     
-    public ActiveAction(int signal, ArrayList<String> logs, int nexus) {
+    public FuseAction(int signal, ArrayList<String> logs, int nexus) {
         super(signal, logs, nexus);
         this.action = "fuse";
     }
