@@ -431,8 +431,7 @@ Visualizer.prototype.renderRound = function() {
                         this.BLOCK_SIZE*(nexi[n][0][0]+0.5));
         this.ctx.lineTo(this.BLOCK_SIZE*(nexi[n][1][1]+0.5),
                         this.BLOCK_SIZE*(nexi[n][1][0]+0.5));
-        this.ctx.stroke();
-    }
+    } this.ctx.stroke();
 
     // Draw booms
     // INSERT CODE HERE

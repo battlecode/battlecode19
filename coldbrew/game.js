@@ -155,6 +155,7 @@ Game.prototype.createItem = function(x,y,team) {
     robot.start_time  = -1; // used for chess clock timing.
     robot.signal      = 0;
     robot.counter     = 0; // used for the fuse action. if positive, fuse is in progress
+    robot.nexus       = -1; // either -1, or a direction.
     this.init_queue++;
 
     if (this.shadow[robot.y][robot.x] === 0) this.shadow[robot.y][robot.x] = robot.id;
@@ -369,23 +370,23 @@ Game.prototype.getVisible = function(robot) {
  *
  * @return {number[]} - The new x,y coordinates, or null if off map/invalid.
  */
-Game.prototype._newPosCalc = function(x, y, dir) {
+Game.prototype._newPosCalc = function(x, y, dir, int) {
+    int = int || 1;
+
     var new_pos = [x, y];
-    if (dir === 0) new_pos[0] += 1;
-    else if (dir === 1) { new_pos[0] += 1; new_pos[1] -= 1; }
-    else if (dir === 2) new_pos[1] -= 1;
-    else if (dir === 3) { new_pos[1] -= 1; new_pos[0] -= 1; }
-    else if (dir === 4) new_pos[0] -= 1;
-    else if (dir === 5) { new_pos[1] += 1; new_pos[0] -= 1; }
-    else if (dir === 6) new_pos[1] += 1;
-    else if (dir === 7) { new_pos[0] += 1; new_pos[1] += 1; }
+    if (dir === 0) new_pos[0] += int;
+    else if (dir === 1) { new_pos[0] += int; new_pos[1] -= int; }
+    else if (dir === 2) new_pos[1] -= int;
+    else if (dir === 3) { new_pos[1] -= int; new_pos[0] -= int; }
+    else if (dir === 4) new_pos[0] -= int;
+    else if (dir === 5) { new_pos[1] += int; new_pos[0] -= int; }
+    else if (dir === 6) new_pos[1] += int;
+    else if (dir === 7) { new_pos[0] += int; new_pos[1] += int; }
     else return null;
 
     // wrap position
-    if (new_pos[0] < 0) new_pos[0] += this.shadow[0].length;
-    if (new_pos[0] >= this.shadow[0].length) new_pos[0] -= this.shadow[0].length;
-    if (new_pos[1] < 0) new_pos[1] += this.shadow.length;
-    if (new_pos[1] >= this.shadow.length) new_pos[1] -= this.shadow.length;
+    new_pos[0] = this._overflow_x(new_pos[0]);
+    new_pos[1] = this._overflow_y(new_pos[1]);
 
     return new_pos;
 }
@@ -397,46 +398,42 @@ Game.prototype._newPosCalc = function(x, y, dir) {
 Game.prototype._applyNexi = function() {
     this.nexi = [];
 
-    for (var r=0; r<this.shadow.length; r++) {
-        for (var c=0; c<this.shadow[0].length; c++) {
-            // Check if the square is occupied
-            var o = this.shadow[r][c];
-            if (o === -1 || o === 0) continue;
-            var this_robot = this.getItem(o);
+    for (var k=0; k<this.robots.length; k++) {
+        var this_robot = this.robots[k];
 
-            // List of (nexus_center, opposer)
-            var neighbors = [
-                [[this._overflow_y(r-1),  c],                   [this._overflow_y(r-2), c]],
-                [[this._overflow_y(r+1),this._overflow_x(c-1)], [this._overflow_y(r+2), this._overflow_x(c-2)]],
-                [[this._overflow_y(r-1),this._overflow_x(c-1)], [this._overflow_y(r-2), this._overflow_x(c-2)]],
-                [[r, this._overflow_x(c-1)],                    [r, this._overflow_x(c-2)]],
-            ];
+        if (this_robot.nexus < 0 || this_robot.nexus > 7) continue;
 
-            for (var i=0; i<neighbors.length; i++) {
-                var center_coords = neighbors[i][0];
-                var opposed_coords = neighbors[i][1];
-                var center = this.shadow[center_coords[0]][center_coords[1]];
-                var opposed = this.shadow[opposed_coords[0]][opposed_coords[1]];
+        var y = this_robot.y;
+        var x = this_robot.x;
 
-                if (opposed <= 0 || center === -1) continue;
-                var opposing_robot = this.getItem(opposed);
-                if (opposing_robot.team !== this_robot.team) continue;
+        // Get spot being nexused
+        var center_coords = this._newPosCalc(x,y,this_robot.nexus);
+        var opposed_coords = this._newPosCalc(x,y,this_robot.nexus,2);
 
-                // If center square is empty
-                if (center === 0) {
-                    this.createItem(center_coords[1], center_coords[0], this_robot.team).health = NEXUS_INCUBATOR_HP;
-                    this.nexi.push([[r,c], opposed_coords]);
-                    continue;
-                }
+        var center = this.shadow[center_coords[1]][center_coords[0]];
+        var opposed = this.shadow[opposed_coords[1]][opposed_coords[0]];
 
-                var center_robot = this.getItem(center);
+        if (opposed <= 0 || center === -1) continue;
+        var opposing_robot = this.getItem(opposed);
+        if (opposing_robot.team !== this_robot.team) continue;
 
-                // If center square is occupied by friend
-                if (center_robot.team === this_robot.team) {
-                    if (center_robot.health < INITIAL_HP) center_robot.health++;
-                    this.nexi.push([[r,c], opposed_coords]);
-                }
-            }
+        // ensure opposing_robot.nexus points to center_coords
+        var op_point = this._newPosCalc(opposing_robot.x, opposing_robot.y, opposing_robot.nexus);
+        if (op_point[0] != center_coords[0] || op_point[1] != center_coords[1]) continue;
+
+        // If center square is empty
+        if (center === 0) {
+            this.createItem(center_coords[1], center_coords[0], this_robot.team).health = NEXUS_INCUBATOR_HP;
+            this.nexi.push([[y,x], opposed_coords]);
+            continue;
+        }
+
+        var center_robot = this.getItem(center);
+
+        // If center square is occupied by friend
+        if (center_robot.team === this_robot.team) {
+            if (center_robot.health < INITIAL_HP) center_robot.health++;
+            this.nexi.push([[y,x], opposed_coords]);
         }
     }
 }
@@ -451,6 +448,7 @@ Game.prototype.getGameStateDump = function(robot) {
             delete r.initialized;
             delete r.hook;
             delete r.time;
+            delete r.nexus;
             delete r.start_time;
             if (robot.id !== r.id) {
                 delete r.health;
@@ -594,6 +592,12 @@ Game.prototype.enactAction = function(robot, action, time) {
         if (Number.isInteger(action.signal) && action.signal >= 0 && action.signal < Math.pow(2,COMMUNICATION_BITS)) {
             robot.signal = action.signal;
         } else return "Invalid signal message.";
+    }
+
+    if ('nexus' in action && action['nexus'] !== null) {
+        if (Number.isInteger(action.nexus)) {
+            robot.nexus = action.nexus;
+        } else return "Invalid nexus direction.";
     }
 
 

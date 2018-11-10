@@ -15,8 +15,8 @@ class Docs extends Component {
                                 <div className="content">
                                     <p>In the distant future, almost all nature and technology have been wiped out by global catastrophe.  All that remains are two opposing factions of <i>microbots</i>, <span className="text-danger">red</span> and <span className="text-info">blue</span>, who live on  a wraparound grid randomly scattered with holes and obstacles.  Microbots start with 64HP, and are given a randomly generated integer ID at creation.  The map starts with ~6-12 microbots per team, and is sized between 16x16 and 32x32.  Maps always have an even width and height, and are radially symmetric.</p>
                                     <p>In each turn a microbots can either move, attack a nearby microbot, or deploy a fuse to <bold>explode</bold> in 3 rounds.  Bots can also communicate using up to 4 bits of signalling.  Microbots have limited vision; they can only see within a surrounding 7x7 region, and cannot view the health of other microbots.</p>
-                                    <p>When a microbot explodes, nearby squares also receive damage.  INSERT DAMAGE SCEME HERE</p>
-                                    <p>Microbots can heal and reproduce through the joint formation of nexi.  If at the end of the round any 2 microbots of the same team have exactly one space between them, then a new microbot of that team will be created in the center square with 1HP.  If a microbot already exists in the spot, it’s health will be increased by 1HP.</p>
+                                    <p>When a microbot explodes, nearby squares also receive damage.  Bots up to 5 squares away (in manhattan distance) will receive 6 - their manhattan distance of damage.  For example, a bot next to the explosion will receive 5HP damage.</p>
+                                    <p>Microbots can heal and reproduce through the joint formation of nexi.  If at the end of the round any 2 microbots of the same team have exactly one space between them, and both aim their nexus creation at the same square, then a new microbot of that team will be created in the center square with 1HP.  If a microbot already exists in the spot, it’s health will be increased by 1HP.</p>
                                     <p>The game ends when either one team is totally annihilated, or 200 rounds have passed.  After 200 rounds, the team with greater total HP wins.  If both teams have equal HP after 200 rounds, the winner is determined by a coin flip.</p>
                                 </div>
                             </div>
@@ -49,6 +49,7 @@ class Docs extends Component {
                                         <li><code>this.move(direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>this.attack(direction)</code>: Returns an action to attack in a given direction.</li>
                                         <li><code>this.fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
+                                        <li><code>this.nexus(direction)</code>:  Point Nexus creation in a given direction.  Does not have to be returned, and can be performed in synchrony with another action.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -79,6 +80,7 @@ class Docs extends Component {
                                         <li><code>self.move(direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>self.attack(direction)</code>: Returns an action to attack in a given direction.</li>
                                         <li><code>self.fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
+                                        <li><code>self.nexus(direction)</code>:  Point Nexus creation in a given direction.  Does not have to be returned, and can be performed in synchrony with another action.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -114,6 +116,7 @@ public class MyRobot extends BCAbstractRobot {
                                         <li><code>Action move(int direction)</code>: Returns an action to move in a given direction.</li>
                                         <li><code>Action attack(int direction)</code>: Returns an action to attack in a given direction.</li>
                                         <li><code>Action fuse()</code>: Returns an action to explode in 3 rounds.  You cannot move or attack once you've lit your fuse.</li>
+                                        <li><code>void nexus(direction)</code>:  Point Nexus creation in a given direction.  Does not have to be returned, and can be performed in synchrony with another action.</li>
                                     </ul>
                                 </div>
                             </div>

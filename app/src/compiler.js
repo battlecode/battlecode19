@@ -31,6 +31,7 @@ class BCAbstractRobot:
         self._bc_game_state = None
         self._bc_signal = None
         self._bc_clear_logs = False
+        self._bc_nexus = -1;
 
         self._bc_logs = []
 
@@ -61,17 +62,22 @@ class BCAbstractRobot:
             'signal': self._bc_signal,
             'logs': self._bc_logs,
             'dir': dir,
+            'nexus': self._bc_nexus,
             'action': action
         }
 
     def _bc_null_action(self):
         return {
             'signal': self._bc_signal,
+            'nexus': self._bc_nexus,
             'logs': self._bc_logs
         }
 
     def signal(self, value):
         self._bc_signal = value
+
+    def nexus(self, direction):
+        self._bc_nexus = direction
 
     def get_robot(self, id):
         if id <= 0:
@@ -137,6 +143,7 @@ class BCAbstractRobot:
         return {
             'signal': self._bc_signal,
             'logs': self._bc_logs,
+            'nexus': self._bc_nexus,
             'action': 'fuse'
         }
 
@@ -228,9 +235,11 @@ public class BCAbstractRobot {
     private boolean clearLogs;
     private ArrayList<String> logs;
     private int id;
+    private int nexus;
 
     public BCAbstractRobot() {
         logs = new ArrayList<String>();
+        nexus = -1;
     }
 
     public Action _do_turn(GameState _gameState) {
@@ -238,7 +247,7 @@ public class BCAbstractRobot {
         id = me().id;
 
         Action t = turn();
-        if (t == null) t = new Action(signal, logs);
+        if (t == null) t = new Action(signal, logs, nexus);
         clearLogs = true;
 
         return t;
@@ -284,6 +293,10 @@ public class BCAbstractRobot {
         return getRobot(getVisibleMap()[3][3]);
     }
 
+    public void nexus(int direction) {
+        nexus = direction;
+    }
+
     public void log(String message) {
         if (clearLogs) {
             logs.clear();
@@ -294,15 +307,15 @@ public class BCAbstractRobot {
     }
 
     public Action move(int direction) {
-        return new ActiveAction("move",direction,signal,logs);
+        return new ActiveAction("move",direction,signal,logs,nexus);
     }
 
     public Action attack(int direction) {
-        return new ActiveAction("attack",direction,signal,logs);
+        return new ActiveAction("attack",direction,signal,logs,nexus);
     }
 
     public Action fuse() {
-        return new FuseAction(signal,logs);
+        return new FuseAction(signal,logs,nexus);
     }
     
     public Action turn() {
@@ -319,8 +332,8 @@ public class ActiveAction extends Action {
     String action;
     int dir;
     
-    public ActiveAction(String type, int direction, int signal, ArrayList<String> logs) {
-        super(signal, logs);
+    public ActiveAction(String type, int direction, int signal, ArrayList<String> logs, int nexus) {
+        super(signal, logs, nexus);
         this.dir = direction;
         this.action = type;
     }
@@ -334,8 +347,8 @@ import java.util.ArrayList;
 public class FuseAction extends Action {
     String action;
     
-    public ActiveAction(int signal, ArrayList<String> logs) {
-        super(signal, logs);
+    public ActiveAction(int signal, ArrayList<String> logs, int nexus) {
+        super(signal, logs, nexus);
         this.action = "fuse";
     }
 }
@@ -348,10 +361,12 @@ import java.util.ArrayList;
 public class Action {
     int signal;
     ArrayList<String> logs;
+    int nexus;
     
-    public Action(int signal, ArrayList<String> logs) {
+    public Action(int signal, ArrayList<String> logs, int nexus) {
         this.signal = signal;
         this.logs = logs;
+        this.nexus = nexus;
     }
 }`
 
@@ -410,6 +425,7 @@ class BCAbstractRobot {
         // Internal robot state representation
         this._bc_game_state = null;
         this._bc_signal = null;
+        this._bc_nexus = -1;
 
         this._bc_in_browser = (typeof _bc_browser_log !== 'undefined');
         this._bc_logs = [];
@@ -436,6 +452,7 @@ class BCAbstractRobot {
         return {
             'signal': this._bc_signal,
             'logs': this._bc_logs,
+            'nexus': this._bc_nexus,
             'dir': dir,
             'action': action
         };
@@ -445,13 +462,19 @@ class BCAbstractRobot {
     _bc_null_action() {
         return {
             'signal': this._bc_signal,
-            'logs': this._bc_logs
+            'logs': this._bc_logs,
+            'nexus': this._bc_nexus
         };
     }
     
     // Set signal value.
     signal(value) {
         this._bc_signal = value;
+    }
+
+    // Set nexus direction.
+    nexus(direction) {
+        this._bc_nexus = direction;
     }
 
     // Get robot of a given ID
@@ -528,6 +551,7 @@ class BCAbstractRobot {
         return {
             'signal': this._bc_signal,
             'logs': this._bc_logs,
+            'nexus': this._bc_nexus,
             'action': 'fuse'
         };
     }
