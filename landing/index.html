@@ -15,6 +15,10 @@ body {
     overflow-x: hidden;
 }
 
+.mainbody {
+    margin-top: 480px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -31,7 +35,6 @@ hr {
     border: none;
     border-top: 1px solid #d84315;
     text-align: center;
-    font-weight: 200;
     color:#d84315;
 }
 
@@ -55,7 +58,6 @@ section {
 }
 
 section h2 {
-    font-weight:300;
     font-size:2em;
     margin-bottom:0.75em;
 }
@@ -66,7 +68,6 @@ section h2 .highlight {
 }
 
 section p {
-    font-weight:300;
     font-size:1.3em;
     padding-right:10px;
     text-align: justify;
@@ -94,7 +95,6 @@ section p .red {
     padding: 0.4em 1em;
     border: 1px solid #fff;
 
-    font-weight: 300;
     border-radius: 3px;
 }
 
@@ -126,7 +126,7 @@ section p .red {
     -webkit-transform: skew(-10deg);
     -moz-transform: skew(-10deg);
     -o-transform: skew(-10deg);
-    width:400px;
+    width:550px;
     padding:0.25em;
     margin-bottom:80px;
 
@@ -144,8 +144,8 @@ section p .red {
     padding:15px 30px;
     border-radius: 3px;
     text-align: center;
-    font-weight:700;
     font-size: 30px;
+    font-weight: bold;
 
     box-shadow: 0px 0px 8px #000;
     -webkit-transition: box-shadow 0.1s;
@@ -163,27 +163,26 @@ section p .red {
 
 /************** SEC ONE ***************/
 
-.sec-one {
-    margin-top:490px;
-}
 
 .sec-one .left {
     flex-grow: 1;
+    margin-right: 40px;
 }
 
 .sec-one .right {
     width:500px;
     height:100%;
+    font-weight: bold;
 }
 
 .sec-one .right .rect {
     width:200px;
     height:75px;
     margin: 0 auto;
-    font-weight:300;
     font-size:1.3em;
-
-    margin-top:60px;
+}
+.sec-one .right .rect.blob.blob2 {
+    margin-top: 40px;
 }
 
 .sec-one .right .rect.blob {
@@ -195,11 +194,8 @@ section p .red {
     font-size:1.5em;
     text-align: center;
     font-size:1.5em;
-
-
-
-    margin-top:60px;
 }
+
 
 
 .sec-one .right .date {
@@ -246,6 +242,21 @@ section p .red {
     margin-top:2em;
 }
 
+.video-container {
+    width: 76%;
+    margin-left: 12%;
+    position: relative;
+    height: 0;
+    padding-bottom: 42.75%;
+}
+.video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
 .sec-three .left {
     width:300px;
 }
@@ -279,7 +290,6 @@ section p .red {
     width:100%;
     vertical-align: center;
 
-    font-weight:500;
     font-style: italic;
     color:#fff;
     font-size:30px;
@@ -294,7 +304,6 @@ section p .red {
     padding:10px;
     line-height: 24px;
     font-size: 15px;
-    font-weight: 300;
     font-color:#333;
 }
 
@@ -326,7 +335,6 @@ section p .red {
     line-height: 25px;
 
     color:rgb(214,68,35);
-    font-weight:300;
     font-size:14px;
 }
 
@@ -360,7 +368,6 @@ section p .red {
     margin-bottom:10px;
     background-color:rgb(214,68,35);
     color:#fefefe;
-    font-weight:300;
     font-size:15px;
 
     cursor:pointer;
@@ -406,7 +413,7 @@ section p .red {
 }
 
 .sec-five .item h3.down {
-    margin-top:23px;
+    margin-top:-70px;
     text-align:center;
 }
 
@@ -425,7 +432,6 @@ section p .red {
 
     background-color:#fefefe;
     color:rgb(214,68,35);
-    font-weight:300;
 }
 
 .sec-five .item.lefta .leaf {
@@ -445,27 +451,33 @@ section p .red {
 }
 
 .sec-five .item.one .branch {
-    margin-top:100px;
+    margin-top:85px;
 }
 
 .sec-five .item.two .branch {
-    margin-top:150px;
+    margin-top:180px;
 }
 
 .sec-five .item.three .branch {
-    margin-top:210px;
+    margin-top:215px;
 }
 
 .sec-five .item.four .branch {
-    margin-top:270px;
+    margin-top:275px;
 }
 
 .sec-five .item.five .branch {
-    margin-top:350px;
+    margin-top:300px;
 }
 
 .sec-five .item.six .branch {
-    margin-top:370px;
+    margin-top:350px;
+}
+.sec-five .item.seven .branch {
+    margin-top:420px;
+}
+.sec-five .item.eight .branch {
+    margin-top:440px;
 }
 
 .sec-five .item.one .leaf {
@@ -481,15 +493,21 @@ section p .red {
 }
 
 .sec-five .item.four .leaf {
-    margin-top:220px;
+    margin-top:255px;
 }
 
 .sec-five .item.five .leaf {
-    margin-top:330px;
+    margin-top:270px;
 }
 
 .sec-five .item.six .leaf {
     margin-top:330px;
+}
+.sec-five .item.seven .leaf {
+    margin-top:380px;
+}
+.sec-five .item.eight .leaf {
+    margin-top:400px;
 }
 
 .sec-five .right {
@@ -505,8 +523,6 @@ section p .red {
 
 .sec-five .right h2 {
     font-size: 3em;
-    font-weight:700;
-    font-style: italic;
 }
 
 /************** SEC SIX *****************/
@@ -527,12 +543,10 @@ section p .red {
 
 .sec-six .left .header h2 {
     font-size: 3em;
-    font-weight:700;
     font-style: italic;
 }
 
 .sec-six .left h4 {
-    font-weight:300;
     font-size:1.2em;
 }
 
@@ -610,7 +624,6 @@ footer .content .right .col {
 }
 
 footer .content .right .col h3 {
-    font-weight:400;
     font-size:1.3em;
     margin-left:-15px;
     margin-bottom:5px;
@@ -618,7 +631,6 @@ footer .content .right .col h3 {
 
 footer .content .right .col a {
     font-size:0.9em;
-    font-weight:300;
     font-style: italic;
     line-height:1.6em;
     color:#fefefe;
@@ -911,56 +923,47 @@ footer .content .left img {
 
 <div class="hero">
     <div class="bg-image"></div>
-    <h1>battlehack</h1>
+    <h1>BATTLECODE</h1>
     <div class="holder">
-        <a href="#" class="register">Register Today!</a>
+        <a href="/register" class="register">Register Today!</a>
     </div>
 </div>
 
+<div class='mainbody'>
+    <section>
+<h2 style='text-transform: uppercase;'>Program <span class="highlight">virtual robots</span> to victory</h2>
+    </section>
+
 <section class="sec-one">
-    <div class="left">
-        <h2>program <span class="highlight">virtual robots</span> to victory</h2>
-        <p>Battlehack is a 24 hour programming competition unlike any other, where participants write code that controls an army of virtual robots.  Hack, code, and strategize your way to prizes and eternal glory in the heart of Silicon Valley.</p>
-        <p style="margin-top:0.5em">All students currently enrolled in a university program are welcome, regardless of programming or AI experience.  Battlehack is a learning experience as well as a competitive one, and a great way buff your skills.</p>
-        
-    </div>
-    <div class="right">
-        <div class="rect blob">
-            <div class="date">August 25-26<br />Noon to Noon</div>
-            <div class="circle"></div>
+        <div class="left">
+            <p>MIT Battlecode is a month-long challenge that combines battle strategy, software engineering and artificial intelligence. Form a team of one to four, and compete for a chance at $40,000 in prizes!</p>
+            <p style="margin-top:1em">Anyone can participate, from beginners to experts, and enrollment at MIT is not necessary. Battlecode is a learning experience as well as a competitive one, and a great way buff your skills.</p>
+
         </div>
-        <div class="rect">
-            Jabil Blue Sky Center<br />
-            6375 San Ignacio Ave<br />
-            San Jose, CA 95119
+        <div class="right">
+            <div class="rect blob">
+                <div class="date">January<br />2019</div>
+                <div class="circle"></div>
+            </div>
+            <div class="rect blob blob2">
+                <div class="date">$40,000+<br />in prizes</div>
+                <div class="circle"></div>
+            </div>
         </div>
-    </div>
 </section>
 
 <hr>
 
-<section class="sec-two" id="play">
-    <div class="right">
-        <h2>write bots in <span class="highlight">any language</span> to gain territory and defeat the enemy.</h2>
-        <p>Battlehack is a real-time strategy game played by code instead of people.  Teams of virtual robots roam the screen, managing resources and executing different strategies.  The game will be announced at the start of the hackathon.</p>
-    </div>
-    <div class="left">
-        <img src=https://storage.googleapis.com/battlehack/example2.png" />
+<section style='margin-bottom: 10px; margin-top: -10px;'>
+    <h2 style='text-transform: uppercase;'>what is battlecode?</h2>
+</section>
+<section >
+
+    <div class='video-container'>
+<iframe  class='video' src="https://www.youtube.com/embed/x3a5dXaj-XA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
 </section>
-
-<section class="sec-three">
-    <div class="left">
-        <p>Team up in groups of 1-4, and work together to program your bot.  We'll give you all the food and swag you need, and a place to crash when you need a break.  At the end of the hackathon, your code will be run in a tournament with all teams, and a winner will be declared.</p>
-    </div>
-    <div class="right">
-        <iframe width="600" height="250" id="gmap_canvas" src="https://maps.google.com/maps?q=jabil%20blue%20sky%20innovation%20center&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
-    </div>
-</section>
-
-<hr />
-
-<section class="sec-four">
+<section class="sec-four" id="play" style='margin-top: 40px;'>
     <div class="left">
         <div id="code-editor"></div>
         <div id="lang-select">
@@ -968,89 +971,134 @@ footer .content .left img {
             <div class="option js">Javascript</div>
             <div class="option java">Java</div>
         </div>
-
     </div>
-    <div class="right">
-        <h2 style="margin-bottom:-20px;">FAQ</h2>
-        <div style="padding:50px;font-size:0.8em">
-            <p><b>Battlewhat?  What is this?</b></p>
-            <p>Battlehack is a 24 hour hackathon run by the people behind <a href="https://battlecode.org">Battlecode</a>, a 17 year old MIT AI programming competition.</p>
-            <br />
-            <p><b>What's a hackathon?</b></p>
-            <p>A hackathon is a fancy name for a competition, usually overnight, where a bunch of programmers work in teams writing code.  Battlehack is special because instead of deciding their own projects, everybody works towards the same goal: writing bots for the Battlehack game.</p>
-            <br />
-            <p><b>Can I participate?</b></p>
-            <p>If you're a university student over 18, yes!  Otherwise, unfortunately no.</p>
-            <br />
-            <p><b>How do I apply?</b></p>
-            <p>Click <a href="/register">here</a>!  We'll let you know when decisions come out.</p>
-        </div>
+    <div class="right" style="padding-left:50px;font-size:0.9em">
+        <p>Battlecode is a real-time strategy game played by code instead of people. Two teams of virtual robots roam the screen managing resources and executing different offensive strategies against each other. Your AI player will need to strategically manage your robot army and control how your robots work together to defeat the enemy team. </p>
+        <p style='margin-top:1em'>Teams are given the Battlecode software and a specification of the game rules in early January. Throughout the month, you will refine your player, and compete in scrimmages and tournaments against other teams. During these tournaments, the autonomous players are pitted against each other in a dramatic head-to-head fashion. At the end of the month, the Final Tournament is played out in front of a live audience in MIT's Kresge Auditorium, with the top teams receiving cash prizes. The total prize pool is over $40,000.</p>
     </div>
 </section>
+
+
+
 
 <section class="sec-five">
     <div class="left">
         <div class="trunk"></div>
-        <div class="item one lefta">
-            <div class="branch"><h3 class="up">2001</h3></div>
-            <div class="leaf">battlecode is started as an mit chess programming competition in Java.</div>
+        <div class="item one righta">
+            <div class="branch"><h3 class="up">Jan 7</h3></div>
+            <div class="leaf"><b>Battlecode 2019 game released</b>, at 7 pm EST!</div>
         </div>
-        <div class="item two righta">
-            <div class="branch"><h3 class="up">2004</h3></div>
-            <div class="leaf">battlecode switches to its current format, with multi-robot armies.</div>
+        <div class="item two lefta">
+            <div class="branch"><h3 class="down">Jan 7 <br>to <br>Jan 18</h3></div>
+            <div class="leaf">Lectures held at MIT, at 7 pm every weekday in room 32-123. Free food will be provided. Lectures will be streamed online!</div>
         </div>
-        <div class="item three lefta">
-            <div class="branch"><h3 class="down">2008</h3></div>
-            <div class="leaf">an open tournament allows non-mit students to compete for the first time.</div>
+        <div class="item three righta">
+            <div class="branch"><h3 class="up">Jan 18</h3></div>
+            <div class="leaf">Sprint tournament.</div>
         </div>
-        <div class="item four righta">
-            <div class="branch"><h3 class="up">2012</h3></div>
-            <div class="leaf">main competition becomes open to all. international and high-school interest grows.</div>
+        <div class="item four lefta">
+            <div class="branch"><h3 class="up">Jan 24</h3></div>
+            <div class="leaf">Seeding tournament.</div>
         </div>
-        <div class="item five lefta">
-            <div class="branch"><h3 class="up">2017</h3></div>
-            <div class="leaf">first battlecode hackathon, "battlehack," is run at mit.</div>
+        <div class="item five righta">
+            <div class="branch"><h3 class="up">Jan 27</h3></div>
+            <div class="leaf">International qualifying tournament.</div>
         </div>
-        <div class="item six righta">
-            <div class="branch"><h3 class="up">2018</h3></div>
-            <div class="leaf">support added for python and other languages.</div>
+        <div class="item six lefta">
+            <div class="branch"><h3 class="up">Jan 29</h3></div>
+            <div class="leaf">US qualifying tournament.</div>
+        </div>
+        <div class="item seven righta">
+            <div class="branch"><h3 class="up">Feb 2</h3></div>
+            <div class="leaf"><b>Final tournament!</b> Live-streamed from Kresge Auditorium.</div>
         </div>
     </div>
     <div class="right">
-        <h3>our</h3>
-        <h2>history</h2>
+        <h2>SCHEDULE</h2>
     </div>
 </section>
+
+
+<section style='margin-top: 50px;'>
+  <h2 style="margin-bottom:-20px;">FAQ</h2>
+</section>
+<section style='margin-top: 50px;'>
+
+        <div style="font-size:0.8em">
+            <p><b>What languages are supported?</b></p>
+            <p>You will be able to write your bot in Python, Javascript or Java.
+            </p>
+            <br />
+            <p><b>So Battlecode is a game AI competition? But what's the game?</b></p>
+            <p>
+            We can't tell you yet, and we won't reveal this year's game until Battlecode 2019 kicks off on January 7th. The game changes every year, and part of the fun of Battlecode is in not knowing what you're gonna get :). However, we can tell you that the game tends to be a real-time or turn-based strategy game, and robots need to demonstrate a mastery of both broad resource management (macro), and organized, efficient combat tactics (micro).
+            </p>
+            <br />
+            <p><b>Can I participate?</b></p>
+            <p>Yes, anyone can participate! However, to be eligible for the tournaments, a team must consist of entirely active students.
+              Read more about eligibility requirements <a href="https://old.battlecode.org/#/tournaments">here</a>.</p>
+            <br />
+            <p><b>How do I register?</b></p>
+            <p>Click <a href="/register">here</a>!  We'll send more information as January 7 approaches.</p>
+
+            <br />
+            <p><b>Do I have to be good at programming?</b></p>
+<p>Experience definitely helps, but everyone has to start somewhere.
+  A background in algorithms is not necessary.
+  We'll be available throughout January to help you out as needed, and will for the first two weeks be holding daily lectures covering topics in game AI, such as pathfinding, resource management, and combat tactics (micro).
+  These lectures will be streamed and uploaded online, so fear not if you are participating remotely!
+  If you have little or no experience in programming, then we encourage you to consider Battlecode as a fun, engaging project through which you will pick up the skills you need to write programs!
+</p>
+<br />
+<p><b>What is the tournament format?</b></p>
+<p>Concrete details are still to come, but we will be holding several tournaments throughout the month of January. The penultimate tournament will determine the finalists who will compete at MIT in the Final Tournament. In parallel to this series of tournaments (the "main" event), we will also be holding a Newbie Tournament open to MIT students who have not previously competed in Battlecode, as well as a High School Tournmanet open to US high school students.
+</p>
+<br />
+<p><b>What are scrimmages?</b></p>
+<p>A scrimmage is a friendly game between two teams, and you can watch and analyze the games afterwards. This allows a team to test their strategies against other teams. Scrimmaging will be available as soon as Battlecode begins.
+</p>
+<br />
+<p><b>Do I need to be physically at MIT to participate?</b></p>
+<p>This is not necessary! In fact, you do not even need to be an MIT student!
+</p>
+<br />
+<p><b>I'm an MIT student. How do I get course credit for Battlecode?</b></p>
+<p>Battlecode is an official 6-unit MIT course, with the course number 6.147. In addition to registering on this site, you must also register through MIT's system. At that point, in order to get credit, you must create a player that is able to beat a reference player that we will release later in the tournament.
+</p>
+<br />
+<p><b>Help! I have more questions.</b></p>
+<p>Feel free to email us at <a href="mailto:battlecode@mit.edu">battlecode@mit.edu</a>!</p>
+        </div>
+</section>
+
+<hr />
 
 <section class="sec-six" id="sponsor">
     <div class="left">
-        <div class="header">
-            <h3>our</h3>
-            <h2>sponsors</h2>
-        </div>
-        <h4>Battlecode and Battlehack are made possible by the companies that support it.  We're especially grateful to Jabil for providing use of their Blue Sky Center.  To learn more about sponsorship, email <a href="mailto:Battlecode Sponsorship <battlecode-sponsorship@mit.edu>">battlecode-sponsorship@mit.edu</a>.</h4>
+            <h2>SPONSORS</h2>
+        <h4>Battlecode is made possible by the companies that support it.
+          To learn more about sponsorship, email <a href="mailto:Battlecode Sponsorship <battlecode-sponsorship@mit.edu>">battlecode-sponsorship@mit.edu</a>.</h4>
     </div>
     <div class="right">
-        <img src=https://storage.googleapis.com/battlehack/jabil.jpg" height="40px" style="margin-top:20px">
-        <img src=https://storage.googleapis.com/battlehack/coatue.png" height="40px"><br />
-        <img src=https://storage.googleapis.com/battlehack/deshaw.jpg" class="gold"><br />
-        <img src=https://storage.googleapis.com/battlehack/cruise.png" class="silver"><img src=https://storage.googleapis.com/battlehack/facebook.jpg" class="silver"><img src=https://storage.googleapis.com/battlehack/hrt.jpg" class="silver"><img src=https://storage.googleapis.com/battlehack/twosigma.png" class="silver"><img src=https://storage.googleapis.com/battlehack/yext.jpg" class="silver"><br />
-        <img src=https://storage.googleapis.com/battlehack/isee.png" class="bronze"><img src=https://storage.googleapis.com/battlehack/oracle.png" class="bronze">
+        <img src="https://storage.googleapis.com/battlehack/deshaw.jpg" class="gold"><br />
+        <img src="https://storage.googleapis.com/battlehack/facebook.jpg" class="silver"><img src="https://storage.googleapis.com/battlehack/hrt.jpg" class="silver"><br />
+        <img src="https://storage.googleapis.com/battlehack/oracle.png" class="silver">
     </div>
 
 </section>
+
+</div>
 
 <footer>
     <div class="content">
         <div class="left">
-            <img src=https://storage.googleapis.com/battlehack/bclogo.png">
+            <img src="https://storage.googleapis.com/battlehack/bclogo.png">
         </div>
         <div class="line"></div>
         <div class="right">
             <div class="col">
-                <h3>programs</h3>
-                <a href="https://battlecode.org">battlecode</a><br />
-                <a href="https://hack.battlecode.org">battlehack</a>
+                <h3>archive</h3>
+                <a href="https://old.battlecode.org">2018 website</a><br />
             </div>
             <div class="col">
                 <h3>about</h3>
@@ -1068,7 +1116,7 @@ footer .content .left img {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.1/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
-    
+
 var editor = ace.edit("code-editor");
 editor.setTheme("ace/theme/monokai");
 editor.session.setMode("ace/mode/python");
