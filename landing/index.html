@@ -6,6 +6,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.10/angular-material.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         body {
             font-family: "Roboto", sans-serif;
@@ -15,12 +16,12 @@
             height: 100%;
             width: 20%;
             position: fixed;
-            z-index: 1;
             top: 0;
             left: 0;
             background-color: #FF5722;
             overflow-x: hidden;
             padding-top: 20px;
+            z-index: 3;
         }
 
         .sidenav a, .dropdown-btn {
@@ -68,7 +69,7 @@
         }
 
         .main {
-            margin: 100px 120px 40px 30%;
+            margin: 50px 120px 40px 30%;
             font-size: 30px;
         }
 
@@ -96,11 +97,18 @@
 
         .video {
             text-align: center;
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
         }
 
-        iframe {
-            height: 300px;
-            width: 500px;
+        .video iframe {
+            position: absolute;
+            top:10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
         }
 
         .list {
@@ -139,10 +147,111 @@
             max-width: 180px;
         }
 
+        #hamburger, #close {
+            display: none;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            color: white;
+            padding-left: 8px;
+            padding-top: 8px;
+        }
+
+        .fa-bars, .fa-times{
+            font-size: 1.5em;
+        }
+
+        /************** HERO ***************/
+        .hero {
+            justify-content: center;
+            height:60%;
+            color: #fff;
+            text-align: center;
+            overflow: hidden;
+            background-image:url(https://storage.googleapis.com/battlehack/example.png);
+            position: relative;
+            top: 0;
+            left: 0;
+            background-size: cover;
+            border-bottom: 8px solid #FF5722;
+            z-index: 2;
+            margin-left: 20%;
+        }
+        .hero h1 {
+            font-size: 4.8vw;
+            margin: 60px auto;
+            -webkit-transform: skew(-10deg);
+            -moz-transform: skew(-10deg);
+            -o-transform: skew(-10deg);
+            width: 50%;
+            padding: 0.25em;
+            box-shadow: 1px 1px 10px #000;
+            background-color: #d84315;
+        }
+        .hero .holder {
+            font-size: 3vw;
+            width:40%;
+            margin: 0 auto;
+        }
+        .hero .holder .register {
+            padding:15px 30px;
+            border-radius: 3px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0px 0px 8px #000;
+            -webkit-transition: box-shadow 0.1s;
+            text-decoration: none;
+            background-color: #2b39f3;
+            color:#fff;
+
+            font-size: 3vw;
+            width:40%;
+            margin: 0 auto;
+        }
+        .hero .holder .register:hover {
+            box-shadow: 0px 0px 5px #000;
+            color:#eee;
+            background-color: #2937e6;
+        }
+
+
+
+        @media only screen and (max-width: 600px) {
+            .sidenav {
+                display: none;
+            }
+
+            #hamburger{
+                position: absolute;
+                display: block;
+            }
+
+            #close {
+                position: absolute;
+                display: none;
+            }
+
+            .hero {
+                margin-left: 0px;
+            }
+
+            .main {
+                margin: 50px 20px 40px 10%;
+                font-size: 30px;
+            }
+        }
+
     </style>
 </head>
 <body>
 
+<div class="hero">
+    <div class="bg-image"></div>
+    <h1>Welcome to <br> BATTLECODE</h1>
+    <div class="holder">
+        <a href="/register" class="register">Register Today!</a>
+    </div>
+</div>
 <div class="sidenav">
     <a href="#battlecode-home"><img id="nav-logo" src="battlecode.png"></a>
     <br><br>
@@ -183,8 +292,13 @@
     </div>
 </div>
 
-<div class="main">
-    <a id="battlecode-home"><h3>Welcome to Battlecode!</h3></a>
+<a href="javascript:void(0);" class="icon" id="hamburger" onclick="toggleSidenav()">
+    <i class="fa fa-bars"></i>
+</a>
+<a href="javascript:void(0);" class="icon" id="close" onclick="toggleSidenav()">
+    <i class="fa fa-close"></i>
+</a>
+<div class="main" id="battlecode-home">
     <p>
         Welcome to Battlecode, MIT's premier programming competition! Battlecode is a unique challenge that
         combines battle strategy, software engineering and artificial intelligence. Form a team of one to four,
@@ -219,11 +333,9 @@
         <br><br>
         Still not convinced? Check out the video below for a quick overview of Battlecode!
     </p>
-    <br>
     <div class="video">
         <iframe src="https://www.youtube.com/embed/x3a5dXaj-XA" frameborder="0" allowfullscreen></iframe>
     </div>
-
     <md-divider class="ng-scope"></md-divider>
     <h3>Battlecode in the Media</h3>
     <p>
@@ -237,7 +349,7 @@
     <a class="page-link list" href="http://www.anatid.net/2016/02/battlecode-2016-post-mortem-future.html">2016 Postmortem by "future perfect" (1st)</a>
     <br>
     <a class="page-link list" href="http://blog.stevearc.com/2011/12/17/battlecode-postmortem.html">2011 Postmortem by "gunface" (1st)</a>
-    <br>
+    <br><br>
     <md-divider class="ng-scope"></md-divider>
     <h3>Contact Us</h3>
     <p>
@@ -452,7 +564,6 @@
     <div class="video">
         <iframe src="https://www.youtube.com/embed/C6mKtIEjY5I" frameborder="0" allowfullscreen></iframe>
     </div>
-
     <md-divider class="ng-scope"></md-divider>
     <md-divider class="ng-scope"></md-divider>
     <a id="tournaments-overview"><h3>Tournament Overview</h3></a>
@@ -646,7 +757,7 @@
         <iframe src="https://www.youtube.com/embed/6jSaNKkPdhc" frameborder="0" allowfullscreen></iframe>
     </div>
 
-
+    <br>
     <md-divider class="ng-scope"></md-divider>
     <md-divider class="ng-scope"></md-divider>
     <a id="tournaments-results"><h3>Battlecode Hall of Fame</h3></a>
@@ -868,7 +979,7 @@
             <td>Skye Thompson, Cel Skeggs, Joseph Jerkins, Alexander Lam</td>
         </tr>
     </table>
-
+    <br>
     <md-divider class="ng-scope"></md-divider>
     <md-divider class="ng-scope"></md-divider>
     <a id="sponsors-sponsors"><h3>Sponsors</h3></a>
@@ -1041,25 +1152,45 @@
             icon.classList.add("fa-caret-up");
             if (dropdownContent.style.display === "block") {
                 dropdownContent.style.display = "none";
+                this.childNodes[1].classList.add("fa-caret-down");
+                this.childNodes[1].classList.remove("fa-caret-up");
             } else {
                 dropdownContent.style.display = "block";
-                closeDropdowns(dropdown, this);
+                openDropdowns(dropdown, this);
             }
         });
     }
 
-    function closeDropdowns(dropdown, target) {
+    function openDropdowns(dropdown, target) {
         for (var i = 0; i < dropdown.length; i++) {
             var current = dropdown[i];
             if (current !== target) {
                 current.nextElementSibling.style.display = "none";
                 if (current.classList.contains("active")) {
                     current.classList.remove("active");
-                    console.log(current.childNodes);
                     current.childNodes[1].classList.add("fa-caret-down");
                     current.childNodes[1].classList.remove("fa-caret-up");
                 }
             }
+        }
+    }
+
+    function toggleSidenav() {
+        var bar = document.getElementsByClassName("sidenav")[0];
+        var hamburger = document.getElementById("hamburger");
+        var close = document.getElementById("close");
+        if (bar.style.display === "block") {
+            bar.style.display = "none";
+            document.getElementsByClassName("main")[0].style.marginLeft = "10%";
+            document.getElementsByClassName("hero")[0].style.marginLeft = "0%";
+            hamburger.style.display = "block";
+            close.style.display = "none";
+        } else {
+            bar.style.display = "block";
+            document.getElementsByClassName("main")[0].style.marginLeft = "30%";
+            document.getElementsByClassName("hero")[0].style.marginLeft = "20%";
+            hamburger.style.display = "none";
+            close.style.display = "block";
         }
     }
 </script>
