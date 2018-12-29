@@ -1,909 +1,246 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Battlehack West</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,500,500italic,700&" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Battlecode</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.10/angular-material.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
-
-body {
-    font-family: Roboto;
-    background-color: #fefefe;
-    overflow-x: hidden;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-}
-
-a {
-    color: #d84315;
-}
-
-hr {
-    margin-top:4em;
-    margin-bottom:1em;
-    padding: 0;
-    border: none;
-    border-top: 1px solid #d84315;
-    text-align: center;
-    font-weight: 200;
-    color:#d84315;
-}
-
-hr:after {
-    content: "o";
-    display: inline-block;
-    position: relative;
-    top: -0.7em;
-    font-size: 1.5em;
-    padding: 0 0.25em;
-    background: inherit;
-    background-color: #fefefe;
-}
-
-section {
-    display:flex;
-    align-items: center;
-    width:800px;
-    margin: 0 auto;
-    color:#000;
-}
-
-section h2 {
-    font-weight:300;
-    font-size:2em;
-    margin-bottom:0.75em;
-}
-
-section h2 .highlight {
-    color: #d84315;
-    font-style: italic;
-}
-
-section p {
-    font-weight:300;
-    font-size:1.3em;
-    padding-right:10px;
-    text-align: justify;
-}
-
-section p .blue {
-    color:#2B39F3;
-}
-
-section p .red {
-    color:#FF2525;
-}
-
-.box button {
-    background: none;
-    color: inherit;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    outline: inherit;
-
-    display: inline;
-    float:right;
-    margin:1em 2.5em 0.5em 0em;
-    padding: 0.4em 1em;
-    border: 1px solid #fff;
-
-    font-weight: 300;
-    border-radius: 3px;
-}
-
-/************** HERO ***************/
-
-.hero {
-    justify-content: center;
-    height:450px;
-    color: #fff;
-    text-align: center;
-    overflow:none;
-
-    background-image:url(https://storage.googleapis.com/battlehack/example.png);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-size: cover;
-    z-index:-1;
-    border-bottom: 8px solid #d84315;
-    z-index: 2;
-}
-
-.hero h1 {
-    font-size:5em;
-
-    margin:100px auto;
-
-    -webkit-transform: skew(-10deg);
-    -moz-transform: skew(-10deg);
-    -o-transform: skew(-10deg);
-    width:400px;
-    padding:0.25em;
-    margin-bottom:80px;
-
-    box-shadow: 1px 1px 10px #000;
-
-    background-color: #d84315;
-}
-
-.hero .holder {
-    width:300px;
-    margin: 0 auto;
-}
-
-.hero .holder .register {
-    padding:15px 30px;
-    border-radius: 3px;
-    text-align: center;
-    font-weight:700;
-    font-size: 30px;
-
-    box-shadow: 0px 0px 8px #000;
-    -webkit-transition: box-shadow 0.1s;
-    text-decoration: none;
-    background-color: #2b39f3;
-    color:#fff;
-}
-
-.hero .holder .register:hover {
-    box-shadow: 0px 0px 5px #000;
-    color:#eee;
-    background-color: #2937e6;
-}
-
-
-/************** SEC ONE ***************/
-
-.sec-one {
-    margin-top:490px;
-}
-
-.sec-one .left {
-    flex-grow: 1;
-}
-
-.sec-one .right {
-    width:500px;
-    height:100%;
-}
-
-.sec-one .right .rect {
-    width:200px;
-    height:75px;
-    margin: 0 auto;
-    font-weight:300;
-    font-size:1.3em;
-
-    margin-top:60px;
-}
-
-.sec-one .right .rect.blob {
-    background-color:#d84315;
-    margin: 0 auto;
-    text-align: center;
-    color:#fff;
-    vertical-align: middle;
-    font-size:1.5em;
-    text-align: center;
-    font-size:1.5em;
-
-
-
-    margin-top:60px;
-}
-
-
-.sec-one .right .date {
-    padding-top:0.4em;
-}
-
-.sec-one .rect .circle {
-    width:100px;
-    height:100px;
-    background-color:#d84315;
-    margin: -78px auto;
-    border-radius: 50px;
-}
-
-.sec-one .calls {
-    margin-top:1.5em;
-    width:100%;
-    text-align: center;
-}
-
-.sec-one .calls td i {
-    font-size:3em;
-}
-
-/************** SEC TWO *****************/
-
-.sec-two .left {
-    text-align:center;
-}
-
-.sec-two .left img {
-    width:16em;
-    margin-top:1em;
-}
-
-.sec-two .right {
-    padding-left:3em;
-    order: 2;
-}
-
-/************** SEC THREE *****************/
-
-.sec-three {
-    margin-top:2em;
-}
-
-.sec-three .left {
-    width:300px;
-}
-
-.sec-three .right {
-    margin: 0 auto;
-    display: flex;
-    width: calc(100% - 370px);
-    justify-content: space-between;
-}
-
-.sec-three .right .box {
-    width:200px;
-    height:250px;
-    box-shadow: 1px 1px 10px #000;
-    border-top:6px solid #D64423;
-    text-align: center;
-}
-
-.sec-three .right .box .dev {
-    background-color:#ff2525;
-    border-bottom: 3px solid #f02424;
-}
-
-.sec-three .right .box .pro {
-    background-color:#2b39f3;
-    border-bottom: 3px solid #2937e6;
-}
-
-.sec-three .right .box .header {
-    width:100%;
-    vertical-align: center;
-
-    font-weight:500;
-    font-style: italic;
-    color:#fff;
-    font-size:30px;
-
-    line-height: 70px;
-    height:70px;
-}
-
-.sec-three .right .box .content {
-    text-align: left;
-    list-style: none;
-    padding:10px;
-    line-height: 24px;
-    font-size: 15px;
-    font-weight: 300;
-    font-color:#333;
-}
-
-.sec-three .right .box .cta {
-    color: #D64423;
-    border: 1px solid #D64423;
-    margin:10px auto;
-    font-size:12px;
-    font-style: italic;
-    width:100%;
-    line-height: normal;
-}
-
-/************** SEC FOUR *****************/
-
-.sec-four #code-editor {
-    width:370px;
-    height:430px;
-    border-radius:2px;
-}
-
-.sec-four #lang-select {
-    width:100%;
-
-    margin-top:15px;
-    border: 1px solid rgb(214,68,35);
-    border-radius:2px;
-    height:25px;
-    line-height: 25px;
-
-    color:rgb(214,68,35);
-    font-weight:300;
-    font-size:14px;
-}
-
-.sec-four #lang-select .option {
-    float:left;
-    width: calc(33.333% - 0.7px);
-    height:100%;
-    text-align:center;
-    padding:0px;
-    cursor:pointer;
-}
-
-.sec-four #lang-select .option.py, .sec-four #lang-select .option.js {
-    border-right: 1px solid rgb(214,68,35);
-}
-
-.sec-four canvas {
-    width:350px;
-    height:350px;
-    border:1px solid rgb(214,68,35);
-    border-radius:2px;
-    margin-left:40px;
-}
-
-.sec-four button {
-    margin-left:40px;
-    width:350px;
-    border-radius:4px;
-
-    height:40px;
-    margin-bottom:10px;
-    background-color:rgb(214,68,35);
-    color:#fefefe;
-    font-weight:300;
-    font-size:15px;
-
-    cursor:pointer;
-    border:1px solid rgb(214,68,35);
-}
-
-.sec-four h2 {
-    margin-left:40px;
-    width:350px;
-
-    text-align:center;
-    margin-bottom:26px;
-    margin-top:10px;
-}
-
-/************** SEC FIVE *****************/
-
-.sec-five {
-    color:#fefefe;
-    background-color:rgb(214,68,35);
-    width:100%;
-    height:500px;
-
-    margin-top:4em;
-}
-
-.sec-five .left {
-    height:100%;
-}
-
-.sec-five .trunk {
-    background-color:#fefefe;
-    width:20px;
-    height:500px;
-
-    position:absolute;
-    left:340px;
-}
-
-.sec-five .item h3.up {
-    margin-top:-23px;
-    text-align:center;
-}
-
-.sec-five .item h3.down {
-    margin-top:23px;
-    text-align:center;
-}
-
-.sec-five .item .branch {
-    width:65px;
-    height:20px;
-    background-color:#fefefe;
-
-    position:absolute;
-}
-
-.sec-five .item .leaf {
-    position:absolute;
-    width:200px;
-    padding:15px;
-
-    background-color:#fefefe;
-    color:rgb(214,68,35);
-    font-weight:300;
-}
-
-.sec-five .item.lefta .leaf {
-    left:45px;
-}
-
-.sec-five .item.righta .leaf {
-    left:425px;
-}
-
-.sec-five .item.lefta .branch {
-    left:calc(340px - 65px);
-}
-
-.sec-five .item.righta .branch {
-    left:calc(340px + 20px);
-}
-
-.sec-five .item.one .branch {
-    margin-top:100px;
-}
-
-.sec-five .item.two .branch {
-    margin-top:150px;
-}
-
-.sec-five .item.three .branch {
-    margin-top:210px;
-}
-
-.sec-five .item.four .branch {
-    margin-top:270px;
-}
-
-.sec-five .item.five .branch {
-    margin-top:350px;
-}
-
-.sec-five .item.six .branch {
-    margin-top:370px;
-}
-
-.sec-five .item.one .leaf {
-    margin-top:50px;
-}
-
-.sec-five .item.two .leaf {
-    margin-top:95px;
-}
-
-.sec-five .item.three .leaf {
-    margin-top:195px;
-}
-
-.sec-five .item.four .leaf {
-    margin-top:220px;
-}
-
-.sec-five .item.five .leaf {
-    margin-top:330px;
-}
-
-.sec-five .item.six .leaf {
-    margin-top:330px;
-}
-
-.sec-five .right {
-    margin-left:660px;
-    width: calc(100% - 660px);
-    text-align:center;
-}
-
-.sec-five .right h3 {
-    font-size: 2.5em;
-    margin-bottom:-10px;
-}
-
-.sec-five .right h2 {
-    font-size: 3em;
-    font-weight:700;
-    font-style: italic;
-}
-
-/************** SEC SIX *****************/
-
-.sec-six .left {
-    width:40%;
-}
-
-.sec-six .left .header {
-    color:rgb(214,68,35);
-    text-align:center;
-}
-
-.sec-six .left .header h3 {
-    font-size: 2.2em;
-    margin-bottom:-13px;
-}
-
-.sec-six .left .header h2 {
-    font-size: 3em;
-    font-weight:700;
-    font-style: italic;
-}
-
-.sec-six .left h4 {
-    font-weight:300;
-    font-size:1.2em;
-}
-
-.sec-six .right {
-    text-align:center;
-    width:60%;
-}
-
-.sec-six img {
-    padding:10px;
-}
-
-.sec-six img.plat {
-    margin-top:40px;
-    height:70px;
-}
-
-.sec-six img.gold {
-    height:70px;
-}
-
-.sec-six img.silver {
-    height:35px;
-}
-
-.sec-six img.bronze {
-    height:20px;
-}
-
-.sec-six img.copper {
-    height:15px;
-}
-
-
-/************** FOOTER *****************/
-
-footer {
-    width:100%;
-    height:200px;
-    background-color:rgb(214,68,35);
-    text-align:center;
-    margin:0 auto;
-    margin-top:40px;
-    margin-bottom:0px;
-}
-
-footer .content {
-    width:100%;
-    max-width:850px;
-    margin:0 auto;
-    display:flex;
-    overflow:hidden;
-    height:100%;
-}
-
-footer .content .left {
-    float: left;
-    padding:30px;
-}
-
-footer .content .line {
-    width:1px;
-    margin-left:20px;
-    height:140px;
-    margin-top:30px;
-    background-color:#fefefe;
-}
-
-footer .content .right .col {
-    float: left;
-    color: #fefefe;
-    margin-top:55px;
-    margin-left:40px;
-    text-align:left;
-}
-
-footer .content .right .col h3 {
-    font-weight:400;
-    font-size:1.3em;
-    margin-left:-15px;
-    margin-bottom:5px;
-}
-
-footer .content .right .col a {
-    font-size:0.9em;
-    font-weight:300;
-    font-style: italic;
-    line-height:1.6em;
-    color:#fefefe;
-}
-
-footer .content .left img {
-    height:140px;
-}
-
-
-
-/************ RESPONSIVE STUFF ***************/
-
-@media (max-width: 900px) {
-    section {
-        font-size:0.8em;
-        width:90%;
-    }
-
-    .sec-one {
-        margin-top:475px;
-    }
-
-    .sec-one .rect .date {
-        font-size:1.25em;
-    }
-
-    .sec-one .right .head {
-        padding-top:0.75em;
-    }
-
-    .sec-three {
-        display: block;
-    }
-
-    .sec-three .left {
-        width:100%;
-        margin-bottom:2em;
-    }
-
-    .sec-three .right {
-        width: 420px;
-    }
-
-    .sec-four {
-        display: block;
-        text-align:center;
-    }
-
-    .sec-four #code-editor {
-        width:100%;
-    }
-
-    .sec-four canvas, .sec-four button, .sec-four h2 {
-        width: calc(100vw - 90px);
-        margin-left: 0px;
-    }
-
-    .sec-four h2 {
-        margin-top:20px;
-    }
-
-    .sec-four canvas {
-        height: calc(100vw - 90px);
-    }
-
-    .sec-five {
-        display:block;
-    }
-
-    .sec-five .item.two .leaf {
-        margin-top:120px;
-    }
-
-    .sec-five .item.four .leaf {
-        margin-top:230px;
-    }
-
-    .sec-five .item.six .leaf {
-        margin-top:350px;
-    }
-
-    .sec-five .right {
-        margin-left:0px;
-        width:130px;
-
-        position:absolute;
-        margin-top:-480px;
-        left:430px;
-    }
-
-
-}
-
-
-@media (max-width: 700px) {
-    .sec-five .right {
-        margin-top:-540px;
-        left:100px;
-    }
-
-    .sec-five .item.righta .leaf {
-        left:45px;
-    }
-
-    .sec-five .item .leaf {
-        padding:10px;
-    }
-
-
-    .sec-five .item.righta .branch, .sec-five .item.lefta .branch {
-        left:calc(330px - 65px);
-    }
-
-    .sec-five .trunk {
-        left:330px;
-        height:550px;
-        margin-top:-50px;
-    }
-
-    .sec-five {
-        margin-top:50px;
-        padding-top:50px;
-    }
-
-    .sec-five .item.one .branch {
-        margin-top:85px;
-    }
-
-    .sec-five .item.two .leaf {
-        margin-top:130px;
-    }
-
-    .sec-five .item.two .branch {
-        margin-top:150px;
-    }
-
-    .sec-five .item.four .branch {
-        margin-top:290px;
-    }
-
-    .sec-five .item.four .leaf {
-        margin-top:270px;
-    }
-
-    .sec-five .item.five .leaf {
-        margin-top:350px;
-    }
-
-    .sec-five .item.five .branch {
-        margin-top:360px;
-    }
-
-    .sec-five .item.six .branch {
-        margin-top:420px;
-    }
-
-    .sec-five .item.six .leaf {
-        margin-top:410px;
-    }
-
-    .sec-six {
-        display:block;
-    }
-
-    .sec-six .left {
-        margin-top:30px;
-        width:100%;
-    }
-
-    .sec-six .left h4 {
-        text-align:center;
-    }
-
-    .sec-six .right {
-        width:100%;
-    }
-
-    .sec-six .right img.plat {
-        height:50px;
-    }
-
-    .sec-six .right img.gold {
-        height:60px;
-    }
-
-    .sec-six .right img.silver {
-        height:30px;
-    }
-
-    footer .content .right {
-        display:block;
-        transform: scale(0.85, 0.85);
-    }
-
-    footer .content .right .col {
-        width:100%;
-        margin-top:10px;
-    }
-
-    footer .content .right .col h3 {
-        font-size:0.9em;
-        margin-bottom:0px;
-    }
-
-    footer .content .right .col a {
-        line-height: 0.5em;
-        font-size:0.7em;
-        margin-top:0px;
-    }
-
-}
-
-@media (max-width: 600px) {
-    .hero h1 {
-        width:300px;
-        font-size:4em;
-    }
-
-    .hero .holder {
-        width:225px;
-    }
-
-    .hero .holder a {
-        width:80px;
-        height:80px;
-        border-radius:40px;
-        line-height:80px;
-        font-size:25px;
-    }
-
-    .hero {
-        height: 400px;
-    }
-
-    .sec-one {
-        margin-top:450px;
-    }
-
-    .sec-two {
-        display:block;
-    }
-
-    .sec-two .left img {
-        margin-top:3em;
-    }
-}
-
-@media (max-width: 400px) {
-    .hero h1 {
-        width:250px;
-        font-size:3em;
-    }
-
-    .hero {
-        height:350px;
-    }
-
-    .sec-one {
-        margin-top:380px;
-        display:block;
-    }
-
-    .sec-one .right {
-        width:100%;
-    }
-
-    .sec-three .right {
-        display:block;
-        width:100%;
-    }
-
-    .sec-three .right .box {
-        margin: 4em auto;
-    }
-
-    footer .content .right {
-        margin-left:-40px;
-    }
-
-    footer .content .line {
-        display:none;
-    }
-
-}
+        body {
+            font-family: "Roboto", sans-serif;
+        }
+
+        .sidenav {
+            height: 100%;
+            width: 20%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #FF5722;
+            overflow-x: hidden;
+            padding-top: 20px;
+            z-index: 3;
+        }
+
+        .sidenav a, .dropdown-btn {
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 1.5vw;
+            font-family: Roboto, sans-serif;
+            color: #f1f1f1;
+            display: block;
+            text-align: left;
+        }
+
+        .sidenav a:hover, .dropdown-btn:hover {
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        @media screen and (max-height: 450px) {
+            .sidenav {padding-top: 15px;}
+            .sidenav a {font-size: 18px;}
+        }
+
+        #nav-logo {
+            height: 95%;
+            width: 95%;
+        }
+
+        /* Add an active class to the active dropdown button */
+        .active {
+            background-color: #D84315;
+            color: white;
+        }
+
+        /* Dropdown container (hidden by default). Optional: add a lighter background color and some left padding to change the design of the dropdown content */
+        .dropdown-container {
+            display: none;
+            background-color: #FF5722;
+            padding-left: 8px;
+            padding-top: 5px;
+        }
+
+        .fa {
+            float: right;
+            margin-right: 8%;
+        }
+
+        .main {
+            margin: 50px 120px 40px 30%;
+            font-size: 30px;
+        }
+
+        .main p, ul, dl, table {
+            font-size: 18px;
+            line-height: 25px;
+        }
+
+        td, th {
+            text-align: left;
+        }
+
+        td {
+            padding-right: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #FF5722;
+        }
+
+        a:hover {
+            color: #D84315;
+        }
+
+        .video {
+            text-align: center;
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video iframe {
+            position: absolute;
+            top:10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+        }
+
+        .list {
+            font-size: 16px;
+        }
+
+        .logo {
+            position: relative;
+            margin: 10px 10px 10px 10px;
+            background: no-repeat 50% 50%;
+            background-size: contain;
+            display: block;
+        }
+        .sponsor-1 {
+            height: 180px;
+            width: 540px;
+        }
+
+        .sponsor-2 {
+            height: 100px;
+            width: 300px;
+        }
+
+        .sponsor-3 {
+            height: 60px;
+            width: 180px;
+        }
+
+        .sponsor-4 {
+            height: 40px;
+            width: 100px;
+        }
+
+        .logo-scaled {
+            max-height: 80px;
+            max-width: 180px;
+        }
+
+        #hamburger, #close {
+            display: none;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            color: white;
+            padding-left: 8px;
+            padding-top: 8px;
+        }
+
+        .fa-bars, .fa-times{
+            font-size: 1.5em;
+        }
+
+        /************** HERO ***************/
+        .hero {
+            justify-content: center;
+            height:60%;
+            color: #fff;
+            text-align: center;
+            overflow: hidden;
+            background-image:url(https://storage.googleapis.com/battlehack/example.png);
+            position: relative;
+            top: 0;
+            left: 0;
+            background-size: cover;
+            border-bottom: 8px solid #FF5722;
+            z-index: 2;
+            margin-left: 20%;
+        }
+        .hero h1 {
+            font-size: 4.8vw;
+            margin: 60px auto;
+            -webkit-transform: skew(-10deg);
+            -moz-transform: skew(-10deg);
+            -o-transform: skew(-10deg);
+            width: 50%;
+            padding: 0.25em;
+            box-shadow: 1px 1px 10px #000;
+            background-color: #d84315;
+        }
+        .hero .holder {
+            font-size: 3vw;
+            width:40%;
+            margin: 0 auto;
+        }
+        .hero .holder .register {
+            padding:15px 30px;
+            border-radius: 3px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0px 0px 8px #000;
+            -webkit-transition: box-shadow 0.1s;
+            text-decoration: none;
+            background-color: #2b39f3;
+            color:#fff;
+
+            font-size: 3vw;
+            width:40%;
+            margin: 0 auto;
+        }
+        .hero .holder .register:hover {
+            box-shadow: 0px 0px 5px #000;
+            color:#eee;
+            background-color: #2937e6;
+        }
+
+
+
+        @media only screen and (max-width: 600px) {
+            .sidenav {
+                display: none;
+            }
+
+            #hamburger{
+                position: absolute;
+                display: block;
+            }
+
+            #close {
+                position: absolute;
+                display: none;
+            }
+
+            .hero {
+                margin-left: 0px;
+            }
+
+            .main {
+                margin: 50px 20px 40px 10%;
+                font-size: 30px;
+            }
+        }
 
     </style>
 </head>
@@ -911,268 +248,950 @@ footer .content .left img {
 
 <div class="hero">
     <div class="bg-image"></div>
-    <h1>battlehack</h1>
+    <h1>Welcome to <br> BATTLECODE</h1>
     <div class="holder">
-        <a href="#" class="register">Register Today!</a>
+        <a href="/register" class="register">Register Today!</a>
+    </div>
+</div>
+<div class="sidenav">
+    <a href="#battlecode-home"><img id="nav-logo" src="battlecode.png"></a>
+    <br><br>
+    <div class="dropdown-btn">BATTLECODE
+        <i class="fa fa-caret-down"></i>
+    </div>
+    <div class="dropdown-container">
+        <a href="#battlecode-home">Home</a>
+        <a href="#battlecode-faq">FAQ</a>
+        <a href="#battlecode-schedule">Schedule</a>
+        <a href="#battlecode-conduct">Code of Conduct</a>
+    </div>
+    <br>
+    <div class="dropdown-btn">MATERIALS
+        <i class="fa fa-caret-down"></i>
+    </div>
+    <div class="dropdown-container">
+        <a href="#materials-specs">Specs & Software</a>
+        <a href="#materials-tools">Competitor Tools</a>
+        <a href="#materials-tutorial">Python Tutorial</a>
+    </div>
+    <br>
+    <div class="dropdown-btn">TOURNAMENTS
+        <i class="fa fa-caret-down"></i>
+    </div>
+    <div class="dropdown-container">
+        <a href="#tournaments-overview">Overviews</a>
+        <a href="#tournaments-videos">Past Videos</a>
+        <a href="#tournaments-results">Past Results</a>
+    </div>
+    <br>
+    <div class="dropdown-btn">SPONSORS
+        <i class="fa fa-caret-down"></i>
+    </div>
+    <div class="dropdown-container">
+        <a href="#sponsors-sponsors">Sponsors</a>
+        <a href="#sponsors-interested">Interested in Sponsoring?</a>
     </div>
 </div>
 
-<section class="sec-one">
-    <div class="left">
-        <h2>program <span class="highlight">virtual robots</span> to victory</h2>
-        <p>Battlehack is a 24 hour programming competition unlike any other, where participants write code that controls an army of virtual robots.  Hack, code, and strategize your way to prizes and eternal glory in the heart of Silicon Valley.</p>
-        <p style="margin-top:0.5em">All students currently enrolled in a university program are welcome, regardless of programming or AI experience.  Battlehack is a learning experience as well as a competitive one, and a great way buff your skills.</p>
-        
+<a href="javascript:void(0);" class="icon" id="hamburger" onclick="toggleSidenav()">
+    <i class="fa fa-bars"></i>
+</a>
+<a href="javascript:void(0);" class="icon" id="close" onclick="toggleSidenav()">
+    <i class="fa fa-close"></i>
+</a>
+<div class="main" id="battlecode-home">
+    <p>
+        Welcome to Battlecode, MIT's premier programming competition! Battlecode is a unique challenge that
+        combines battle strategy, software engineering and artificial intelligence. Form a team of one to four,
+        then compete for a chance at $50,000 in prizes! Anyone can participate, from beginners to experts, and
+        enrollment at MIT is not necessary.
+    </p>
+    <h5><a class="page-link" href="https://goo.gl/forms/FZP8u6DWtsXq01092">Sign up for our mailing list!</a></h5>
+    <!-- Update with new Battlehack once confirmed
+    <p>
+        Can't wait until January to get your Battlecode fix? Participate in
+        <a class="page-link" href="https://hackwest.battlecode.org/">Battlehack West</a>, a 24 hour AI
+        programming competition in the heart of Silicon Valley, August 25th-26th 2018.
+    </p>
+    <h5><a class="page-link" href="https://hackwest.battlecode.org/login">Register for Battlehack West Today!</a></h5>
+    -->
+    <md-divider class="ng-scope"></md-divider>
+    <h3>What is Battlecode?</h3>
+    <p>
+        Battlecode is a real-time strategy game, for which you will write an AI player. In Battlecode, two teams of
+        virtual robots roam the screen managing resources and executing different offensive strategies against each
+        other. Your AI player will need to strategically manage your robot army and control how your robots work
+        together to defeat the enemy team. As a contestants, you will learn to use artificial intelligence,
+        pathfinding, distributed algorithms, and network communications to make your player as competitive as possible.
+        <br><br>
+        Teams are given the Battlecode software and a specification of the game rules in early January. Throughout
+        the month, you will refine your player, and compete in scrimmages and tournaments against other teams.
+        During these tournaments, the autonomous players are pitted against each other in a dramatic head-to-head
+        fashion. At the end of the month, the Final Tournament is played out in front of a live audience in MIT's
+        Kresge Auditorium, with the top teams receiving cash prizes. The total prize pool is over $50,000.
+        <br><br>
+        Still not convinced? Check out the video below for a quick overview of Battlecode!
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/x3a5dXaj-XA" frameborder="0" allowfullscreen></iframe>
     </div>
-    <div class="right">
-        <div class="rect blob">
-            <div class="date">August 25-26<br />Noon to Noon</div>
-            <div class="circle"></div>
-        </div>
-        <div class="rect">
-            Jabil Blue Sky Center<br />
-            6375 San Ignacio Ave<br />
-            San Jose, CA 95119
-        </div>
-    </div>
-</section>
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Battlecode in the Media</h3>
+    <p>
+        Battlecode is a well-known competition, even outside of MIT. Check out the links below to see some of the
+        discussions that developers, contestants, and sponsors of Battlecode have had online.
+    </p>
+    <a class="page-link list" href="https://www.reddit.com/r/IAmA/comments/5kwuy7/we_are_battlecode_mits_longestrunning_programming/">Reddit AMA, by the Battlecode Dev Team</a>
+    <br>
+    <a class="page-link list" href="http://cory.li/battlecode-intro/">Blog Post by Cory Li, former Battlecode director and winner</a>
+    <br>
+    <a class="page-link list" href="http://www.anatid.net/2016/02/battlecode-2016-post-mortem-future.html">2016 Postmortem by "future perfect" (1st)</a>
+    <br>
+    <a class="page-link list" href="http://blog.stevearc.com/2011/12/17/battlecode-postmortem.html">2011 Postmortem by "gunface" (1st)</a>
+    <br><br>
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Contact Us</h3>
+    <p>
+        This competition is run by a bunch of MIT students. Contact us at
+        <a class="page-link list" href="mailto:battlecode@mit.edu">battlecode@mit.edu</a>.
+    </p>
 
-<hr>
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Details</h3>
+    <ul>
+        <li><b>Team size</b>: 1-4 people.
+        </li><li><b>Eligibility</b>: Anyone is welcome to participate in Battlecode! However, we can only consider
+        teams of all full-time students to be eligible for the final tournaments. Note that non-MIT students (and high
+        school students) are eligible too. Check out <a class="page-link" href="#tournaments-overview">tournaments</a> for more information.</li>
+        <li><b>Schedule</b>: Battlecode 2019 will begin on Monday, January 7th, and conclude with the Final
+            Tournament on Saturday, February 2nd. Lectures are held throughout the first two weeks at 7pm. We also
+            plan to save the Twitch livestreams and upload them as videos. Check out the <a class="page-link" href="#battlecode-schedule">
+                schedule</a> for more information!</li>
+        <li><b>Location</b>: For those present at MIT, lectures will be held in 32-123 (there's free food!). Note
+            that these are also streamed on Twitch, should you want to participate in Battlecode remotely. The
+            Final Tournament will be held in Kresge Auditorium.</li>
+        <li><b>Prizes</b>: $50,000+.</li>
+    </ul>
 
-<section class="sec-two" id="play">
-    <div class="right">
-        <h2>write bots in <span class="highlight">any language</span> to gain territory and defeat the enemy.</h2>
-        <p>Battlehack is a real-time strategy game played by code instead of people.  Teams of virtual robots roam the screen, managing resources and executing different strategies.  The game will be announced at the start of the hackathon.</p>
-    </div>
-    <div class="left">
-        <img src=https://storage.googleapis.com/battlehack/example2.png" />
-    </div>
-</section>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="battlecode-faq"><h3>FAQ</h3></a>
+    <dl>
+        <dt><b>What languages are supported?</b></dt>
+        <dd>
+            <p>
+                Unlike previous years, Battlecode 2019 will allow you to write a bot in any language! However, we will
+                be providing boilerplate code and helper functions for a select set of languages, which will enable
+                you to set up a bot more easily. This year, we will be providing auxiliary support for Java, Python, and
+                Javascript. Stay tuned for updates, and let us know if there is another language you would like us to support!
+            </p>
+        </dd>
+        <dt><b>So Battlecode is a game AI competition? But what's the game?</b></dt>
+        <dd>
+            <p>
+                We can't tell you yet, and we won't reveal this year's game until Battlecode 2019 kicks off on
+                January 7th. The game changes every year, and part of the fun of Battlecode is in not knowing what
+                you're gonna get :). However, we can tell you that the game tends to be a real-time or turn-based
+                strategy game, and robots need to demonstrate a mastery of both broad resource management (macro),
+                and organized, efficient combat tactics (micro).
+            </p>
+        </dd>
+        <dt><b>Do I have to be good at programming?</b></dt>
+        <dd>
+            <p>
+                Experience definitely helps, but everyone has to start somewhere. A background in algorithms and AI
+                is not necessary. We'll be available throughout January to help you out as needed. If you have
+                little or no experience in programming, then we encourage you to consider Battlecode as a fun,
+                engaging project through which you will pick up the skills you need to write programs!
+            </p>
+        </dd>
+        <dt><b>Is it okay if I have no AI background?</b></dt>
+        <dd>
+            <p>
+                That's completely okay. Many competitors have no AI experience coming in. We will be holding daily
+                lectures through January, which will cover various topics in game AI, such as pathfinding, resource
+                management, and combat tactics (micro). These lectures will be streamed and uploaded online, so
+                fear not if you are participating remotely!
+            </p>
+        </dd>
+        <dt><b>What is the tournament format?</b></dt>
+        <dd>
+            <p>
+                Concrete details are still to come, but we will be holding several tournaments throughout the month
+                of January. The penultimate tournament will determine the finalists who will compete at MIT in the
+                Final Tournament. In parallel to this series of tournaments (the "main" event), we will also be
+                holding a Newbie Tournament open to MIT students who have not previously competed in Battlecode,
+                as well as a High School Tournmanet open to US high school students.
+            </p>
+        </dd>
+        <dt><b>What are scrimmages?</b></dt>
+        <dd>
+            <p>A scrimmage is a friendly game between two teams, and you can watch and analyze the games afterwards.
+                This allows a team to test their strategies against other teams. Scrimmaging will be available as
+                soon as Battlecode begins.</p>
+        </dd>
+        <dt><b>Do I need to be physically at MIT to participate?</b></dt>
+        <dd>
+            <p>
+                This is not necessary! In fact, you do not even need to be an MIT student!
+            </p>
+        </dd>
+        <dt><b>I'm an MIT student. How do I get course credit for Battlecode?</b></dt>
+        <dd>
+            <p>
+                Battlecode is an official 6-unit MIT course, with the course number 6.147. In addition to
+                registering on this site, you must also register through MIT's system. At that point, in order to
+                get credit, you must create a player that is able to beat a reference player that we will release
+                later in the tournament.
+            </p>
+        </dd>
+        <dt><b>Help! I have more questions.</b></dt>
+        <dd>
+            <p>
+                Feel free to email us at <a class="page-link" href="mailto:battlecode@mit.edu">battlecode@mit.edu</a>!
+            </p>
+        </dd>
+    </dl>
 
-<section class="sec-three">
-    <div class="left">
-        <p>Team up in groups of 1-4, and work together to program your bot.  We'll give you all the food and swag you need, and a place to crash when you need a break.  At the end of the hackathon, your code will be run in a tournament with all teams, and a winner will be declared.</p>
-    </div>
-    <div class="right">
-        <iframe width="600" height="250" id="gmap_canvas" src="https://maps.google.com/maps?q=jabil%20blue%20sky%20innovation%20center&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
-    </div>
-</section>
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="battlecode-schedule"><h3>Lecture Schedule</h3></a>
+    <p>
+        Battlecode 2019 will commence on Monday, January 7th, at 7pm ET.
+        <br>
+        Lectures will be held at <b>7pm</b>, for the first two weeks of the competition. Come by <b>32-123</b> to learn about an
+        assortment of topics in game AI, and also grab some free food! If you are not at MIT, fear not; we will be
+        streaming lectures on Twitch. We also plan to save the Twitch livestreams and upload them as videos.
+        Attendance is not mandatory.
+    </p>
 
-<hr />
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Tournament Schedule</h3>
+    <p>
+        The submission deadline for all tournaments, except the Newbie, High School, and Final Tournaments, will be
+        at 8pm EST the night before the tournament. Unlike in past years, finalists for these tournaments will be
+        able to submit code after the Qualifying Tournament, up until Wednesday, January 31st at 8pm.
+        <br>
+        Update: Seeding tournament is now on Wednesday instead of Monday. International Qualifying Tournament is now
+        on Saturday instead of Friday. Submission deadlines have been pushed back similarly.
+    </p>
+    <ul>
+        <li>Wednesday, January 17th - Sprint Tournament</li>
+        <li>Monday, January 22nd - Seeding Tournament</li>
+        <li>Friday, January 26th - International Qualifying Tournament</li>
+        <li>Monday, January 29th - US Qualifying Tournament</li>
+        <li>Wednesday, January 31st - Final Tournament submission deadline @ 8pm</li>
+        <li>Friday, February 2nd - Finalist’s Celebration</li>
+        <li>Saturday, February 3rd - Newbie, High School, and Final Tournaments</li>
+    </ul>
+    <p>
+        The Final Tournament will occur on Saturday, February 3rd. Doors open at 6PM in MIT's Kresge Auditorium.
+        The competition and stream begin at 7PM.
+    </p>
 
-<section class="sec-four">
-    <div class="left">
-        <div id="code-editor"></div>
-        <div id="lang-select">
-            <div class="option py">Python</div>
-            <div class="option js">Javascript</div>
-            <div class="option java">Java</div>
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="battlecode-conduct"><h3>Code of Conduct</h3></a>
+    <p>Maintaining a safe and inclusive environment for competitors is a top priority for Battlecode. Battlecode
+        strictly follows <a class="page-link" href="https://policies-procedures.mit.edu/">MIT's Policies</a>
+        on responsible and ethical conduct. If someone makes you or anyone else feel unsafe or unwelcome, please
+        report it to Teh Devs as soon as possible. Harassment and other code of conduct violations reduce the value
+        of the competition for everyone. People like you make our community a better place, and we want you to be
+        happy here.
+    </p>
+    <ul>
+        <li><b>Harrassment:</b> Battlecode is dedicated to providing a harassment-free experience for everyone, regardless
+            of gender, gender identity and expression, sexual orientation, disability, physical appearance, body
+            size, race, age, religion, or nationality. We do not tolerate harassment of competitors in any form.</li>
+        <li><b>Bug Exploitation:</b> Battlecode is a rapidly-growing competition with many infrastructural challenges. Let
+            us know as soon as possible upon discovery of a potential security issue. Knowingly exposing
+            vulnerabilities to the public as anything more than a minimal proof of concept is not allowed.
+            Intentionally exploiting bugs that compromise the fairness of scrimmages and tournaments, or the
+            security of the competition, is not tolerated.</li>
+        <li><b>Academic Misconduct:</b> Academic misconduct is conduct by which a person misrepresents their academic
+            accomplishments, or impedes others' opportunities of being judged fairly for their academic work. This
+            includes but is not limited to plagiarism and knowingly allowing another person to represent your work
+            as their own.</li>
+    </ul>
+    <p>If you find that your behavior questionably follows these guidelines, please reconsider your actions.
+        Competitors violating these rules may be banned from current and/or future Battlecode competitions at the
+        discretion of Teh Devs.</p>
+
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="materials-specs"><h3>Specs & Software</h3></a>
+    <ul>
+        <li>Follow the installation instructions <a class="page-link" href="https://github.com/battlecode/bc18-scaffold">here</a>.</li>
+        <li>Download the viewer by running install_viewer.py in the scaffold, using python 3</li>
+        <li>View the game specs <a class="page-link" href="https://s3.amazonaws.com/battlecode-2018/specs/battlecode-specs-2018.html">here</a>.
+            It is highly recommended to read this entire document before you begin writing bots.</li>
+        <li>Python API / documentation is <a class="page-link" href="https://s3.amazonaws.com/battlecode-2018/api/python/bc.m.html">here</a>.</li>
+        <li>C API / documentation is <a class="page-link" href="https://gist.github.com/kazimuth/c84e5d83ada1764e408190d4ec46ba33">here</a>.</li>
+        <li>Java API / documentation is <a class="page-link" href="https://s3.amazonaws.com/battlecode-2018/api/java/index.html">here</a>.
+            (Thanks CertifiedPyro for the documentation!)</li>
+        <li>Troubleshooting/help/FAQ and announcements on <a class="page-link" href="https://discord.gg/xg3VVYt">Discord</a>.</li>
+    </ul>
+
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Battlecode GitHub</h3>
+    <p>See all of our code <a class="page-link" href="https://github.com/battlecode/battlecode19">here</a>, and give it a star if you like it.</p>
+
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="materials-tools"><h3>Competitor Tools</h3></a>
+    <p>
+        The following is a list of unofficial tools made by competitors, displayed here with their permission. (Thank you!) These tools have not been officially tested by Teh Devs, but are still quite nice and may make your life easier. Use at your own risk.
+    </p>
+    <ul>
+        <li><a href="https://github.com/naumazeredo/battlecode-2018-cpp-api"></a>C++ API</li>
+        <li><a href="https://github.com/dabbler0/bc18-tinyview"></a>HTML5-based tiny viewer for Battlecode 2018 replays</li>
+        <li><a href="https://github.com/AVturbine/mapmaker"></a>Python mapmaking tool</li>
+        <li><a href="https://github.com/AppPackLtd/Battlecode2018-Replay-Visualiser-Windows"></a>
+            Windows WPF-based viewer for Battlecode 2018 replays</li>
+    </ul>
+
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="materials-tutorial"><h3>Python Tutorials</h3></a>
+    <p>
+        Interested in Battlecode, but don't have much programming experience? Feeling like you could use a refresher?
+        Fortunately, we have you covered! Battlecode dev Max Mann has put together a bite-sized Python tutorial, in
+        which he will take you teach you about Python in the context of Battlecode. Check out this video to learn more!
+        <br>
+        For the full playlist of tutorial videos, <a class="page-link" href="https://www.youtube.com/watch?v=C6mKtIEjY5I&list=PLNtxQuOxJ0p29Ry5jp3AiOJpk0UiSSlts&index=1&t=1s">follow this link.</a>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/C6mKtIEjY5I" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="tournaments-overview"><h3>Tournament Overview</h3></a>
+    <p>
+        Battlecode 2018 will consist of 6 tournaments: the Sprint Tournament, the Seeding Tournament, the US
+        Qualifying Tournament, the International Qualifying Tournament, the Newbie Tournament, the High School
+        Tournament, and the Final Tournament. We stream and commentate all tournaments online. We may also have
+        some bonus (for-fun) tournaments.
+    </p>
+    <ul>
+        <li><b>Sprint Tournament:</b> One week after spec release, you're given a
+            chance to win small prizes in this tournament. The goal is to get an
+            idea of the meta-game, and a chance to test your bot prototypes.</li>
+        <li><b>Seeding Tournament:</b> One week after the Sprint Tournament, this
+            tournament determines your positioning in the Qualifying
+            Tournament.</li>
+        <li><b>US and International Qualifying Tournaments:</b> This year, to allow
+            adequate time for international finalists to plan travel to the US for the
+            Final Tournament, there will be <b>separate qualifying tournaments for US
+                and international teams</b>. These tournaments determine the contestants going
+            into the Final Tournament, and showcase the final strategies of all the
+            competitors. The top 12 teams from the US Qualifying Tournament and the top
+            4 teams from the International Qualifying Tournament will qualify for the
+            Final Tournament.</li>
+        <li><b>Newbie Tournament:</b> As part of the Final Tournament, the top MIT newbie
+            teams compete for a prize.</li>
+        <li><b>High School Tournament:</b> Starting in 2017, the top high school teams also
+            compete for a prize.</li>
+        <li><b>Final Tournament:</b> At the end of IAP, the top teams compete for
+            glory and fame live in MIT's Kresge auditorium.</li>
+    </ul>
+
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Eligibility</h3>
+    <p>
+        Teams must consist entirely of active students to be eligible for the Seeding, Qualifying, and Final
+        Tournaments. An active student is a person who is currently enrolled as a full-time student in an eligible
+        degree or certificate program. As an exception, we consider those transitioning immediately after high school
+        and formally committed to such a program to be active students, including those taking gap years or in
+        compulsory military service.
+        <br><br>
+        Active students also include those who are currently in high school (or some equivalent of secondary education
+        or lower). Active MIT students who have never competed in Battlecode before (submitted a bot) are eligible
+        for the Newbie Tournament. U.S. high school students and earlier are eligible for the High School Tournament.
+        <br><br>
+        Teams consisting entirely of US students compete in the US Qualifying Tournament. If your team has at least
+        one non-US competitor, your team will compete in the International Qualifying Tournament. A US student is a
+        student who attends a school in the United States.
+        <br><br>
+        If your team does not consist of active students, you may still compete in Battlecode for fun! All teams are
+        allowed to scrimmage, and compete in the Sprint Tournament or any other bonus tournaments we may decide to
+        hold. Contact us if you are unsure of your eligibility.
+    </p>
+
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Dates & Deadlines</h3>
+    <p>
+        See the <a class="page-link" href="#battlecode-schedule">schedule</a> for all the important dates. The submission deadline for all tournaments, except the Newbie,
+        High School, and Final Tournaments, will be at <b>8pm EST the night before the tournament</b>. Unlike in past years,
+        finalists for these tournaments will be able to submit code after the Qualifying Tournament, up until <b>Wednesday,
+        January 31st at 8pm</b>.
+        <br><br>
+        Even if you miss earlier tournaments, you can participate in later tournaments (except the Final Tournament).
+        This includes the Qualifying Tournament - you can participate even if you miss every other tournament.
+    </p>
+
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Tournament Format</h3>
+    <p>
+        Scrimmage rankings will be used to determine seeds for the Sprint and Seeding Tournaments. For all other
+        tournaments, results from the previous tournament will be used to seed teams.
+        <br><br>
+        Tournaments will be in a double elimination format, with the exception of the Sprint Tournament, which is
+        single elimination. The Final Tournament will start with a blank slate (any losses from the Qualifying Tournament are reset).
+        <br><br>
+        Each match within a tournament will consist of 3 games on 3 different maps, and the team that wins the most
+        games will advance. The maps used for each tournament are usually brand new.
+    </p>
+
+    <md-divider class="ng-scope"></md-divider>
+    <h3>Results and Livestreams</h3>
+    <p>
+        Click <a class="page-link" href="#tournaments-results">here</a> to see results of past tournaments. All
+        tournaments will be livestreamed and commentated by the developers. You can also find streams of past tournaments
+        <a class="page-link" href="#tournaments-videos">here</a>.
+    </p>
+
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="tournaments-videos"><h3>Videos of Battlecode Tournaments</h3></a>
+    <p>
+        <b>2018 MIT Final Tournament</b><br>
+        The object of the game was to escape to Mars before the Great Flood on Earth.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/QdljkowowC4" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2017 MIT Final Tournament</b><br>
+        The object of the game was to either donate to the reforestation fund or destroy the enemy.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/jkgt-c3Ag58" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2016 MIT Final Tournament</b><br>
+        The object of the game was destroy the enemy archons while surviving attacks from zombies.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/4ruUyCbhnWg" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2015 MIT Final Tournament</b><br>
+        The object of the game was destroy the enemy headquarters. Each team has up to six towers on the map, and destroying these towers weakens the enemy.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/RCdPQyG3c-U" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2014 MIT Final Tournament</b><br>
+        The object of the game was to gain milk either by herding cows into pastures or by destroying opponent pastures.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/JA2slZrL2wg" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2013 MIT Final Tournament</b><br>
+        Compared to previous games, this year's game featured more of an emphasis on economy and macro strategy. The goal was to destroy the other team.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/sfiW7kZMpp8" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2012 MIT Final Tournament</b><br>
+        The object of the game was to build a chain of power nodes from your base to the enemy's base.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/v2QrKeZADig" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2011 MIT Final Tournament</b><br>
+        The 2011 game featured robots with modular components. The goal of the game was to destroy the other team. Unfortunately, we don't have a video of the 2011 final tournament.<br>
+    </p>
+    <p>
+        <b>2010 MIT Final Tournament</b><br>
+        The object of the game was to gather points by constructing contiguous blocks of buildings. The area
+        contained within the convex hull formed by the buildings generated points each round. Of course, the other way of winning was to wipe out the other team.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/-xY49_R-8vA" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2009 MIT Final Tournament</b><br>
+        The object of the game was to gather points by mining resource deposits or wipe out the other team.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/4wrWv9dt_E0" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2008 MIT Final Tournament</b><br>
+        The object of the game was to gain territory by capturing towers.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/62vm1Z4_Gok" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2007 MIT Final Tournament</b><br>
+        The object of the game was to destroy the enemy archons or have the most production at the end of the game.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/ycC4qNlmJKQ" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2006 MIT Final Tournament</b><br>
+        Unfortunately, we don't have a video of the 2006 RoboCraft Final Tournament. The 2006 game was a "King of
+        the Hill" game in which the object of the game was to spend more time than your opponents on the hill squares.<br>
+    </p>
+    <p>
+        <b>2005 MIT Final Tournament</b><br>
+        The object of the game was to capture the enemy flag or survive when the walls came pushing in as the game
+        ended. Battlecode was still under the name "RoboCraft".<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/wX4fDTwtxl8" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>
+        <b>2003 MIT Final Tournament</b><br>
+        The object of the game was to destroy the enemy queen or have a closer unit to your enemy's queen.<br>
+    </p>
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/6jSaNKkPdhc" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <br>
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="tournaments-results"><h3>Battlecode Hall of Fame</h3></a>
+    <p><b>Main Tournament</b></p>
+    <table>
+        <tr>
+            <th><b>Year</b></th>
+            <th><b>Team</b></th>
+            <th><b>Members</b></th>
+        </tr>
+        <tr>
+            <td>2018</td>
+            <td>Orbitary Graph</td>
+            <td>Aron Granberg, Simon Lindholm, Mårten Wiman</td>
+        </tr>
+        <tr>
+            <td>2017</td>
+            <td>Arbitrary Graph Restoration Fund</td>
+            <td>Aron Granberg, Simon Lindholm, Johan Sannemo, Mårten Wiman</td>
+        </tr>
+        <tr>
+            <td>2016</td>
+            <td>future perfect</td>
+            <td>Luchang Jin, Greg McGlynn</td>
+        </tr>
+        <tr>
+            <td>2015</td>
+            <td>the other team</td>
+            <td>Greg McGlynn</td>
+        </tr>
+        <tr>
+            <td>2014</td>
+            <td>that one team</td>
+            <td>Greg McGlynn</td>
+        </tr>
+        <tr>
+            <td>2013</td>
+            <td>Teh Nubs</td>
+            <td>Tommy Liu, Xinran Liu, Albert Wu</td>
+        </tr>
+        <tr>
+            <td>2012</td>
+            <td>fun gamers</td>
+            <td>Yanping Chen, Cory Li, Haitao Mao, Justin Venezuela</td>
+        </tr>
+        <tr>
+            <td>2011</td>
+            <td>Gunface</td>
+            <td>Steven Arcangeli, Adrian Mullings, Benjamin Peters, Jelle van den Hooff</td>
+        </tr>
+        <tr>
+            <td>2010</td>
+            <td>My Archon Died BellmanFording the Stream</td>
+            <td>Steven Bartel, David Chen, Curtis Liu, Spenser Skates</td>
+        </tr>
+        <tr>
+            <td>2009</td>
+            <td>gtg ice skating lessons</td>
+            <td>Steven Bartel, Randall Shults, Spenser Skates, Karen Sun</td>
+        </tr>
+        <tr>
+            <td>2008</td>
+            <td>In Memory of James Albrecht</td>
+            <td>Dan Gulotta, Hyun Soo Kim, Albert Ni, Yufei Zhao</td>
+        </tr>
+        <tr>
+            <td>2007</td>
+            <td>My Other Programming Language is Scheme</td>
+            <td>Dany Qumsiyeh, Mark Tobenkin</td>
+        </tr>
+        <tr>
+            <td>2006</td>
+            <td>Mortar Kombat</td>
+            <td>Jasper Lin</td>
+        </tr>
+        <tr>
+            <td>2005</td>
+            <td>CDG</td>
+            <td>Clifford Frey, James Roewe</td>
+        </tr>
+        <tr>
+            <td>2004</td>
+            <td>java_lang_String</td>
+            <td>Joshua Marron, Dmitriy Rogozhnikov</td>
+        </tr>
+        <tr>
+            <td>2003</td>
+            <td>Hyperbola</td>
+            <td>David Greenspan, Aaron Iba</td>
+        </tr>
+        <tr>
+            <td>2002</td>
+            <td>Sons of Scion</td>
+            <td>Ilya Baran, Edward Kogan, Dmitriy Rogozhnikov</td>
+        </tr>
+        <tr>
+            <td>2001</td>
+            <td>MalamalamaWikiwiki</td>
+            <td>Chris Peikert</td>
+        </tr>
+    </table>
+
+    <p><b>Newbie Tournament</b></p>
+    <p>The Newbie division is for MIT students who are participating in Battlecode for the first time.</p>
+    <table>
+        <tr>
+            <th><b>Year</b></th>
+            <th><b>Team</b></th>
+            <th><b>Members</b></th>
+        </tr>
+        <tr>
+            <td>2018</td>
+            <td>StarMarket is Moving to Mars</td>
+            <td>Yong Hui Lim, Yogeshwar Velingker, Christopher Xu, Calvin Yost-Wolff n</td>
+        </tr>
+        <tr>
+            <td>2017</td>
+            <td>Anarchy</td>
+            <td>John Mikhail</td>
+        </tr>
+        <tr>
+            <td>2016</td>
+            <td>foundation</td>
+            <td>Brian Shimanuki</td>
+        </tr>
+        <tr>
+            <td>2015</td>
+            <td>Team2</td>
+            <td>Julian Contreras, Alex Markovits, Andrew Mikofalvy</td>
+        </tr>
+        <tr>
+            <td>2014</td>
+            <td>1260/3</td>
+            <td>Matthew Chang, Xinyu Liang, Lawrence Wu, Leon Zhou</td>
+        </tr>
+        <tr>
+            <td>2013</td>
+            <td>Teh Nubs</td>
+            <td>Tommy Liu, Xinran Liu, Albert Wu</td>
+        </tr>
+        <tr>
+            <td>2012</td>
+            <td>lowercase letters</td>
+            <td>Tim Kaler</td>
+        </tr>
+    </table>
+
+    <p><b>High School Tournament</b></p>
+    <p>New in 2017, the High School division is for high school students.</p>
+    <table>
+        <tr>
+            <th><b>Year</b></th>
+            <th><b>Team</b></th>
+            <th><b>Members</b></th>
+        </tr>
+        <tr>
+            <td>2018</td>
+            <td>howrusogood??</td>
+            <td>Lawrence Chen, Benjamin Qi, Richard Qi, Franklyn Wang</td>
+        </tr>
+        <tr>
+            <td>2017</td>
+            <td>whatamidoing</td>
+            <td>Charles Wang</td>
+        </tr>
+    </table>
+
+    <p><b>Open Tournament</b></p>
+    <p>Battlecode held an open tournament in the spring from 2008-2011. From 2012-2017, non-MIT teams were allowed to
+        compete in the main tournament in the winter. In 2008 only, the top 16 teams from the MIT tourmanent were not
+        eligible for the open tournament. In 2018, the Open Tournament was run after the IAP tournament and included
+        any team with a submission.
+    </p>
+    <table>
+        <tr>
+            <th><b>Year</b></th>
+            <th><b>Team</b></th>
+            <th><b>Members</b></th>
+        </tr>
+        <tr>
+            <td>2018</td>
+            <td>Orbitary Graph</td>
+            <td>Aron Granberg, Simon Lindholm, Mårten Wiman</td>
+        </tr>
+        <tr>
+            <td>2011</td>
+            <td>Team 8</td>
+            <td>Tom Morgan</td>
+        </tr>
+        <tr>
+            <td>2010</td>
+            <td>My Archon Died BellmanFording the Stream</td>
+            <td>Steven Bartel, David Chen, Curtis Liu, Spenser Skates</td>
+        </tr>
+        <tr>
+            <td>2009</td>
+            <td>I for one welcome our new team 207 overlords</td>
+            <td>Dan Gulotta, Yufei Zhao</td>
+        </tr>
+        <tr>
+            <td>2008</td>
+            <td>Donner Party of 5</td>
+            <td>Asilata Bapat, Anand Deopurkar, Eric Liu, Vinayak Ranade</td>
+        </tr>
+    </table>
+
+    <p><b>Battlehack</b></p>
+    <p>Battlehack is an MIT-exclusive hackathon, where contestants have only 24 hours to complete their bots. First ran
+        in November 2017, Battlehack features its own game with experimental rulesets.</p>
+    <table>
+        <tr>
+            <th><b>Year</b></th>
+            <th><b>Team</b></th>
+            <th><b>Members</b></th>
+        </tr>
+        <tr>
+            <td>2017</td>
+            <td>Not a Hivemind</td>
+            <td>Skye Thompson, Cel Skeggs, Joseph Jerkins, Alexander Lam</td>
+        </tr>
+    </table>
+    <br>
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="sponsors-sponsors"><h3>Sponsors</h3></a>
+    <div ng-view="" layout-padding="" id="page-wrapper" class="layout-padding ng-scope" style=""><link rel="stylesheet" href="../../css/sponsors.css" class="ng-scope">
+
+
+        <div ng-repeat="i in [1, 2, 3, 4]" layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-1"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/coatue.png');"></div>
+        </div><div ng-repeat="i in [1, 2, 3, 4]" layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-2"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/deshaw.jpg');"></div>
+        </div><div ng-repeat="i in [1, 2, 3, 4]" layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/cruise.png');"></div>
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/facebook.jpg');"></div>
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/hrt.jpg');"></div>
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/twosigma.png');"></div>
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/yext.jpg');"></div>
+        </div><div ng-repeat="i in [1, 2, 3, 4]" layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-4"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/isee.png');"></div>
+            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-4"
+                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/oracle.png');"></div>
         </div>
 
-    </div>
-    <div class="right">
-        <h2 style="margin-bottom:-20px;">FAQ</h2>
-        <div style="padding:50px;font-size:0.8em">
-            <p><b>Battlewhat?  What is this?</b></p>
-            <p>Battlehack is a 24 hour hackathon run by the people behind <a href="https://battlecode.org">Battlecode</a>, a 17 year old MIT AI programming competition.</p>
-            <br />
-            <p><b>What's a hackathon?</b></p>
-            <p>A hackathon is a fancy name for a competition, usually overnight, where a bunch of programmers work in teams writing code.  Battlehack is special because instead of deciding their own projects, everybody works towards the same goal: writing bots for the Battlehack game.</p>
-            <br />
-            <p><b>Can I participate?</b></p>
-            <p>If you're a university student over 18, yes!  Otherwise, unfortunately no.</p>
-            <br />
-            <p><b>How do I apply?</b></p>
-            <p>Click <a href="/register">here</a>!  We'll let you know when decisions come out.</p>
-        </div>
-    </div>
-</section>
+        <md-divider class="ng-scope"></md-divider>
+        <h3>Sponsor Information</h3>
+        <!-- ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/coatue.png" alt="Coatue">
+            <p><b class="ng-binding">Coatue<br>Platinum Sponsor</b></p>
+            <p><a href="https://www.coatue.com/" class="ng-binding">https://www.coatue.com/</a><br></p>
+            <div align="left" class="ng-binding"><p>Coatue Management is a global investment firm with offices in
+                New York, NY, Menlo Park, CA, and Hong Kong. We manage $12+ billion in assets on behalf of individuals,
+                nonprofit organizations, and institutional investors by focusing on investments in the technology, media,
+                and telecommunications space in both the public and private markets. We’re excited about applying data
+                science to the finance domain! If you’re interested in learning more, please email hack4alpha@coatue.com.</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/deshaw.jpg" alt="The D.E. Shaw Group">
+            <p><b class="ng-binding">The D.E. Shaw Group<br>Gold Sponsor</b></p>
+            <p><a href="https://www.deshaw.com/WhoWeAre.shtml" class="ng-binding">https://www.deshaw.com/WhoWeAre.shtml</a><br></p>
+            <div align="left" class="ng-binding"><p>THE D.E. Shaw Group is a global investment and technology development
+                firm with more than $43 billion in investment capital as of July 1, 2017, and offices in North America,
+                Europe, and Asia. Since our founding in 1988, our firm has earned an international reputation for
+                successful investing based on innovation, careful risk management, and the quality and depth of our staff.</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/cruise.png" alt="Cruise">
+            <p><b class="ng-binding">Cruise<br>Silver Sponsor</b></p>
+            <p><a href="https://driverless.wonderhowto.com/news/video-breakdown-gms-unicorn-cruise-shows-off-level-4-skills-sf-passing-uber-maybe-waymo-0176031/" class="ng-binding">https://driverless.wonderhowto.com/news/video-breakdown-gms-unicorn-cruise-shows-off-level-4-skills-sf-passing-uber-maybe-waymo-0176031/</a><br></p>
+            <div align="left" class="ng-binding"><p>We're the driverless car company. We’re building the world’s best
+                autonomous vehicles to safely connect people to the places, things, and experiences they care about.
+                Our vehicles are on the road in California, Arizona, and Michigan navigating some of the most
+                challenging and unpredictable driving environments. We’re hiring people who want to solve some of
+                today’s most complex engineering challenges and make a positive impact.</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/facebook.jpg" alt="Facebook">
+            <p><b class="ng-binding">Facebook<br>Silver Sponsor</b></p>
+            <p><a href="https://www.facebook.com/careers/university" class="ng-binding">https://www.facebook.com/careers/university</a><br></p>
+            <div align="left" class="ng-binding"><p>The chance to move fast, be bold and build products and services
+                with impact has never been greater. At Facebook, we have a saying that the journey is only 1% finished
+                — join us as you begin yours. We have tons of exciting opportunities available for university grads
+                and interns who want to help us in our mission to bring the world closer together.</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/hrt.jpg" alt="Hudson River Trading">
+            <p><b class="ng-binding">Hudson River Trading<br>Silver Sponsor</b></p>
+            <p><a href="https://www.hudson-trading.com/" class="ng-binding">https://www.hudson-trading.com/</a><br></p>
+            <div align="left" class="ng-binding"><p>Hudson River Trading brings a scientific approach to trading
+                financial products. We have built one of the world's most sophisticated computing environments for
+                research and development. Our researchers are at the forefront of innovation in the world of algorithmic
+                trading.</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/twosigma.png" alt="Two Sigma">
+            <p><b class="ng-binding">Two Sigma<br>Silver Sponsor</b></p>
+            <p><a href="https://www.twosigma.com/" class="ng-binding">https://www.twosigma.com/</a><br></p>
+            <div align="left" class="ng-binding"><p>More than 1,200 people who believe the scientific method is the
+                best way to approach investing. Ideas backed up with information. And improved by iteration. That’s
+                Two Sigma.</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/yext.jpg" alt="Yext">
+            <p><b class="ng-binding">Yext<br>Silver Sponsor</b></p>
+            <p><a href="https://www.yext.com/" class="ng-binding">https://www.yext.com/</a><br></p>
+            <div align="left" class="ng-binding"><p>Yext is pioneering a new category called Digital Knowledge
+                Management, which gives businesses control of all of the public facts that they want consumers to know
+                across the intelligent ecosystem. The Yext Knowledge Engine™ lets companies manage their digital
+                knowledge in the cloud and sync it to over 100 services in the PowerListings® Network. Yext Listings,
+                Pages, and Reviews enable businesses around the globe to facilitate face-to-face and digital interactions
+                that boost brand awareness, drive foot traffic, and increase sales.</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/isee.png" alt="ISEE">
+            <p><b class="ng-binding">ISEE<br>Bronze Sponsor</b></p>
+            <p><a href="http://isee.ai/join.html" class="ng-binding">http://isee.ai/join.html</a><br></p>
+            <div align="left" class="ng-binding"><p>We are a spinoff from MIT computational cognitive science lab. We
+                are a team of scientists, engineers and business professionals in Cambridge, MA. We build a predictive
+                AI engine to enable the self-driving cars to navigate the complex physical and social environment. We
+                have both full-time and part-time positions available. Please contact us if you are interested in
+                joining us to make something awesome!</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/oracle.png" alt="Oracle">
+            <p><b class="ng-binding">Oracle<br>Bronze Sponsor</b></p>
+            <p><a href="https://www.oracle.com/college" class="ng-binding">https://www.oracle.com/college</a><br></p>
+            <div align="left" class="ng-binding"><p>At Oracle, we’ve revolutionized the tech industry by doing things
+                no other company has done before. With hundreds of thousands of customers around the globe, our
+                solutions are being used by businesses ranging from startups to the Fortune 100, from grade schools
+                to graduate schools, and from counties to countries.</p></div>
+            <br>
+        </div><!-- end ngRepeat: sponsor in sponsors --></div>
 
-<section class="sec-five">
-    <div class="left">
-        <div class="trunk"></div>
-        <div class="item one lefta">
-            <div class="branch"><h3 class="up">2001</h3></div>
-            <div class="leaf">battlecode is started as an mit chess programming competition in Java.</div>
-        </div>
-        <div class="item two righta">
-            <div class="branch"><h3 class="up">2004</h3></div>
-            <div class="leaf">battlecode switches to its current format, with multi-robot armies.</div>
-        </div>
-        <div class="item three lefta">
-            <div class="branch"><h3 class="down">2008</h3></div>
-            <div class="leaf">an open tournament allows non-mit students to compete for the first time.</div>
-        </div>
-        <div class="item four righta">
-            <div class="branch"><h3 class="up">2012</h3></div>
-            <div class="leaf">main competition becomes open to all. international and high-school interest grows.</div>
-        </div>
-        <div class="item five lefta">
-            <div class="branch"><h3 class="up">2017</h3></div>
-            <div class="leaf">first battlecode hackathon, "battlehack," is run at mit.</div>
-        </div>
-        <div class="item six righta">
-            <div class="branch"><h3 class="up">2018</h3></div>
-            <div class="leaf">support added for python and other languages.</div>
-        </div>
-    </div>
-    <div class="right">
-        <h3>our</h3>
-        <h2>history</h2>
-    </div>
-</section>
-
-<section class="sec-six" id="sponsor">
-    <div class="left">
-        <div class="header">
-            <h3>our</h3>
-            <h2>sponsors</h2>
-        </div>
-        <h4>Battlecode and Battlehack are made possible by the companies that support it.  We're especially grateful to Jabil for providing use of their Blue Sky Center.  To learn more about sponsorship, email <a href="mailto:Battlecode Sponsorship <battlecode-sponsorship@mit.edu>">battlecode-sponsorship@mit.edu</a>.</h4>
-    </div>
-    <div class="right">
-        <img src=https://storage.googleapis.com/battlehack/jabil.jpg" height="40px" style="margin-top:20px">
-        <img src=https://storage.googleapis.com/battlehack/coatue.png" height="40px"><br />
-        <img src=https://storage.googleapis.com/battlehack/deshaw.jpg" class="gold"><br />
-        <img src=https://storage.googleapis.com/battlehack/cruise.png" class="silver"><img src=https://storage.googleapis.com/battlehack/facebook.jpg" class="silver"><img src=https://storage.googleapis.com/battlehack/hrt.jpg" class="silver"><img src=https://storage.googleapis.com/battlehack/twosigma.png" class="silver"><img src=https://storage.googleapis.com/battlehack/yext.jpg" class="silver"><br />
-        <img src=https://storage.googleapis.com/battlehack/isee.png" class="bronze"><img src=https://storage.googleapis.com/battlehack/oracle.png" class="bronze">
-    </div>
-
-</section>
-
-<footer>
-    <div class="content">
-        <div class="left">
-            <img src=https://storage.googleapis.com/battlehack/bclogo.png">
-        </div>
-        <div class="line"></div>
-        <div class="right">
-            <div class="col">
-                <h3>programs</h3>
-                <a href="https://battlecode.org">battlecode</a><br />
-                <a href="https://hack.battlecode.org">battlehack</a>
-            </div>
-            <div class="col">
-                <h3>about</h3>
-                <a href="https://blog.battlecode.org">blog</a><br />
-                <a href="https://blog.battlecode.org/terms">terms & policy</a>
-            </div>
-            <div class="col">
-                <h3>contact</h3>
-                <a href="https://www.facebook.com/mitbattlecode">facebook</a><br />
-                <a href="mailto:Battlecode <battlecode@mit.edu>">battlecode@mit.edu</a>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.1/ace.js" type="text/javascript" charset="utf-8"></script>
+    <md-divider class="ng-scope"></md-divider>
+    <md-divider class="ng-scope"></md-divider>
+    <a id="sponsors-interested"><h3>What is Battlecode?</h3></a>
+    <p>
+        Battlecode is MIT's artificial intelligence programming competition. Battlecode contestants write AI software
+        in Java to control virtual robots, which then compete in a video-game-style battle simulation. Each virtual
+        robot roams the screen autonomously, and must communicate with other robots to work together and defeat the
+        opposing team. In addition to being fun to watch, Battlecode matches are tests of both programming skill and
+        sheer intellect.
+        <br><br>
+        Contestants are given the Battlecode software and specifications at the beginning of January. Over the course of
+        a month, they must incorporate artificial intelligence, pathfinding, distributed algorithms, and network
+        communications, not to mention ingenuity and teamwork, to complete their robot players. At the end of January,
+        hundreds of spectators watch as the Battlecode tournament determines the "best of the best" among MIT programmers.
+        <br><br>
+        The spectacle of the final tournament draws crowds from all over MIT and takes place in Kresge Auditorium, MIT's
+        largest venue. Thanks to our sponsors, the top contestants get well-earned prizes.
+    </p>
+    <h3>Why Sponsor Battlecode?</h3>
+    <p>
+        Ever wanted a way to filter through job applicants, and find only the best recruits? The Battlecode competition
+        is just that. Because it attracts the "best of the best," Battlecode provides targeted results in three key areas:
+    </p>
+    <ul>
+        <li><b>Recruiting:</b> Sponsoring Battlecode is more than just having your name on a banner - Battlecode gives
+            select companies unprecedented access to meet and recruit the cream of the crop of MIT programmers, both
+            graduate and undergraduate. Representatives from sponsor companies will be invited to the Finalists'
+            Celebration, a networking event where they will get to meet the top contestants personally. In addition,
+            a book of the contestants' resumes will be collected and made available to sponsors.</li>
+        <li><b>Exposure:</b> Battlecode is a prestigious competition that is well-known throughout the entire MIT community.
+            Sponsors will have their logos displayed on our high-traffic web site and wherever Battlecode is advertised.
+            Sponsors will also help award prizes and address the crowd at the final tournament.</li>
+        <li><b>Involvement:</b> Sponsors will get to help make Battlecode a fun and rewarding experience. They will have
+            access to the source code of all entries and be involved in the judging and awarding of academic prizes.</li>
+    </ul>
+    <h3>Contact Us</h3>
+    <p>For more information about the sponsorship experience, including pricing, email us at
+        <a href="mailto:battlecode-sponsorship@mit.edu">battlecode-sponsorship@mit.edu</a>. We've still got slots open for 2019!</p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.10/angular-material.min.js"></script>
 <script>
-    
-var editor = ace.edit("code-editor");
-editor.setTheme("ace/theme/monokai");
-editor.session.setMode("ace/mode/python");
+    var dropdown = document.getElementsByClassName("dropdown-btn");
+    var i;
 
-var pyCode = `# use all language features,
-# including packages!
-from random import random
-
-# called each turn in the game
-def turn():
-    # pick a random direction to move
-    dir = int(random()*4)
-
-    # make sure that direction is on map
-    while bc.inDirection(dir) is None:
-        dir = int(random()*4)
-
-    # attack if square is occupied
-    if bc.inDirection(dir) > 0:
-        return bc.attack(dir)
-    # otherwise move
-    else:
-        return bc.move(dir)
-`;
-
-var jsCode = `// called each turn in the game
-function turn() {
-    // pick a random direction not off map
-    var dir = 0;
-    do {
-        dir = Math.floor(Math.random()*4);
-    } while (bc.inDirection(dir) === null);
-
-    // if the space is free, move to it.
-    if (bc.inDirection(dir) === 0)
-        return bc.move(dir);
-
-    // otherwise, get the robot in that space
-    var robot = bc.getRobot(bc.inDirection(dir));
-
-    // if the robot is not friendly, attack
-    if (robot.team != bc.me().team)
-        return bc.attack(dir);
-}
-`;
-
-var javaCode = `// use normal language features such as imports
-import java.util.Random;
-import org.battlecode.bc;
-
-// class contains all robot code
-public class Robot extends BattleRobot {
-    // called each turn in the game.
-    public Move getTurn() {
-        Random rand;
-
-        // pick a random direction not off map
-        int dir = 0;
-        do dir = rand.nextInt(4);
-        while (bc.inDirection(dir) == bc.OFF_MAP);
-
-        // if the space is free, move to it.
-        if (bc.inDirection(dir) == bc.FREE)
-            return bc.move(dir);
-
-        // otherwise, get the robot in that space
-        BattleRobot robot = bc.getRobot(bc.inDirection(dir));
-
-        // if the robot is not friendly, attack
-        if (robot.getTeam() != getTeam())
-            return bc.attack(dir);
-
-    }
-}
-`;
-
-
-var lang = "python";
-var langSelect = Array.from(document.getElementById("lang-select").children);
-langSelect.forEach(function(child) {
-    child.addEventListener("click", function() {
-        langSelect.forEach(function(subChild) {
-            subChild.style.backgroundColor = "#fefefe";
+    for (i = 0; i < dropdown.length; i++) {
+        dropdown[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var dropdownContent = this.nextElementSibling;
+            var icon = this.childNodes[1];
+            icon.classList.remove("fa-caret-down");
+            icon.classList.add("fa-caret-up");
+            if (dropdownContent.style.display === "block") {
+                dropdownContent.style.display = "none";
+                this.childNodes[1].classList.add("fa-caret-down");
+                this.childNodes[1].classList.remove("fa-caret-up");
+            } else {
+                dropdownContent.style.display = "block";
+                openDropdowns(dropdown, this);
+            }
         });
+    }
 
-        child.style.backgroundColor = "rgb(247,203,190)";
-
-        if (child.innerText === "Python") {
-            editor.session.setMode("ace/mode/python");
-            editor.setValue(pyCode, -1);
-            lang = "python";
-        } else if (child.innerText === "Javascript") {
-            lang = "javascript";
-            editor.session.setMode("ace/mode/javascript");
-            editor.setValue(jsCode, -1);
-        } else if (child.innerText === "Java") {
-            lang = "java";
-            editor.session.setMode("ace/mode/java");
-            editor.setValue(javaCode, -1);
+    function openDropdowns(dropdown, target) {
+        for (var i = 0; i < dropdown.length; i++) {
+            var current = dropdown[i];
+            if (current !== target) {
+                current.nextElementSibling.style.display = "none";
+                if (current.classList.contains("active")) {
+                    current.classList.remove("active");
+                    current.childNodes[1].classList.add("fa-caret-down");
+                    current.childNodes[1].classList.remove("fa-caret-up");
+                }
+            }
         }
+    }
 
-    });
-}); langSelect[0].click();
-
+    function toggleSidenav() {
+        var bar = document.getElementsByClassName("sidenav")[0];
+        var hamburger = document.getElementById("hamburger");
+        var close = document.getElementById("close");
+        if (bar.style.display === "block") {
+            bar.style.display = "none";
+            document.getElementsByClassName("main")[0].style.marginLeft = "10%";
+            document.getElementsByClassName("hero")[0].style.marginLeft = "0%";
+            hamburger.style.display = "block";
+            close.style.display = "none";
+        } else {
+            bar.style.display = "block";
+            document.getElementsByClassName("main")[0].style.marginLeft = "30%";
+            document.getElementsByClassName("hero")[0].style.marginLeft = "20%";
+            hamburger.style.display = "none";
+            close.style.display = "block";
+        }
+    }
 </script>
 </body>
 </html>
