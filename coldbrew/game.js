@@ -1,13 +1,20 @@
-var ROBOT_VISION = 7;
-var ATTACK_PENALTY = 2;
-var INITIAL_HP = 64;
-var COMMUNICATION_BITS = 4;
-var MAX_ROUNDS = 200;
-var INITIAL_FUSE_COUNTER = 3;
-var EXPLOSION_DAMAGE = 5;
+var SPECS = require('./specs');
 
-var NEXUS_INCUBATOR_HP = 1;
-var MAP_SPARSITY = 0.8;
+var COMMUNICATION_BITS = 16;
+var CASTLE_TALK_BITS = 8;
+var MAX_ROUNDS = 1000;
+var INITIAL_KARBONITE = 100;
+var INITIAL_FUEL = 100;
+var MINE_FUEL_COST = 1;
+var KARBONITE_YIELD = 3;
+var FUEL_YIELD = 3;
+
+var CASTLE   = 0;
+var CHURCH   = 1;
+var PILGRIM  = 2;
+var CRUSADER = 3;
+var PROPHET  = 4;
+var PREACHER = 5;
 
 // Check whether in browser or node.
 function inBrowser() {
@@ -48,12 +55,13 @@ function Game(seed, chess_initial, chess_extra, debug) {
     this.robin = Infinity;
     this.init_queue = 0; // how many robots have yet to be initialized.
     this.winner = undefined;
-    this.win_condition = undefined; // 0 is robot annihilation, 1 is more health at end, 2 is random, 3 is opponent failed to initialize, 4 is both failed to initialize so random winner
+    this.win_condition = undefined; // 0 is more castles, 1 is more unit karbonite value at end, 2 is random, 3 is opponent failed to initialize, 4 is both failed to initialize so random winner
     this.debug = debug || false;
     this.logs = [[],[]]; // list of JSON logs for each team
-    this.nexi = [];
-    this.booms = [];
-    this.current_booms = [];
+
+    this.karbonite = [INITIAL_KARBONITE,INITIAL_KARBONITE];
+    this.fuel      = [INITIAL_FUEL, INITIAL_FUEL];
+    this.last_offer = [[0,0],[0,0]];
 
     // The shadow is a 2d map where 0 signifies empty, -1 impassable, and anything
     // else is the id of the robot/item occupying the square.  This is updated
@@ -61,7 +69,7 @@ function Game(seed, chess_initial, chess_extra, debug) {
     
     var to_create = this.makeMap(); // list of robots
     for (i=0; i<to_create.length; i++) {
-        this.createItem(to_create[i].x, to_create[i].y, to_create[i].team);
+        this.createItem(to_create[i].x, to_create[i].y, to_create[i].team, CASTLE);
     }
 }
 
@@ -77,35 +85,30 @@ Game.prototype.makeMap = function() {
         return x - Math.floor(x);
     }.bind(this);
 
-    var width = 15 + Math.floor(16.0*random());
-    var height = 15 + Math.floor(16.0*random());
-    if (height%2 === 1) height++; // ensure height is even
-    if (width%2  === 1) width++;
+    var width = 50;
+    var height = 50;
 
-    this.shadow = new Array(height);
-    for (var i=0; i<height; i++) {
-        this.shadow[i] = new Array(width);
-        for (var j=0; j<width; j++) {
-            this.shadow[i][j] = 0;
-        }
-    }
-
-    var players = 6 + Math.floor(6*random());
-    var player_odd = players/(0.8*height*width);
-    
-    var to_create = [];
-    for (var r=0; r<height/2; r++) {
-        for (var c=0; c<width; c++) {
-            this.shadow[r][c] = this.shadow[height-1-r][width-1-c] = random() > MAP_SPARSITY ? -1 : 0;
-            if (random() < player_odd && this.shadow[r][c] !== -1) {
-                var team = random() > 0.5 ? 1 : 0;
-                to_create.push({ team: team, x: c, y: r });
-                to_create.push({ team: 1-team, x:width-1-c, y:height-1-r });
+    function make_map(default) {
+        var x = new Array(height);
+        for (var i=0; i<height; i++) {
+            x[i] = new Array(width);
+            for (var j=0; j<width; j++) {
+                x[i][j] = default;
             }
-        }
+        } return x;
     }
 
-    if (to_create.length < 10) return this.makeMap();
+    this.shadow = make_map(0);
+    this.karbonite_map = make_map(false);
+    this.fuel_map = make_map(false);
+
+    to_create = [
+        {team:0, x:2, y:2},
+        {team:1, x:47, y:47}
+    ];
+
+    this.fuel_map[4][4] = this.fuel_map[45][45] = true;
+    this.karbonite_map[6][6] = this.karbonite_map[43][43] = true;
 
     return to_create;
 }
@@ -123,7 +126,7 @@ Game.prototype.viewerMap = function() {
 }
 
 Game.prototype.viewerMessage = function() {
-    return insulate({robots:this.robots, nexi:this.nexi, booms:this.booms});
+    return insulate(this.robots);
 }
 
 /**
@@ -133,9 +136,10 @@ Game.prototype.viewerMessage = function() {
  * @param {number} x - The x coordinate to create the item on.
  * @param {number} y - The x coordinate to create the item on.
  * @param {number} team - The team to create the robot on.
+ * @param {number} unit - The unit class to be created.
  * @returns {Object} The created item.
  */
-Game.prototype.createItem = function(x,y,team) {
+Game.prototype.createItem = function(x,y,team,unit) {
     var id = null;
 
     do id = 10+Math.floor(4086 * Math.random());
@@ -144,18 +148,25 @@ Game.prototype.createItem = function(x,y,team) {
 
     var robot         = {'type':'robot'};
     robot.id          = id;
-    robot.team        = team;
-    robot.x           = x;
+    robot.team        = team; // 0 is red, 1 is blue
+    robot.x           = x;    // (0,0) should be top left
     robot.y           = y;
+    robot.unit        = unit;
 
-    robot.health      = INITIAL_HP;
+    robot.health      = SPECS[unit]['STARTING_HP'];
+    robot.karbonite   = 0;
+    robot.fuel        = 0;    // current holding
+
+    robot.signal      = 0;    // COMMUNICATION_BITS max
+    robot.signal_radius = 0;  // r^2
+    robot.castle_talk = 0;    // talk to god
+    robot.doing       = null; // action the robot last performed
+
     robot.initialized = false;
     robot.hook        = null; // the turn function
     robot.time        = this.chess_initial; // time left in chess clock
     robot.start_time  = -1; // used for chess clock timing.
-    robot.signal      = 0;
-    robot.fuse        = 0; // used for the fuse action. if positive, fuse is in progress
-    robot.nexus       = -1; // either -1, or a direction.
+
     this.init_queue++;
 
     if (this.shadow[robot.y][robot.x] === 0) this.shadow[robot.y][robot.x] = robot.id;
@@ -238,9 +249,17 @@ Game.prototype.robotLog = function(message, robot) {
 Game.prototype.isOver = function() {
     var red = 0;
     var blue = 0;
+    var castles = [0,0];
 
+
+    // 0 is more castles
+    // 1 is more unit health at end
+    // 2 is random
+    // 3 is opponent failed to initialize
+    // 4 is both failed to initialize so random winner
+    
     var nulls = [0,0];
-    var total = [0,0]
+    var total = [0,0];
     for (var i=0; i<this.robots.length; i++) {
         var robot = this.robots[i];
         total[robot.team]++;
@@ -248,49 +267,57 @@ Game.prototype.isOver = function() {
             if (robot.hook) {
                 if (robot.team === 0) red += robot.health;
                 else blue += robot.health;
+
+                if (robot.unit === CASTLE) castles[robot.team]++;
             } else nulls[robot.team]++;
         }
     }
 
     if (nulls[0] === total[0] && nulls[1] === total[1]) {
         this.winner = +(Math.random() > 0.5);
-        this.win_condition = 2;
+        this.win_condition = 4;
+        if (this.debug) console.log("Both teams failed to initialize.");
         return true;
     } else if (nulls[0] === total[0]) {
         this.winner = 1;
-        this.win_condition = 0;
+        this.win_condition = 3;
+        if (this.debug) console.log("Red failed to initialize.");
         return true;
     } else if (nulls[1] === total[1]) {
         this.winner = 0;
-        this.win_condition = 0;
+        this.win_condition = 3;
+        if (this.debug) console.log("Blue failed to initialize.");
         return true;
-    }
-
-    if (red === 0) {
+    } else if (castles[0] === 0 && castles[1] !== 0) {
         this.winner = 1;
         this.win_condition = 0;
-        if (this.debug) console.log("Game over, blue won by annihilation.");
+        if (this.debug) console.log("Game over, blue won by castle annihilation.");
         return true;
-    } else if (blue === 0) {
-        this.winner = 0;
+    } else if (castles[0] !== 0 && castles[1] === 0) {
+        this.winner = 1;
         this.win_condition = 0;
-        if (this.debug) console.log("Game over, red won by annihilation.");
+        if (this.debug) console.log("Game over, red won by castle annihilation.");
+        return true;
+    } else if (castles[0] === 0 && castles[1] === 0) {
+        this.win_condition = 2;
+        this.winner = +(Math.random() > 0.5);
+        if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw each with no castles.");
         return true;
     } else if (this.round >= MAX_ROUNDS) {
-        this.win_condition = 1;
-        if (red > blue) {
-            this.winner = 0;
-            if (this.debug) console.log("Game over, red won by greater health.");
-        } else if (blue > red) {
-            this.winner = 1;
-            if (this.debug) console.log("Game over, blue won by greater health.");
+        if (castles[0] !== castles[1]) {
+            this.winner = castles[1] > castles[0] ? 1 : 0;
+            this.win_condition = 0;
+            if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by more castles.");
         } else {
-            this.win_condition = 2;
-            this.winner = +(Math.random() > 0.5);
-            if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw.");
-        }
-
-        return true;
+            if (red !== blue) {
+                this.winner = red > blue ? 0 : 1;
+                if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by greater health.");
+            } else {
+                this.win_condition = 2;
+                this.winner = +(Math.random() > 0.5);
+                if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw.");
+            } this.win_condition = 1;
+        } return true;
     }
 
     return false;
@@ -325,140 +352,76 @@ Game.prototype.registerHook = function(hook, robot_id) {
     //console.log("Registered Robot " + robot.id + " with " + robot.hook);
 }
 
-Game.prototype._overflow_y = function(val) {
-    if (val < 0) return this.shadow.length + val;
-    else if (val >= this.shadow.length) return val - this.shadow.length;
-    else return val;
-}
-
-Game.prototype._overflow_x = function(val) {
-    if (val < 0) return this.shadow[0].length + val;
-    else if (val >= this.shadow[0].length) return val - this.shadow[0].length;
-    else return val;
-}
-
 /**
- * Returns a subsquare of the robots vision, with the robot at the center.
+ * Returns a masked version of the shadow for a given robot.
  *
  * @param {Object} robot - The robot object to get visible for.
  * @returns {number[][]} The subshadow.
  */
 Game.prototype.getVisible = function(robot) {
-    var view = Array(ROBOT_VISION);
-    for (var i=0; i<ROBOT_VISION; i++) view[i]=Array(ROBOT_VISION);
-    var r = Math.floor(ROBOT_VISION/2);
+    var view = Array(this.shadow.length);
+    for (var i=0; i<this.shadow.length; i++) view[i]=Array(this.shadow[0].length);
+    
+    var r = SPECS[robot.unit]['VISION_RADIUS'];
 
-    for (var _x=0; _x<ROBOT_VISION; _x++) {
-        for (var _y=0; _y<ROBOT_VISION; _y++) {
-            var x = this._overflow_x(_x + robot.x - r);
-            var y = this._overflow_y(_y + robot.y - r);
-
-            view[_y][_x] = this.shadow[y][x];
+    for (var r=0; x<this.shadow.length; r++) {
+        for (var c=0; c<this.shadow[0].length; c++) {
+            if (Math.pow(robot.x - c,2) + Math.pow(robot.y - r,2) <= r) {
+                view[r][c] = this.shadow[r][c];
+            }
         }
     }
 
     return view;
 }
 
-/**
- * Calculates a new position in a given direction.
- * Internal use only.
- *
- * @param {number} x - The x coordinate to calc from.
- * @param {number} x - The x coordinate to calc from.
- * @param {number} x - The x coordinate to calc from.
- *
- * @return {number[]} - The new x,y coordinates, or null if off map/invalid.
- */
-Game.prototype._newPosCalc = function(x, y, dir, int) {
-    int = int || 1;
-
-    var new_pos = [x, y];
-    if (dir === 0) new_pos[0] += int;
-    else if (dir === 1) { new_pos[0] += int; new_pos[1] -= int; }
-    else if (dir === 2) new_pos[1] -= int;
-    else if (dir === 3) { new_pos[1] -= int; new_pos[0] -= int; }
-    else if (dir === 4) new_pos[0] -= int;
-    else if (dir === 5) { new_pos[1] += int; new_pos[0] -= int; }
-    else if (dir === 6) new_pos[1] += int;
-    else if (dir === 7) { new_pos[0] += int; new_pos[1] += int; }
-    else return null;
-
-    // wrap position
-    new_pos[0] = this._overflow_x(new_pos[0]);
-    new_pos[1] = this._overflow_y(new_pos[1]);
-
-    return new_pos;
-}
-
-/**
- * Apply nexus unit incubation/destruction.
- * Internal use only.
- */
-Game.prototype._applyNexi = function() {
-    this.nexi = [];
-
-    for (var k=0; k<this.robots.length; k++) {
-        var this_robot = this.robots[k];
-
-        if (this_robot.nexus < 0 || this_robot.nexus > 7) continue;
-
-        var y = this_robot.y;
-        var x = this_robot.x;
-
-        // Get spot being nexused
-        var center_coords = this._newPosCalc(x,y,this_robot.nexus);
-        var opposed_coords = this._newPosCalc(x,y,this_robot.nexus,2);
-
-        var center = this.shadow[center_coords[1]][center_coords[0]];
-        var opposed = this.shadow[opposed_coords[1]][opposed_coords[0]];
-
-        if (opposed <= 0 || center === -1) continue;
-        var opposing_robot = this.getItem(opposed);
-        if (opposing_robot.team !== this_robot.team) continue;
-        if (opposing_robot.nexus < 0 || opposing_robot.nexus > 7) continue;
-
-        // ensure opposing_robot.nexus points to center_coords
-        var op_point = this._newPosCalc(opposing_robot.x, opposing_robot.y, opposing_robot.nexus);
-        if (op_point[0] != center_coords[0] || op_point[1] != center_coords[1]) continue;
-
-        // If center square is empty
-        if (center === 0) {
-            this.createItem(center_coords[0], center_coords[1], this_robot.team).health = NEXUS_INCUBATOR_HP;
-            this.nexi.push([[x,y], opposed_coords]);
-            continue;
-        }
-
-        var center_robot = this.getItem(center);
-
-        // If center square is occupied by friend
-        if (center_robot.team === this_robot.team) {
-            if (center_robot.health < INITIAL_HP) center_robot.health++;
-            this.nexi.push([[x,y], opposed_coords]);
-        }
-    }
-}
 
 Game.prototype.getGameStateDump = function(robot) {
     var visible = [];
     var shadow = this.getVisible(robot);
-    shadow.forEach(function(row) {
-        row.forEach(function(v) {
-            if (v <= 0) return;
-            var r = insulate(this.getItem(v));
-            delete r.initialized;
-            delete r.hook;
-            delete r.time;
-            delete r.nexus;
-            delete r.start_time;
-            if (robot.id !== r.id) {
-                delete r.health;
-            }
-            visible.push(r);
-        }.bind(this));
-    }.bind(this));
+
+    var is_castle = robot.unit === CASTLE;
+    for (var i=0; i<this.robots.length; i++) {
+        var d = Math.pow(robot.x - this.robots[i].x,2) + Math.pow(robot.y - this.robots[i].y,2);
+        var visible = d <= SPECS[robot.unit]['VISION_RADIUS'];
+        var radioable = d <= this.robots[i].signal_radius;
+
+        if (!visible && !radioable && !is_castle) continue;
+
+        var r = insulate(this.robots[i]);
+        
+        delete r.initialized;
+        delete r.hook;
+        delete r.time;
+        delete r.start_time;
+        delete r.doing;
+
+        if (robot.id !== r.id) {
+            delete r.health;
+            delete r.karbonite;
+            delete r.fuel;
+        }
+
+        if (!radioable) {
+            delete r.signal;
+            delete r.signal_radius;
+        }
+
+        if (!visible) {
+            delete r.x;
+            delete r.y;
+            delete r.unit;
+            delete r.team;
+        }
+
+        if (!is_castle) delete r.castle_talk;
+
+        visible.push(r);
+
+    }
 
     return JSON.stringify({shadow:shadow, visible:visible});
+    
 }
 
 /**
@@ -471,11 +434,8 @@ Game.prototype.getGameStateDump = function(robot) {
  */
 Game.prototype.enactTurn = function() {
     if (this.robin >= this.robots.length) {
-        this._applyNexi();
         this.robin = 0;
-        this.booms = this.current_booms;
         this.round++;
-        this.current_booms = [];
     }
 
     var robot = this.robots[this.robin];
@@ -503,49 +463,6 @@ Game.prototype.enactTurn = function() {
     if (response !== "") {
         this.robotError(response, robot);
     }
-
-    if (robot.fuse === 1) {
-        // explode
-        this.current_booms.push([robot.x,robot.y])
-
-        // decrease health of robots around it
-        /*var neighbors = [
-            [this._overflow_y(r-1),  c],                   
-            [this._overflow_y(r+1),this._overflow_x(c-1)],
-            [this._overflow_y(r-1),this._overflow_x(c-1)],
-            [r, this._overflow_x(c-1)]
-            [this._overflow_y(r+1),  c],                   
-            [this._overflow_y(r+1),this._overflow_x(c+1)],
-            [this._overflow_y(r-1),this._overflow_x(c+1)],
-            [r, this._overflow_x(c+1)]
-        ];*/
-        for (var yd=-5; yd <= 5; yd++) {
-            for (var xd=-5; xd <= 5; xd++) {
-                if (yd == 0 && xd == 0) continue;
-                neighbor_coords = [this._overflow_y(robot.y+yd),this._overflow_x(robot.x+xd)];
-                neighbor = this.shadow[neighbor_coords[0]][neighbor_coords[1]];
-                neighbor_dist = Math.abs(xd) + Math.abs(yd);
-
-                // don't do anything if there is no robot here
-                if (neighbor <= 0) continue;
-
-                neighbor_robot = this.getItem(neighbor);
-
-                // decrease the health
-                damage = EXPLOSION_DAMAGE-neighbor_dist+1;
-                if (damage > 0) {
-                    this._damageRobot(neighbor_robot, damage);
-                }
-                
-            }
-        }
-        
-
-        // delete this robot
-        this._deleteRobot(robot);
-    } else if (robot.fuse > 0) {
-        robot.fuse--;
-    }
 }
 
 
@@ -562,6 +479,8 @@ Game.prototype.enactTurn = function() {
  * @return {String} An error message or empty string.
  */
 Game.prototype.enactAction = function(robot, action, time) {
+    robot.doing = action;
+
     this.robin++;
     if (this.robin === this.robots.length) this.robin++;
 
@@ -573,6 +492,9 @@ Game.prototype.enactAction = function(robot, action, time) {
         return "Timed out by " + robot.time*-1 + "ms.";
     } else robot.time += this.chess_extra;
 
+    function int_param(param) {
+        return param in action && action[param] !== null && Number.isInteger(action[param]);
+    }
 
     if (action === null) return "";
 
@@ -589,77 +511,177 @@ Game.prototype.enactAction = function(robot, action, time) {
         }
     }
 
-    if ('signal' in action && action['signal'] !== null) {
-        if (Number.isInteger(action.signal) && action.signal >= 0 && action.signal < Math.pow(2,COMMUNICATION_BITS)) {
-            robot.signal = action.signal;
+    if ('signal' in action) {
+        if (int_param('signal') && int_param('signal_radius') && action.signal >= 0 && action.signal < Math.pow(2,COMMUNICATION_BITS) && action.signal_radius >= 0) {
+            
+            var fuel_cost = action.signal_radius;
+
+            if (robot.fuel >= fuel_cost) {
+                robot.fuel -= fuel_cost;
+                robot.signal_radius = action.signal_radius;
+                robot.signal = action.signal;
+            } else return "Insufficient fuel to signal given radius.";
+
         } else return "Invalid signal message.";
     }
 
-    if ('nexus' in action && action['nexus'] !== null) {
-        if (Number.isInteger(action.nexus)) {
-            robot.nexus = action.nexus;
-        } else return "Invalid nexus direction.";
+    if ('castle_talk' in action) {
+        if (int_param('castle_talk') && action.castle_talk >= 0 && action.castle_talk < Math.pow(2,CASTLE_TALK_BITS)) {
+            robot.castle_talk = action.castle_talk;
+        } else return "Invalid church talk."
     }
 
+    valid = 'action' in action && ['move','attack','build','mine','trade','give'].indexOf(action['action']) >= 0;
+    if (!valid) return "";
 
-    valid = valid && 'action' in action && ['move','attack','fuse'].indexOf(action['action']) >= 0;
+    if (action.action === 'trade') {
+        if (robot.unit !== CASTLE) return "Only Castles can trade.";
 
-    // if the robot is currently in fuse, then we don't allow any action
-    if (robot.fuse > 0) {
-        if (valid) {
-            return "Attempted to perform another action after a fuse action.";
-        } else {
-            return "";
+        if (int_param('trade_fuel') && int_param('trade_karbonite')) {
+            // trade_fuel and trade_karbonite are the amount given by red, or received by blue.
+            // for example, for red to offer a trade of 10 karbonite for 10 fuel, it would be karbonite=10 and fuel=-10.
+
+            this.last_offer[robot.team] = [action.trade_karbonite, action.trade_fuel];
+            
+            // if the most recent blue offer is equal to the most recent red offer, the deal is enacted if payable, and nullified if not.
+            if (this.last_offer[0][0] === this.last_offer[1][0] && this.last_offer[0][1] === this.last_offer[1][1]) {
+                this.last_offer = [[0,0],[0,0]];
+
+                // Check if deal is payable
+                if (this.karbonite[0] >= action.trade_karbonite && this.karbonite[1] >= -1*action.trade_karbonite &&
+                    this.fuel[0] >= action.trade_fuel && this.fuel[1] >= -1*action.trade_fuel) {
+
+                    // Enact the deal
+                    this.karbonite[0] -= action.trade_karbonite;
+                    this.karbonite[1] += action.trade_karbonite;
+                    this.fuel[0] -= action.trade_fuel;
+                    this.fuel[1] += action.trade_fuel;
+
+                } else return "Agreed trade deal is not payable.";
+            }
+
+        } else return "Must provide valid fuel and karbonite offers.";
+    }
+
+    else if (action.action === 'mine') {
+        if (robot.unit !== PILGRIM) return "Only Pilgrims can mine.";
+        if (this.fuel[robot.team] - MINE_FUEL_COST < 0) return "Not enough fuel to mine.";
+
+        if (this.karbonite_map[robot.y][robot.x] && robot.karbonite + KARBONITE_YIELD <= SPECS[PILGRIM]['KARBONITE_CAPACITY']) {
+            robot.karbonite += KARBONITE_YIELD;
+            this.fuel[robot.team] -= MINE_FUEL_COST;
+        }
+        else if (this.fuel_map[robot.y][robot.x] && robot.fuel + FUEL_YIELD <= SPECS[PILGRIM]['FUEL_CAPACITY']) {
+            robot.fuel += FUEL_YIELD;
+            this.fuel[robot.team] -= MINE_FUEL_COST;
+        } else return "Could not mine, as was not on resource point.";
+    }
+
+    // Now, require a dx and dy for remaining actions.
+    valid = int_param('dx') && int_param('dy') && (action.dx != 0 || action.dy != 0);
+    valid = valid && robot.x + action.dx < this.shadow[0].length && robot.x + action.dx >= 0 && robot.y + action.dy < this.shadow.length && robot.y + action.dy >= 0;
+    if (!valid) return "Require a valid, onboard, nonzero dx and dy for given action."
+
+    if (action.action === 'build') {
+        if (robot.unit !== PILGRIM && robot.unit !== CASTLE && robot.unit !== CHURCH) return "Only pilgrims, castles and churches can build.";
+        if (action.dx > 1 || action.dy > 1) return "Can only build on adjacent squares.";
+        if (int_param('build_unit') && action.build_unit >= 0 && action.build_unit <= 5) {
+            if (robot.unit === PILGRIM && action.build_unit !== CHURCH) return "Pilgrim failed to build non-church unit.";
+            if (robot.unit !== PILGRIM && action.build_unit === CHURCH) return "Non-pilgrim unit failed to build church.";
+
+            if (this.shadow[robot.y+action.dy][robot.x+action.dx] === 0) {
+                if (this.karbonite[robot.team] < SPECS[action.build_unit]['CONSTRUCTION_KARBONITE'] || this.fuel[robot.team] < SPECS[action.build_unit]['CONSTRUCTION_FUEL']) return "Cannot afford to build specified unit.";
+
+                this.karbonite[robot.team] -= SPECS[action.build_unit]['CONSTRUCTION_KARBONITE'];
+                this.fuel[robot.team] -= SPECS[action.build_unit]['CONSTRUCTION_FUEL'];
+
+                this.createItem(robot.x+action.dx, robot.y+action.dy, robot.team, action.build_unit);
+                
+            } else return "Attempted to build on occupied tile.";
+
+        } else return "Invalid unit specified to build.";
+    }
+
+    else if (action.action === 'give') {
+        if (action.dx > 1 || action.dy > 1) return "Can only give to adjacent squares.";
+        if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0) {
+            if (robot.karbonite < action.give_karbonite || robot.fuel < action.give_fuel) return "Tried to give more than you have.";
+
+            var at_shadow = this.shadow[robot.y+action.dy][robot.x+action.dx];
+            if (at_shadow === 0) return "Cannot give to empty square.";
+
+            // Either giving to castle/church, or robot.
+            at_shadow = this.getItem(at_shadow);
+
+            if (at_shadow.unit === CASTLE || at_shadow.unit === CHURCH) {
+                this.karbonite[at_shadow.team] += action.give_karbonite;
+                this.fuel[at_shadow.team] += action.give_fuel;
+            } else {
+                // Cap max transfer at capacity limit of receiver
+                action.give_karbonite = Math.min(action.give_karbonite, SPECS[at_shadow.unit]['KARBONITE_CAPACITY'] - at_shadow.karbonite);
+                action.give_fuel = Math.min(action.give_fuel, SPECS[at_shadow.unit]['FUEL_CAPACITY'] - at_shadow.fuel);
+
+                at_shadow.karbonite += action.give_karbonite;
+                at_shadow.fuel += action.give_fuel;
+            }
+
+            robot.karbonite -= action.give_karbonite;
+            robot.fuel -= action.give_fuel;
+
+        } else return "Invalid karbonite and fuel to give.";
+    }
+    
+    else if (action.action === 'move') {
+        var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
+        if (r > SPECS[robot.unit]['SPEED']) return "Slow down, cowboy.";
+        if (this.shadow[robot.y+action.dy][robot.x+action.dx] > 0) return "Cannot move into occupied square.";
+        if (this.fuel[robot.team] < r*SPECS[robot.unit]['FUEL_PER_MOVE']) return "Not enough fuel to move.";
+
+        this.fuel[robot.team] -= r*SPECS[robot.unit]['FUEL_PER_MOVE'];
+        
+        this.shadow[robot.y+action.dy][robot.x+action.dx] = robot.id;
+        this.shadow[robot.y][robot.x] = 0;
+        robot.y = robot.y+action.dy;
+        robot.x = robot.x+action.dx;
+    }
+
+    else if (action.action === 'attack') {
+        var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
+        if (r > SPECS[robot.unit]['ATTACK_RADIUS'][1] || r < SPECS[robot.unit]['ATTACK_RADIUS'][0]) return "Cannot attack outside of attack range.";
+        var at_shadow = this.shadow[robot.y+action.dy][robot.x+action.dx];
+
+        if (at_shadow === 0) return "Cannot attack an empty square.";
+
+        // Handle AOE damage
+        for (var r=0; r<this.shadow.length; r++) {
+            for (var c=0; c<this.shadow[0].length; c++) {
+                var rad = Math.pow(robot.y+action.dy - r,2) + Math.pow(robot.x+action.dx - c,2);
+                if (rad <= SPECS[robot.unit]['DAMAGE_SPREAD'] && this.shadow[r][c] !== 0) {
+                    var target = this.getItem(this.shadow[r][c]);
+                    target.health -= SPECS[robot.unit]['ATTACK_DAMAGE'];
+                    
+                    if (target.health <= 0) {
+                        // Reclaim: attacker gets resources plus half karbonite to construct, divided by rad^2
+
+                        var reclaimed_karb = Math.floor((target.karbonite + SPECS[target.unit]['CONSTRUCTION_KARBONITE']/2)/rad);
+                        var reclaimed_fuel = Math.floor(target.fuel/rad);
+
+                        robot.karbonite = Math.min(robot.karbonite+reclaimed_karb, SPECS[robot.unit]['KARBONITE_CAPACITY']);
+                        robot.fuel = Math.min(robot.fuel+reclaimed_fuel, SPECS[robot.unit]['FUEL_CAPACITY']);
+                        
+                        this._deleteRobot(target);
+                    }
+                }
+            }
         }
     }
-
-    if (valid && action.action === 'move') {
-        if ('dir' in action && Number.isInteger(action.dir) && action.dir >= 0 && action.dir < 8) {
-            var new_pos = this._newPosCalc(robot.x,robot.y,action.dir);
-
-            if (this.shadow[new_pos[1]][new_pos[0]] === 0) {
-                // space isn't occupied, so move into it.
-                this.shadow[robot.y][robot.x] = 0;
-                this.shadow[new_pos[1]][new_pos[0]] = robot.id;
-
-                robot.x = new_pos[0];
-                robot.y = new_pos[1];
-            } else {
-                // space is occupied, so don't move.
-                return "Attempted to move into occupied square."
-            }
-        } else return "Malformed move.";   
-    } else if (valid && action.action === 'attack') {
-        if ('dir' in action && Number.isInteger(action.dir) && action.dir >= 0 && action.dir < 8) {
-            var new_pos = this._newPosCalc(robot.x,robot.y,action.dir);
-
-            if (this.shadow[new_pos[1]][new_pos[0]] > 0) {
-                // space has a robot in it.
-                var victim = this.getItem(this.shadow[new_pos[1]][new_pos[0]]);
-                this._damageRobot(victim, ATTACK_PENALTY);
-            } else {
-                // space is occupied, so don't move.
-                return "Attempted to attack a space without a robot."
-            }
-        } else return "Malformed move.";        
-    } else if (valid && action.action === 'fuse') {
-        // set robot's fuse counter to something
-
-        robot.fuse = INITIAL_FUSE_COUNTER+1;
-    }
-            
-
-    return "";
 }
 
 
 Game.prototype._deleteRobot = function(robot) {
     this.shadow[robot.y][robot.x] = 0;
 
-    if (!robot.initialized) {
-        console.log(this.init_queue);
-        this.init_queue--;
-    }
+    if (!robot.initialized) this.init_queue--;
 
     // delete robot
     var robot_index = this.robots.indexOf(robot);
@@ -667,16 +689,6 @@ Game.prototype._deleteRobot = function(robot) {
 
     if (robot_index < this.robin) this.robin--;
 }
-
-// inflict damage on robot. if health is less than or equal to 0, then kill the robot
-Game.prototype._damageRobot = function(robot, damage) {
-    robot.health -= damage;
-
-    if (robot.health <= 0) {
-        this._deleteRobot(robot);
-    }
-}
-
 
 
 
