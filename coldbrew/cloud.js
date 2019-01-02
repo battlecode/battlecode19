@@ -28,24 +28,26 @@ const db = pgp(cn);
 const CHESS_INITIAL = 100;
 const CHESS_EXTRA = 20;
 
+const TABLE = 'api_scrimmage'
+
 const queue = `
 WITH t as (
     SELECT s.id as id, s.red_team_id as red_id, s.blue_team_id as blue_id,
            r.code as red, b.code as blue
-    FROM api_scrimmage as s
+    FROM ` + TABLE + ` as s
     INNER JOIN api_team r ON r.id=s.red_team_id
     INNER JOIN api_team b ON b.id=s.blue_team_id
     WHERE s.status = 'queued' ORDER BY id LIMIT 1
 )
-UPDATE api_scrimmage SET status = 'running'
-FROM t WHERE api_scrimmage.id = (
-    SELECT id FROM api_scrimmage WHERE status = 'queued'
+UPDATE ` + TABLE + ` SET status = 'running'
+FROM t WHERE ` + TABLE + `.id = (
+    SELECT id FROM ` + TABLE + ` WHERE status = 'queued'
     ORDER BY id LIMIT 1
 ) RETURNING t.id as id, t.red_id as red_id, t.blue_id as blue_id, t.red as red, t.blue as blue;
 `
 
 const end_match = `
-UPDATE api_scrimmage SET status = $1, replay = $2 WHERE id = $3;
+UPDATE ` + TABLE + ` SET status = $1, replay = $2 WHERE id = $3;
 `
 
 
@@ -53,7 +55,7 @@ function playGame() {
     db.one(queue).then(function(scrimmage) {
         console.log(`[Worker ${process.pid}] Running match ${scrimmage.id}`);
         var seed = Math.floor(10000*Math.random());
-        let c = new Coldbrew(null, seed, scrimmage.red, scrimmage.blue, CHESS_INITIAL, CHESS_EXTRA, function(replay) {
+        let c = new Coldbrew(null, seed, scrimmage.red, scrimmage.blue, CHESS_INITIAL, CHESS_EXTRA, false, function(replay) {
             var r = JSON.stringify(replay);
             var replay_name = Math.random().toString(36).substring(2) + ".json";
             var file = bucket.file('replays/' + replay_name);

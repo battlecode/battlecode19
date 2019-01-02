@@ -1,21 +1,5 @@
 var SPECS = require('./specs');
 
-var COMMUNICATION_BITS = 16;
-var CASTLE_TALK_BITS = 8;
-var MAX_ROUNDS = 1000;
-var INITIAL_KARBONITE = 100;
-var INITIAL_FUEL = 100;
-var MINE_FUEL_COST = 1;
-var KARBONITE_YIELD = 3;
-var FUEL_YIELD = 3;
-
-var CASTLE   = 0;
-var CHURCH   = 1;
-var PILGRIM  = 2;
-var CRUSADER = 3;
-var PROPHET  = 4;
-var PREACHER = 5;
-
 // Check whether in browser or node.
 function inBrowser() {
     return (typeof window !== "undefined");
@@ -59,8 +43,8 @@ function Game(seed, chess_initial, chess_extra, debug) {
     this.debug = debug || false;
     this.logs = [[],[]]; // list of JSON logs for each team
 
-    this.karbonite = [INITIAL_KARBONITE,INITIAL_KARBONITE];
-    this.fuel      = [INITIAL_FUEL, INITIAL_FUEL];
+    this.karbonite = [SPECS.INITIAL_KARBONITE,SPECS.INITIAL_KARBONITE];
+    this.fuel      = [SPECS.INITIAL_FUEL, SPECS.INITIAL_FUEL];
     this.last_offer = [[0,0],[0,0]];
 
     // The shadow is a 2d map where 0 signifies empty, -1 impassable, and anything
@@ -69,7 +53,7 @@ function Game(seed, chess_initial, chess_extra, debug) {
     
     var to_create = this.makeMap(); // list of robots
     for (i=0; i<to_create.length; i++) {
-        this.createItem(to_create[i].x, to_create[i].y, to_create[i].team, CASTLE);
+        this.createItem(to_create[i].x, to_create[i].y, to_create[i].team, SPECS.CASTLE);
     }
 }
 
@@ -88,12 +72,12 @@ Game.prototype.makeMap = function() {
     var width = 50;
     var height = 50;
 
-    function make_map(default) {
+    function make_map(start) {
         var x = new Array(height);
         for (var i=0; i<height; i++) {
             x[i] = new Array(width);
             for (var j=0; j<width; j++) {
-                x[i][j] = default;
+                x[i][j] = start;
             }
         } return x;
     }
@@ -101,6 +85,7 @@ Game.prototype.makeMap = function() {
     this.shadow = make_map(0);
     this.karbonite_map = make_map(false);
     this.fuel_map = make_map(false);
+    this.map = make_map(true);
 
     to_create = [
         {team:0, x:2, y:2},
@@ -109,6 +94,7 @@ Game.prototype.makeMap = function() {
 
     this.fuel_map[4][4] = this.fuel_map[45][45] = true;
     this.karbonite_map[6][6] = this.karbonite_map[43][43] = true;
+
 
     return to_create;
 }
@@ -153,11 +139,11 @@ Game.prototype.createItem = function(x,y,team,unit) {
     robot.y           = y;
     robot.unit        = unit;
 
-    robot.health      = SPECS[unit]['STARTING_HP'];
+    robot.health      = SPECS.UNITS[unit]['STARTING_HP'];
     robot.karbonite   = 0;
     robot.fuel        = 0;    // current holding
 
-    robot.signal      = 0;    // COMMUNICATION_BITS max
+    robot.signal      = 0;    // SPECS.COMMUNICATION_BITS max
     robot.signal_radius = 0;  // r^2
     robot.castle_talk = 0;    // talk to god
     robot.doing       = null; // action the robot last performed
@@ -207,8 +193,7 @@ Game.prototype.robotError = function(message, robot) {
         if (inBrowser()) console.log("%c"+"[Robot "+robot.id+" Error] "
                                    + ("%c"+message),"color:"+team+";",
                                      "color:black;");
-        //else console.log((robot.team==0?"\033[31m":"\033[34m")
-        // XXX FIX XXX              + "[Robot "+robot.id+" Error]\033[0m " + message)
+        else console.log((robot.team==0?"\033[31m":"\033[34m") + "[Robot "+robot.id+" Error]\033[0m " + message);
     } else this.logs[robot.team].push({
         'type':'error',
         'message':message,
@@ -229,8 +214,7 @@ Game.prototype.robotLog = function(message, robot) {
         if (inBrowser()) console.log("%c"+"[Robot "+robot.id+" Log] "
                                    + ("%c"+message),"color:"+team+";",
                                      "color:black;");
-        //else console.log((robot.team==0?"\033[31m":"\033[34m")
-        // XXX FIX XXX              + "[Robot "+robot.id+" Error]\033[0m " + message)
+        else console.log((robot.team==0?"\033[31m":"\033[34m") + "[Robot "+robot.id+" Log]\033[0m " + message)
     } else this.logs[robot.team].push({
         'type':'log',
         'message':message,
@@ -268,7 +252,7 @@ Game.prototype.isOver = function() {
                 if (robot.team === 0) red += robot.health;
                 else blue += robot.health;
 
-                if (robot.unit === CASTLE) castles[robot.team]++;
+                if (robot.unit === SPECS.CASTLE) castles[robot.team]++;
             } else nulls[robot.team]++;
         }
     }
@@ -303,7 +287,7 @@ Game.prototype.isOver = function() {
         this.winner = +(Math.random() > 0.5);
         if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw each with no castles.");
         return true;
-    } else if (this.round >= MAX_ROUNDS) {
+    } else if (this.round >= SPECS.MAX_ROUNDS) {
         if (castles[0] !== castles[1]) {
             this.winner = castles[1] > castles[0] ? 1 : 0;
             this.win_condition = 0;
@@ -362,9 +346,9 @@ Game.prototype.getVisible = function(robot) {
     var view = Array(this.shadow.length);
     for (var i=0; i<this.shadow.length; i++) view[i]=Array(this.shadow[0].length);
     
-    var r = SPECS[robot.unit]['VISION_RADIUS'];
+    var r = SPECS.UNITS[robot.unit]['VISION_RADIUS'];
 
-    for (var r=0; x<this.shadow.length; r++) {
+    for (var r=0; r<this.shadow.length; r++) {
         for (var c=0; c<this.shadow[0].length; c++) {
             if (Math.pow(robot.x - c,2) + Math.pow(robot.y - r,2) <= r) {
                 view[r][c] = this.shadow[r][c];
@@ -377,18 +361,21 @@ Game.prototype.getVisible = function(robot) {
 
 
 Game.prototype.getGameStateDump = function(robot) {
-    var visible = [];
+    var visible_robots = [];
     var shadow = this.getVisible(robot);
 
-    var is_castle = robot.unit === CASTLE;
+    var is_castle = robot.unit === SPECS.CASTLE;
     for (var i=0; i<this.robots.length; i++) {
         var d = Math.pow(robot.x - this.robots[i].x,2) + Math.pow(robot.y - this.robots[i].y,2);
-        var visible = d <= SPECS[robot.unit]['VISION_RADIUS'];
+        var visible = d <= SPECS.UNITS[robot.unit]['VISION_RADIUS'];
         var radioable = d <= this.robots[i].signal_radius;
 
         if (!visible && !radioable && !is_castle) continue;
 
         var r = insulate(this.robots[i]);
+
+        // Castle talk should only work for same team
+        if (!visible && !radioable && robot.team !== r.team) continue;
         
         delete r.initialized;
         delete r.hook;
@@ -416,11 +403,21 @@ Game.prototype.getGameStateDump = function(robot) {
 
         if (!is_castle) delete r.castle_talk;
 
-        visible.push(r);
+        visible_robots.push(r);
 
     }
 
-    return JSON.stringify({shadow:shadow, visible:visible});
+    return JSON.stringify({
+        id: robot.id, 
+        shadow:shadow, 
+        visible:visible_robots, 
+        map:this.map, 
+        karbonite_map:this.karbonite_map, 
+        fuel_map:this.fuel_map,
+        fuel:this.fuel[robot.team],
+        karbonite:this.karbonite[robot.team],
+        last_offer:(robot.unit === SPECS.CASTLE ? this.last_offer:null)
+    });
     
 }
 
@@ -453,8 +450,7 @@ Game.prototype.enactTurn = function() {
     try {
         action = robot.hook(dump);
     } catch (e) {
-        //console.log(e);
-        this.robotError(e.toString(), robot);
+        this.robotError(e.stack, robot);
     }
     
     var diff_time = wallClock() - robot.start_time;
@@ -507,17 +503,21 @@ Game.prototype.enactAction = function(robot, action, time) {
     if ('logs' in action && 'length' in action['logs']) {
         for (var l=0; l<action['logs'].length; l++) {
             if (typeof action['logs'][l] === "string") this.robotLog(action['logs'][l], robot);
-            else console.log(action['logs'][l]);
+            else {
+                console.log("problemo");
+                // FIX THIS
+                console.log(action['logs'][l]);
+            }
         }
     }
 
     if ('signal' in action) {
-        if (int_param('signal') && int_param('signal_radius') && action.signal >= 0 && action.signal < Math.pow(2,COMMUNICATION_BITS) && action.signal_radius >= 0) {
+        if (int_param('signal') && int_param('signal_radius') && action.signal >= 0 && action.signal < Math.pow(2,SPECS.COMMUNICATION_BITS) && action.signal_radius >= 0) {
             
             var fuel_cost = action.signal_radius;
 
-            if (robot.fuel >= fuel_cost) {
-                robot.fuel -= fuel_cost;
+            if (this.fuel[robot.team] >= fuel_cost) {
+                this.fuel[robot.team] -= fuel_cost;
                 robot.signal_radius = action.signal_radius;
                 robot.signal = action.signal;
             } else return "Insufficient fuel to signal given radius.";
@@ -526,18 +526,20 @@ Game.prototype.enactAction = function(robot, action, time) {
     }
 
     if ('castle_talk' in action) {
-        if (int_param('castle_talk') && action.castle_talk >= 0 && action.castle_talk < Math.pow(2,CASTLE_TALK_BITS)) {
+        if (int_param('castle_talk') && action.castle_talk >= 0 && action.castle_talk < Math.pow(2,SPECS.CASTLE_TALK_BITS)) {
             robot.castle_talk = action.castle_talk;
-        } else return "Invalid church talk."
+        } else return "Invalid castle talk."
     }
 
-    valid = 'action' in action && ['move','attack','build','mine','trade','give'].indexOf(action['action']) >= 0;
-    if (!valid) return "";
+    if (!('action' in action)) return "";
+
+    valid = ['move','attack','build','mine','trade','give'].indexOf(action['action']) >= 0;
+    if (!valid) return "Action must be move, attack, build, mine, trade, or give.";
 
     if (action.action === 'trade') {
-        if (robot.unit !== CASTLE) return "Only Castles can trade.";
+        if (robot.unit !== SPECS.CASTLE) return "Only Castles can trade.";
 
-        if (int_param('trade_fuel') && int_param('trade_karbonite')) {
+        if (int_param('trade_fuel') && int_param('trade_karbonite') && Math.abs(action.trade_fuel) < SPECS.MAX_TRADE && Math.abs(action.trade_karbonite) < SPECS.MAX_TRADE) {
             // trade_fuel and trade_karbonite are the amount given by red, or received by blue.
             // for example, for red to offer a trade of 10 karbonite for 10 fuel, it would be karbonite=10 and fuel=-10.
 
@@ -561,39 +563,44 @@ Game.prototype.enactAction = function(robot, action, time) {
             }
 
         } else return "Must provide valid fuel and karbonite offers.";
+
+        return "";
     }
 
     else if (action.action === 'mine') {
-        if (robot.unit !== PILGRIM) return "Only Pilgrims can mine.";
-        if (this.fuel[robot.team] - MINE_FUEL_COST < 0) return "Not enough fuel to mine.";
+        if (robot.unit !== SPECS.PILGRIM) return "Only Pilgrims can mine.";
+        if (this.fuel[robot.team] - SPECS.MINE_FUEL_COST < 0) return "Not enough fuel to mine.";
 
-        if (this.karbonite_map[robot.y][robot.x] && robot.karbonite + KARBONITE_YIELD <= SPECS[PILGRIM]['KARBONITE_CAPACITY']) {
-            robot.karbonite += KARBONITE_YIELD;
-            this.fuel[robot.team] -= MINE_FUEL_COST;
+        if (this.karbonite_map[robot.y][robot.x] && robot.karbonite + SPECS.KARBONITE_YIELD <= SPECS.UNITS[SPECS.PILGRIM]['KARBONITE_CAPACITY']) {
+            robot.karbonite += SPECS.KARBONITE_YIELD;
+            this.fuel[robot.team] -= SPECS.MINE_FUEL_COST;
         }
-        else if (this.fuel_map[robot.y][robot.x] && robot.fuel + FUEL_YIELD <= SPECS[PILGRIM]['FUEL_CAPACITY']) {
-            robot.fuel += FUEL_YIELD;
-            this.fuel[robot.team] -= MINE_FUEL_COST;
+        else if (this.fuel_map[robot.y][robot.x] && robot.fuel + SPECS.FUEL_YIELD <= SPECS.UNITS[SPECS.PILGRIM]['FUEL_CAPACITY']) {
+            robot.fuel += SPECS.FUEL_YIELD;
+            this.fuel[robot.team] -= SPECS.MINE_FUEL_COST;
         } else return "Could not mine, as was not on resource point.";
+
+        return "";
     }
 
     // Now, require a dx and dy for remaining actions.
-    valid = int_param('dx') && int_param('dy') && (action.dx != 0 || action.dy != 0);
+    valid = int_param('dx') && int_param('dy') && (action.dx != 0 || action.dy != 0) && Math.abs(action.dx) < 1024 && Math.abs(action.dy) < 1024; 
     valid = valid && robot.x + action.dx < this.shadow[0].length && robot.x + action.dx >= 0 && robot.y + action.dy < this.shadow.length && robot.y + action.dy >= 0;
     if (!valid) return "Require a valid, onboard, nonzero dx and dy for given action."
+    if (!this.map[robot.y + action.dy][robot.x + action.dx]) return "Cannot perform action on impassable tile.";
 
     if (action.action === 'build') {
-        if (robot.unit !== PILGRIM && robot.unit !== CASTLE && robot.unit !== CHURCH) return "Only pilgrims, castles and churches can build.";
+        if (robot.unit !== SPECS.PILGRIM && robot.unit !== SPECS.CASTLE && robot.unit !== SPECS.CHURCH) return "Only pilgrims, castles and churches can build.";
         if (action.dx > 1 || action.dy > 1) return "Can only build on adjacent squares.";
         if (int_param('build_unit') && action.build_unit >= 0 && action.build_unit <= 5) {
-            if (robot.unit === PILGRIM && action.build_unit !== CHURCH) return "Pilgrim failed to build non-church unit.";
-            if (robot.unit !== PILGRIM && action.build_unit === CHURCH) return "Non-pilgrim unit failed to build church.";
+            if (robot.unit === SPECS.PILGRIM && action.build_unit !== SPECS.CHURCH) return "Pilgrim failed to build non-church unit.";
+            if (robot.unit !== SPECS.PILGRIM && action.build_unit === SPECS.CHURCH) return "Non-pilgrim unit failed to build church.";
 
             if (this.shadow[robot.y+action.dy][robot.x+action.dx] === 0) {
-                if (this.karbonite[robot.team] < SPECS[action.build_unit]['CONSTRUCTION_KARBONITE'] || this.fuel[robot.team] < SPECS[action.build_unit]['CONSTRUCTION_FUEL']) return "Cannot afford to build specified unit.";
+                if (this.karbonite[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_KARBONITE'] || this.fuel[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_FUEL']) return "Cannot afford to build specified unit.";
 
-                this.karbonite[robot.team] -= SPECS[action.build_unit]['CONSTRUCTION_KARBONITE'];
-                this.fuel[robot.team] -= SPECS[action.build_unit]['CONSTRUCTION_FUEL'];
+                this.karbonite[robot.team] -= SPECS.UNITS[action.build_unit]['CONSTRUCTION_KARBONITE'];
+                this.fuel[robot.team] -= SPECS.UNITS[action.build_unit]['CONSTRUCTION_FUEL'];
 
                 this.createItem(robot.x+action.dx, robot.y+action.dy, robot.team, action.build_unit);
                 
@@ -604,7 +611,7 @@ Game.prototype.enactAction = function(robot, action, time) {
 
     else if (action.action === 'give') {
         if (action.dx > 1 || action.dy > 1) return "Can only give to adjacent squares.";
-        if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0) {
+        if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0 && action.give_fuel < 1024 && action.give_karbonite < 1024) {
             if (robot.karbonite < action.give_karbonite || robot.fuel < action.give_fuel) return "Tried to give more than you have.";
 
             var at_shadow = this.shadow[robot.y+action.dy][robot.x+action.dx];
@@ -613,13 +620,13 @@ Game.prototype.enactAction = function(robot, action, time) {
             // Either giving to castle/church, or robot.
             at_shadow = this.getItem(at_shadow);
 
-            if (at_shadow.unit === CASTLE || at_shadow.unit === CHURCH) {
+            if (at_shadow.unit === SPECS.CASTLE || at_shadow.unit === SPECS.CHURCH) {
                 this.karbonite[at_shadow.team] += action.give_karbonite;
                 this.fuel[at_shadow.team] += action.give_fuel;
             } else {
                 // Cap max transfer at capacity limit of receiver
-                action.give_karbonite = Math.min(action.give_karbonite, SPECS[at_shadow.unit]['KARBONITE_CAPACITY'] - at_shadow.karbonite);
-                action.give_fuel = Math.min(action.give_fuel, SPECS[at_shadow.unit]['FUEL_CAPACITY'] - at_shadow.fuel);
+                action.give_karbonite = Math.min(action.give_karbonite, SPECS.UNITS[at_shadow.unit]['KARBONITE_CAPACITY'] - at_shadow.karbonite);
+                action.give_fuel = Math.min(action.give_fuel, SPECS.UNITS[at_shadow.unit]['FUEL_CAPACITY'] - at_shadow.fuel);
 
                 at_shadow.karbonite += action.give_karbonite;
                 at_shadow.fuel += action.give_fuel;
@@ -633,11 +640,11 @@ Game.prototype.enactAction = function(robot, action, time) {
     
     else if (action.action === 'move') {
         var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
-        if (r > SPECS[robot.unit]['SPEED']) return "Slow down, cowboy.";
+        if (r > SPECS.UNITS[robot.unit]['SPEED']) return "Slow down, cowboy.";
         if (this.shadow[robot.y+action.dy][robot.x+action.dx] > 0) return "Cannot move into occupied square.";
-        if (this.fuel[robot.team] < r*SPECS[robot.unit]['FUEL_PER_MOVE']) return "Not enough fuel to move.";
+        if (this.fuel[robot.team] < r*SPECS.UNITS[robot.unit]['FUEL_PER_MOVE']) return "Not enough fuel to move.";
 
-        this.fuel[robot.team] -= r*SPECS[robot.unit]['FUEL_PER_MOVE'];
+        this.fuel[robot.team] -= r*SPECS.UNITS[robot.unit]['FUEL_PER_MOVE'];
         
         this.shadow[robot.y+action.dy][robot.x+action.dx] = robot.id;
         this.shadow[robot.y][robot.x] = 0;
@@ -647,7 +654,7 @@ Game.prototype.enactAction = function(robot, action, time) {
 
     else if (action.action === 'attack') {
         var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
-        if (r > SPECS[robot.unit]['ATTACK_RADIUS'][1] || r < SPECS[robot.unit]['ATTACK_RADIUS'][0]) return "Cannot attack outside of attack range.";
+        if (r > SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][1] || r < SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][0]) return "Cannot attack outside of attack range.";
         var at_shadow = this.shadow[robot.y+action.dy][robot.x+action.dx];
 
         if (at_shadow === 0) return "Cannot attack an empty square.";
@@ -656,18 +663,18 @@ Game.prototype.enactAction = function(robot, action, time) {
         for (var r=0; r<this.shadow.length; r++) {
             for (var c=0; c<this.shadow[0].length; c++) {
                 var rad = Math.pow(robot.y+action.dy - r,2) + Math.pow(robot.x+action.dx - c,2);
-                if (rad <= SPECS[robot.unit]['DAMAGE_SPREAD'] && this.shadow[r][c] !== 0) {
+                if (rad <= SPECS.UNITS[robot.unit]['DAMAGE_SPREAD'] && this.shadow[r][c] !== 0) {
                     var target = this.getItem(this.shadow[r][c]);
-                    target.health -= SPECS[robot.unit]['ATTACK_DAMAGE'];
+                    target.health -= SPECS.UNITS[robot.unit]['ATTACK_DAMAGE'];
                     
                     if (target.health <= 0) {
                         // Reclaim: attacker gets resources plus half karbonite to construct, divided by rad^2
 
-                        var reclaimed_karb = Math.floor((target.karbonite + SPECS[target.unit]['CONSTRUCTION_KARBONITE']/2)/rad);
+                        var reclaimed_karb = Math.floor((target.karbonite + SPECS.UNITS[target.unit]['CONSTRUCTION_KARBONITE']/2)/rad);
                         var reclaimed_fuel = Math.floor(target.fuel/rad);
 
-                        robot.karbonite = Math.min(robot.karbonite+reclaimed_karb, SPECS[robot.unit]['KARBONITE_CAPACITY']);
-                        robot.fuel = Math.min(robot.fuel+reclaimed_fuel, SPECS[robot.unit]['FUEL_CAPACITY']);
+                        robot.karbonite = Math.min(robot.karbonite+reclaimed_karb, SPECS.UNITS[robot.unit]['KARBONITE_CAPACITY']);
+                        robot.fuel = Math.min(robot.fuel+reclaimed_fuel, SPECS.UNITS[robot.unit]['FUEL_CAPACITY']);
                         
                         this._deleteRobot(target);
                     }
@@ -675,6 +682,8 @@ Game.prototype.enactAction = function(robot, action, time) {
             }
         }
     }
+
+    return "";
 }
 
 

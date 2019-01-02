@@ -16,14 +16,14 @@ function wallClock() {
  * @param {number} [tile_size=30] - The tile size to render games with.
  * @constructor
  */
-function Coldbrew(visualizer, seed, player_one, player_two, chess_init, chess_extra, replay_eater) {
+function Coldbrew(visualizer, seed, player_one, player_two, chess_init, chess_extra, debug, replay_eater) {
     this.kill = false;
     this.seed = seed;
     this.replay_eater = replay_eater;
     this.player_one = player_one;
     this.player_two = player_two;
     this.chess_init = chess_init;
-    this.game = new Game(this.seed, this.chess_init, chess_extra, false);
+    this.game = new Game(this.seed, this.chess_init, chess_extra, debug);
     
     if (visualizer) this.vis = new Visualizer(visualizer, this.game.shadow[0].length, this.game.shadow.length, this.game.viewerMap());
 }
@@ -37,7 +37,7 @@ Coldbrew.prototype.initializeRobot = function() {
     try {
         var v = new CrossVM(code);
     } catch(error) {
-        this.game.robotError("Failed to initialize: " + error,robot);
+        this.game.robotError("Failed to initialize: " + error.stack,robot);
         return;
     }
 
