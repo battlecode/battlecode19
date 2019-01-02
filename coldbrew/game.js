@@ -93,7 +93,7 @@ Game.prototype.makeMap = function() {
     ];
 
     this.fuel_map[4][4] = this.fuel_map[45][45] = true;
-    this.karbonite_map[6][6] = this.karbonite_map[43][43] = true;
+    this.karbonite_map[5][5] = this.karbonite_map[44][44] = true;
 
 
     return to_create;
@@ -128,7 +128,7 @@ Game.prototype.viewerMessage = function() {
 Game.prototype.createItem = function(x,y,team,unit) {
     var id = null;
 
-    do id = 10+Math.floor(4086 * Math.random());
+    do id = 1+Math.floor((SPECS.MAX_ID-1) * Math.random());
     while (this.ids.indexOf(id) >= 0);
     this.ids.push(id);
 
@@ -146,7 +146,6 @@ Game.prototype.createItem = function(x,y,team,unit) {
     robot.signal      = 0;    // SPECS.COMMUNICATION_BITS max
     robot.signal_radius = 0;  // r^2
     robot.castle_talk = 0;    // talk to god
-    robot.doing       = null; // action the robot last performed
 
     robot.initialized = false;
     robot.hook        = null; // the turn function
@@ -346,11 +345,9 @@ Game.prototype.getVisible = function(robot) {
     var view = Array(this.shadow.length);
     for (var i=0; i<this.shadow.length; i++) view[i]=Array(this.shadow[0].length);
     
-    var r = SPECS.UNITS[robot.unit]['VISION_RADIUS'];
-
     for (var r=0; r<this.shadow.length; r++) {
         for (var c=0; c<this.shadow[0].length; c++) {
-            if (Math.pow(robot.x - c,2) + Math.pow(robot.y - r,2) <= r) {
+            if (Math.pow(robot.x - c,2) + Math.pow(robot.y - r,2) <= SPECS.UNITS[robot.unit]['VISION_RADIUS']) {
                 view[r][c] = this.shadow[r][c];
             }
         }
@@ -433,6 +430,9 @@ Game.prototype.enactTurn = function() {
     if (this.robin >= this.robots.length) {
         this.robin = 0;
         this.round++;
+
+        this.fuel[0] += SPECS.TRICKLE_FUEL;
+        this.fuel[1] += SPECS.TRICKLE_FUEL;      
     }
 
     var robot = this.robots[this.robin];
@@ -450,14 +450,17 @@ Game.prototype.enactTurn = function() {
     try {
         action = robot.hook(dump);
     } catch (e) {
-        this.robotError(e.stack, robot);
+        if (e.stack) this.robotError(e.stack, robot);
+        else this.robotError(e, robot);
     }
     
     var diff_time = wallClock() - robot.start_time;
-    var response = this.enactAction(robot, action, diff_time);
 
-    if (response !== "") {
-        this.robotError(response, robot);
+    try {
+        this.enactAction(robot, action, diff_time);
+    } catch(e) {
+        if (e.stack) this.robotError(e.stack, robot);
+        else this.robotError(e, robot);
     }
 }
 
@@ -474,45 +477,44 @@ Game.prototype.enactTurn = function() {
 
  * @return {String} An error message or empty string.
  */
-Game.prototype.enactAction = function(robot, action, time) {
-    robot.doing = action;
 
+Game.prototype.enactAction = function(robot, action, time) {
     this.robin++;
     if (this.robin === this.robots.length) this.robin++;
+
+    robot.signal = 0;
+    robot.signal_radius = 0;
 
     robot.time -= time;
     if (robot.time < 0) {
         this.robots.splice(this.robots.indexOf(robot), 1);
         this.robin--;
         this.shadow[robot.y][robot.x] = 0;
-        return "Timed out by " + robot.time*-1 + "ms.";
+        throw "Timed out by " + robot.time*-1 + "ms.";
     } else robot.time += this.chess_extra;
 
     function int_param(param) {
         return param in action && action[param] !== null && Number.isInteger(action[param]);
     }
 
-    if (action === null) return "";
+    if (action === null) return;
 
     var valid = typeof action==='object' && action!==null && !(action instanceof Array) && !(action instanceof Date);
-    if (!valid) {
-        if (this.debug) console.log(action);
-        return "Malformed move.";
-    }
+    if (!valid) throw "Malformed move.";
 
     if ('logs' in action && 'length' in action['logs']) {
         for (var l=0; l<action['logs'].length; l++) {
             if (typeof action['logs'][l] === "string") this.robotLog(action['logs'][l], robot);
-            else {
-                console.log("problemo");
-                // FIX THIS
-                console.log(action['logs'][l]);
-            }
+            else throw "Can only log strings.";
         }
     }
 
+    if ('error' in action && (typeof action['error'] === 'string' || action['error'] instanceof String)) {
+        this.robotError(action.error, robot);
+    }
+
     if ('signal' in action) {
-        if (int_param('signal') && int_param('signal_radius') && action.signal >= 0 && action.signal < Math.pow(2,SPECS.COMMUNICATION_BITS) && action.signal_radius >= 0) {
+        if (int_param('signal') && int_param('signal_radius') && action.signal >= 0 && action.signal < Math.pow(2,SPECS.COMMUNICATION_BITS) && action.signal_radius >= 0 && action.signal_radius <= 2*Math.pow(SPECS.MAX_BOARD_SIZE-1,2)) {
             
             var fuel_cost = action.signal_radius;
 
@@ -520,24 +522,24 @@ Game.prototype.enactAction = function(robot, action, time) {
                 this.fuel[robot.team] -= fuel_cost;
                 robot.signal_radius = action.signal_radius;
                 robot.signal = action.signal;
-            } else return "Insufficient fuel to signal given radius.";
+            } else throw "Insufficient fuel to signal given radius.";
 
-        } else return "Invalid signal message.";
+        } else throw "Invalid signal message.";
     }
 
     if ('castle_talk' in action) {
         if (int_param('castle_talk') && action.castle_talk >= 0 && action.castle_talk < Math.pow(2,SPECS.CASTLE_TALK_BITS)) {
             robot.castle_talk = action.castle_talk;
-        } else return "Invalid castle talk."
+        } else throw "Invalid castle talk."
     }
 
-    if (!('action' in action)) return "";
+    if (!('action' in action)) return;
 
     valid = ['move','attack','build','mine','trade','give'].indexOf(action['action']) >= 0;
-    if (!valid) return "Action must be move, attack, build, mine, trade, or give.";
+    if (!valid) throw "Action must be move, attack, build, mine, trade, or give.";
 
     if (action.action === 'trade') {
-        if (robot.unit !== SPECS.CASTLE) return "Only Castles can trade.";
+        if (robot.unit !== SPECS.CASTLE) throw "Only Castles can trade.";
 
         if (int_param('trade_fuel') && int_param('trade_karbonite') && Math.abs(action.trade_fuel) < SPECS.MAX_TRADE && Math.abs(action.trade_karbonite) < SPECS.MAX_TRADE) {
             // trade_fuel and trade_karbonite are the amount given by red, or received by blue.
@@ -559,63 +561,63 @@ Game.prototype.enactAction = function(robot, action, time) {
                     this.fuel[0] -= action.trade_fuel;
                     this.fuel[1] += action.trade_fuel;
 
-                } else return "Agreed trade deal is not payable.";
+                } else throw "Agreed trade deal is not payable.";
             }
 
-        } else return "Must provide valid fuel and karbonite offers.";
+        } else throw "Must provide valid fuel and karbonite offers.";
 
-        return "";
+        return;
     }
 
     else if (action.action === 'mine') {
-        if (robot.unit !== SPECS.PILGRIM) return "Only Pilgrims can mine.";
-        if (this.fuel[robot.team] - SPECS.MINE_FUEL_COST < 0) return "Not enough fuel to mine.";
+        if (robot.unit !== SPECS.PILGRIM) throw "Only Pilgrims can mine.";
+        if (this.fuel[robot.team] - SPECS.MINE_FUEL_COST < 0) throw "Not enough fuel to mine.";
 
-        if (this.karbonite_map[robot.y][robot.x] && robot.karbonite + SPECS.KARBONITE_YIELD <= SPECS.UNITS[SPECS.PILGRIM]['KARBONITE_CAPACITY']) {
-            robot.karbonite += SPECS.KARBONITE_YIELD;
+        if (this.karbonite_map[robot.y][robot.x]) {
+            robot.karbonite = Math.min(robot.karbonite + SPECS.KARBONITE_YIELD, SPECS.UNITS[SPECS.PILGRIM]['KARBONITE_CAPACITY']);
             this.fuel[robot.team] -= SPECS.MINE_FUEL_COST;
         }
-        else if (this.fuel_map[robot.y][robot.x] && robot.fuel + SPECS.FUEL_YIELD <= SPECS.UNITS[SPECS.PILGRIM]['FUEL_CAPACITY']) {
-            robot.fuel += SPECS.FUEL_YIELD;
+        else if (this.fuel_map[robot.y][robot.x]) {
+            robot.fuel = Math.min(robot.fuel + SPECS.FUEL_YIELD, SPECS.UNITS[SPECS.PILGRIM]['FUEL_CAPACITY']);
             this.fuel[robot.team] -= SPECS.MINE_FUEL_COST;
-        } else return "Could not mine, as was not on resource point.";
+        } else throw "Could not mine, as was not on resource point.";
 
-        return "";
+        return;
     }
 
     // Now, require a dx and dy for remaining actions.
-    valid = int_param('dx') && int_param('dy') && (action.dx != 0 || action.dy != 0) && Math.abs(action.dx) < 1024 && Math.abs(action.dy) < 1024; 
+    valid = int_param('dx') && int_param('dy') && (action.dx != 0 || action.dy != 0) && Math.abs(action.dx) < SPECS.MAX_BOARD_SIZE && Math.abs(action.dy) < SPECS.MAX_BOARD_SIZE; 
     valid = valid && robot.x + action.dx < this.shadow[0].length && robot.x + action.dx >= 0 && robot.y + action.dy < this.shadow.length && robot.y + action.dy >= 0;
-    if (!valid) return "Require a valid, onboard, nonzero dx and dy for given action."
-    if (!this.map[robot.y + action.dy][robot.x + action.dx]) return "Cannot perform action on impassable tile.";
+    if (!valid) throw "Require a valid, onboard, nonzero dx and dy for given action."
+    if (!this.map[robot.y + action.dy][robot.x + action.dx]) throw "Cannot perform action on impassable tile.";
 
     if (action.action === 'build') {
-        if (robot.unit !== SPECS.PILGRIM && robot.unit !== SPECS.CASTLE && robot.unit !== SPECS.CHURCH) return "Only pilgrims, castles and churches can build.";
-        if (action.dx > 1 || action.dy > 1) return "Can only build on adjacent squares.";
+        if (robot.unit !== SPECS.PILGRIM && robot.unit !== SPECS.CASTLE && robot.unit !== SPECS.CHURCH) throw "Only pilgrims, castles and churches can build.";
+        if (action.dx > 1 || action.dy > 1) throw "Can only build on adjacent squares.";
         if (int_param('build_unit') && action.build_unit >= 0 && action.build_unit <= 5) {
-            if (robot.unit === SPECS.PILGRIM && action.build_unit !== SPECS.CHURCH) return "Pilgrim failed to build non-church unit.";
-            if (robot.unit !== SPECS.PILGRIM && action.build_unit === SPECS.CHURCH) return "Non-pilgrim unit failed to build church.";
+            if (robot.unit === SPECS.PILGRIM && action.build_unit !== SPECS.CHURCH) throw "Pilgrim failed to build non-church unit.";
+            if (robot.unit !== SPECS.PILGRIM && action.build_unit === SPECS.CHURCH) throw "Non-pilgrim unit failed to build church.";
 
             if (this.shadow[robot.y+action.dy][robot.x+action.dx] === 0) {
-                if (this.karbonite[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_KARBONITE'] || this.fuel[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_FUEL']) return "Cannot afford to build specified unit.";
+                if (this.karbonite[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_KARBONITE'] || this.fuel[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_FUEL']) throw "Cannot afford to build specified unit.";
 
                 this.karbonite[robot.team] -= SPECS.UNITS[action.build_unit]['CONSTRUCTION_KARBONITE'];
                 this.fuel[robot.team] -= SPECS.UNITS[action.build_unit]['CONSTRUCTION_FUEL'];
 
                 this.createItem(robot.x+action.dx, robot.y+action.dy, robot.team, action.build_unit);
                 
-            } else return "Attempted to build on occupied tile.";
+            } else throw "Attempted to build on occupied tile.";
 
-        } else return "Invalid unit specified to build.";
+        } else throw "Invalid unit specified to build.";
     }
 
     else if (action.action === 'give') {
-        if (action.dx > 1 || action.dy > 1) return "Can only give to adjacent squares.";
-        if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0 && action.give_fuel < 1024 && action.give_karbonite < 1024) {
-            if (robot.karbonite < action.give_karbonite || robot.fuel < action.give_fuel) return "Tried to give more than you have.";
+        if (action.dx > 1 || action.dy > 1) throw "Can only give to adjacent squares.";
+        if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0 && action.give_fuel < 64 && action.give_karbonite < 64) {
+            if (robot.karbonite < action.give_karbonite || robot.fuel < action.give_fuel) throw "Tried to give more than you have.";
 
             var at_shadow = this.shadow[robot.y+action.dy][robot.x+action.dx];
-            if (at_shadow === 0) return "Cannot give to empty square.";
+            if (at_shadow === 0) throw "Cannot give to empty square.";
 
             // Either giving to castle/church, or robot.
             at_shadow = this.getItem(at_shadow);
@@ -635,14 +637,14 @@ Game.prototype.enactAction = function(robot, action, time) {
             robot.karbonite -= action.give_karbonite;
             robot.fuel -= action.give_fuel;
 
-        } else return "Invalid karbonite and fuel to give.";
+        } else throw "Invalid karbonite and fuel to give.";
     }
     
     else if (action.action === 'move') {
         var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
-        if (r > SPECS.UNITS[robot.unit]['SPEED']) return "Slow down, cowboy.";
-        if (this.shadow[robot.y+action.dy][robot.x+action.dx] > 0) return "Cannot move into occupied square.";
-        if (this.fuel[robot.team] < r*SPECS.UNITS[robot.unit]['FUEL_PER_MOVE']) return "Not enough fuel to move.";
+        if (r > SPECS.UNITS[robot.unit]['SPEED']) throw "Slow down, cowboy.  Tried to move faster than unit can.";
+        if (this.shadow[robot.y+action.dy][robot.x+action.dx] > 0) throw "Cannot move into occupied square.";
+        if (this.fuel[robot.team] < r*SPECS.UNITS[robot.unit]['FUEL_PER_MOVE']) throw "Not enough fuel to move at given speed.";
 
         this.fuel[robot.team] -= r*SPECS.UNITS[robot.unit]['FUEL_PER_MOVE'];
         
@@ -654,10 +656,11 @@ Game.prototype.enactAction = function(robot, action, time) {
 
     else if (action.action === 'attack') {
         var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
-        if (r > SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][1] || r < SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][0]) return "Cannot attack outside of attack range.";
+        if (r > SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][1] || r < SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][0]) throw "Cannot attack outside of attack range.";
         var at_shadow = this.shadow[robot.y+action.dy][robot.x+action.dx];
 
-        if (at_shadow === 0) return "Cannot attack an empty square.";
+        if (at_shadow === 0) throw "Cannot attack an empty square.";
+        if (this.fuel[robot.team] < SPECS.UNITS[robot.unit]['ATTACK_FUEL_COST']) throw "Not enough fuel to attack.";        
 
         // Handle AOE damage
         for (var r=0; r<this.shadow.length; r++) {
@@ -682,8 +685,6 @@ Game.prototype.enactAction = function(robot, action, time) {
             }
         }
     }
-
-    return "";
 }
 
 

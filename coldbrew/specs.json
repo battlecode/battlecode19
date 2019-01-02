@@ -2,18 +2,23 @@
     "COMMUNICATION_BITS": 16,
     "CASTLE_TALK_BITS":   8,
     "MAX_ROUNDS":         1000,
+    "TRICKLE_FUEL":       3,
     "INITIAL_KARBONITE":  100,
     "INITIAL_FUEL":       100,
     "MINE_FUEL_COST":     1,
     "KARBONITE_YIELD":    3,
     "FUEL_YIELD":         3,
     "MAX_TRADE":          1024,
+    "MAX_BOARD_SIZE":     100,
+    "MAX_ID":             4096,
     "CASTLE":             0,
     "CHURCH":             1,
     "PILGRIM":            2,
     "CRUSADER":           3,
     "PROPHET":            4,
     "PREACHER":           5,
+    "RED":                0,
+    "BLUE":               1,
 
     "UNITS": [
         {
