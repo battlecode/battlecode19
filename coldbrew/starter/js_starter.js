@@ -5,7 +5,7 @@ function insulate(content) {
 
 class BCAbstractRobot {
     constructor() {
-        this._reset_state();
+        this._bc_reset_state();
     }
 
     // Hook called by runtime, sets state and calls turn.
@@ -26,12 +26,12 @@ class BCAbstractRobot {
 
         if (!t) t = this._bc_null_action();
 
-        this._reset_state();
+        this._bc_reset_state();
 
         return t;
     }
 
-    _reset_state() {
+    _bc_reset_state() {
         // Internal robot state representation
         this._bc_logs = [];
         this._bc_signal = 0;
@@ -72,9 +72,13 @@ class BCAbstractRobot {
     }
 
     _bc_check_on_map(x, y) {
-        return x > 0 && x < this._bc_game_state.shadow[0].length && y > 0 && y < this._bc_game_state.shadow.length
+        return x >= 0 && x < this._bc_game_state.shadow[0].length && y >= 0 && y < this._bc_game_state.shadow.length;
     }
     
+    log(message) {
+        this._bc_logs.push(JSON.stringify(message));
+    }
+
     // Set signal value.
     signal(value, radius) {
         // Check if enough fuel to signal, and that valid value.
@@ -219,10 +223,6 @@ class BCAbstractRobot {
     // Get a list of robots visible to you.
     getVisibleRobots() {
         return this._bc_game_state.visible;
-    }
-
-    log(message) {
-        this._bc_logs.push(JSON.stringify(message));
     }
 
     turn() {

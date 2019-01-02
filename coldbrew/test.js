@@ -22,8 +22,8 @@ var write = true;
 
 if (write) {
 
-    fs.readFile("bot.js", "utf8", function(err, code) {
-        Compiler.JS({'main.js':code}, function(compiled) {
+    fs.readFile("./bots/bot.py", "utf8", function(err, code) {
+        Compiler.Python({'main.py':code}, function(compiled) {
             let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, true, true);
             
             let c = new Coldbrew(g, null, function(logs) {
@@ -31,6 +31,8 @@ if (write) {
             });
 
             c.playGame(compiled, compiled);
+        }, function(error) {
+            console.log(error);
         });
     });
  
