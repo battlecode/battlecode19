@@ -50,6 +50,11 @@ function Game(seed, chess_initial, chess_extra, debug, create_replay) {
     this.fuel      = [SPECS.INITIAL_FUEL, SPECS.INITIAL_FUEL];
     this.last_offer = [[0,0],[0,0]];
 
+    this.random = function() {
+        var x = Math.sin(this.seed++) * 10000;
+        return x - Math.floor(x);
+    }.bind(this);
+
     // The shadow is a 2d map where 0 signifies empty and anything
     // else is the id of the robot/item occupying the square.  This is updated
     // after every action.
@@ -69,11 +74,6 @@ function Game(seed, chess_initial, chess_extra, debug, create_replay) {
  * @return {Object[]} - A list of robots with x, y, and team.
  */
 Game.prototype.makeMap = function() {
-    var random = function() {
-        var x = Math.sin(this.seed++) * 10000;
-        return x - Math.floor(x);
-    }.bind(this);
-
     var width = 50;
     var height = 50;
 
@@ -131,7 +131,7 @@ Game.prototype.initializeReplay = function() {
 Game.prototype.createItem = function(x,y,team,unit) {
     var id = null;
 
-    do id = 1+Math.floor((SPECS.MAX_ID-1) * Math.random());
+    do id = 1+Math.floor((SPECS.MAX_ID-1) * this.random());
     while (this.ids.indexOf(id) >= 0);
     this.ids.push(id);
 

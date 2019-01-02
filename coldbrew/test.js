@@ -1,6 +1,7 @@
 const fs = require("fs");
 const Coldbrew = require('./runtime');
 const Game = require('./game');
+const Compiler = require('./compiler');
 
 const CHESS_INITIAL = 100;
 const CHESS_EXTRA = 20;
@@ -17,21 +18,19 @@ function readReplayFromFile(filename) {
 }
 
 
-var write = false;
+var write = true;
 
 if (write) {
 
     fs.readFile("bot.js", "utf8", function(err, code) {
-        fs.readFile("specs.json", "utf8", function(err, specs) {
-            code = "var SPECS = " + specs + "\n" + code; 
-
+        Compiler.JS({'main.js':code}, function(compiled) {
             let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, true, true);
             
             let c = new Coldbrew(g, null, function(logs) {
                 writeReplayToFile(g.replay, "replay.bc19");         
             });
 
-            c.playGame(code, code);
+            c.playGame(compiled, compiled);
         });
     });
  
