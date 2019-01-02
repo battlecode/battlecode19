@@ -29,7 +29,7 @@ function wallClock() {
 * @param {number} seed - The seed for map generation.
  * @param {boolean} [debug=false] - Enables debug mode (default false).
  */
-function Game(seed, chess_initial, chess_extra, debug) {    
+function Game(seed, chess_initial, chess_extra, debug, create_replay) {    
     this.robots = [] // objects active in the game.
     this.ids = []; // list of "spent" item ids.
 
@@ -43,13 +43,14 @@ function Game(seed, chess_initial, chess_extra, debug) {
     this.winner = undefined;
     this.win_condition = undefined; // 0 is more castles, 1 is more unit karbonite value at end, 2 is random, 3 is opponent failed to initialize, 4 is both failed to initialize so random winner
     this.debug = debug || false;
+
     this.logs = [[],[]]; // list of JSON logs for each team
 
     this.karbonite = [SPECS.INITIAL_KARBONITE,SPECS.INITIAL_KARBONITE];
     this.fuel      = [SPECS.INITIAL_FUEL, SPECS.INITIAL_FUEL];
     this.last_offer = [[0,0],[0,0]];
 
-    // The shadow is a 2d map where 0 signifies empty, -1 impassable, and anything
+    // The shadow is a 2d map where 0 signifies empty and anything
     // else is the id of the robot/item occupying the square.  This is updated
     // after every action.
     
@@ -57,6 +58,8 @@ function Game(seed, chess_initial, chess_extra, debug) {
     for (i=0; i<to_create.length; i++) {
         this.createItem(to_create[i].x, to_create[i].y, to_create[i].team, SPECS.CASTLE);
     }
+
+    if (create_replay) this.initializeReplay();
 }
 
 /**
@@ -101,20 +104,18 @@ Game.prototype.makeMap = function() {
     return to_create;
 }
 
-Game.prototype.viewerMap = function() {
-    var map = [];
+Game.prototype.initializeReplay = function() {
+    // The BC19 replay format is an intriguing one.
+    // Byte 0: reserved for winner.
+    // Byte 1: reserved for win reason.
+    // Bytes 2 and 3: 16 bit map seed
+    //
+    // After that, we just have a lot of 8 byte robot actions.
 
-    for (var r=0; r<this.shadow.length; r++) {
-        for (var c=0; c<this.shadow[0].length; c++) {
-            map.push(this.shadow[r][c] === -1);
-        }
-    }
+    this.replay = [0,0];
 
-    return insulate(map);
-}
-
-Game.prototype.viewerMessage = function() {
-    return insulate(this.robots);
+    this.replay.push(this.seed >> 8);
+    this.replay.push(this.seed % Math.pow(2,8));
 }
 
 /**
@@ -189,6 +190,8 @@ Game.prototype.getItem = function(item_id) {
  * @param {Object} robot - The robot id to print for.
  */
 Game.prototype.robotError = function(message, robot) {
+    if (message.stack) message = message.stack;
+    
     if (this.debug) {
         var team = robot.team===0?"red":"blue";
         if (inBrowser()) console.log("%c"+"[Robot "+robot.id+" Error] "
@@ -262,32 +265,26 @@ Game.prototype.isOver = function() {
         this.winner = +(Math.random() > 0.5);
         this.win_condition = 4;
         if (this.debug) console.log("Both teams failed to initialize.");
-        return true;
     } else if (nulls[0] === total[0]) {
         this.winner = 1;
         this.win_condition = 3;
         if (this.debug) console.log("Red failed to initialize.");
-        return true;
     } else if (nulls[1] === total[1]) {
         this.winner = 0;
         this.win_condition = 3;
         if (this.debug) console.log("Blue failed to initialize.");
-        return true;
     } else if (castles[0] === 0 && castles[1] !== 0) {
         this.winner = 1;
         this.win_condition = 0;
         if (this.debug) console.log("Game over, blue won by castle annihilation.");
-        return true;
     } else if (castles[0] !== 0 && castles[1] === 0) {
         this.winner = 1;
         this.win_condition = 0;
         if (this.debug) console.log("Game over, red won by castle annihilation.");
-        return true;
     } else if (castles[0] === 0 && castles[1] === 0) {
         this.win_condition = 2;
         this.winner = +(Math.random() > 0.5);
         if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw each with no castles.");
-        return true;
     } else if (this.round >= SPECS.MAX_ROUNDS) {
         if (castles[0] !== castles[1]) {
             this.winner = castles[1] > castles[0] ? 1 : 0;
@@ -302,10 +299,15 @@ Game.prototype.isOver = function() {
                 this.winner = +(Math.random() > 0.5);
                 if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw.");
             } this.win_condition = 1;
-        } return true;
+        }
     }
 
-    return false;
+    if (this.replay && this.win_condition !== undefined) {
+        this.replay[0] = this.winner;
+        this.replay[1] = this.win_condition;
+    }
+
+    return this.win_condition !== undefined;
 }
 
 
@@ -428,7 +430,7 @@ Game.prototype.getGameStateDump = function(robot) {
  *
  * @return {String} An error message or empty string.
  */
-Game.prototype.enactTurn = function() {
+Game.prototype.enactTurn = function(record) {
     if (this.robin >= this.robots.length) {
         this.robin = 0;
         this.round++;
@@ -438,40 +440,29 @@ Game.prototype.enactTurn = function() {
     }
 
     var robot = this.robots[this.robin];
-    if (robot.hook === null || !robot.initialized) {
-        this.robotError("Robot not initialized", robot)
-        this.enactAction(robot, null, 0);
-        return
-    }
 
-    var action = null;
-    var dump = this.getGameStateDump(robot);
+    if (!record) {
+        var dump = this.getGameStateDump(robot);
 
-    robot.start_time = wallClock();
+        robot.start_time = wallClock();
 
-    try {
-        action = robot.hook(dump);
-    } catch (e) {
-        if (e.stack) this.robotError(e.stack, robot);
-        else this.robotError(e, robot);
-    }
-    
-    var diff_time = wallClock() - robot.start_time;
-    var record = new ActionRecord(this, robot);
+        var action = null;
+        try { action = robot.hook(dump); }
+        catch (e) { this.robotError(e, robot); }
+        
+        var diff_time = wallClock() - robot.start_time;
+        record = new ActionRecord(this, robot);
+
+        try {
+            this.processAction(robot, action, diff_time, record);
+        } catch(e) { this.robotError(e, robot); }
+    } else record = ActionRecord.FromBytes(record);
 
     try {
-        this.processAction(robot, action, diff_time, record);
-    } catch(e) {
-        if (e.stack) this.robotError(e.stack, robot);
-        else this.robotError(e, robot);
-    }
+        record.enact(this, robot);
+    } catch (e) { this.robotError(e, robot); }
 
-    try {
-        record.enact();
-    } catch (e) {
-        if (e.stack) this.robotError(e.stack, robot);
-        else this.robotError(e, robot);
-    }
+    if (this.replay) this.replay.push.apply(this.replay, record.serialize());
 }
 
 
@@ -490,7 +481,7 @@ Game.prototype.enactTurn = function() {
 
 Game.prototype.processAction = function(robot, action, time, record) {
     robot.time -= time;
-    if (robot.time < 0) {
+    if (robot.time < 0 || robot.hook === null || !robot.initialized) {
         record.timeout();
         return;
     } else robot.time += this.chess_extra;
