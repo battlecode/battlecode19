@@ -85,7 +85,7 @@ class BCAbstractRobot {
 
         if (this.fuel < radius) throw "Not enough fuel to signal given radius.";
         if (!Number.isInteger(value) || value < 0 || value >= Math.pow(2,SPECS.COMMUNICATION_BITS)) throw "Invalid signal, must be int within bit range.";
-        if (this.radius > 2*Math.pow(SPECS.MAX_BOARD_SIZE-1,2)) throw "Signal radius is too big.";
+        if (radius > 2*Math.pow(SPECS.MAX_BOARD_SIZE-1,2)) throw "Signal radius is too big.";
 
         this._bc_signal = value;
         this._bc_signal_radius = radius;
@@ -151,9 +151,9 @@ class BCAbstractRobot {
         if (this.fuel < SPECS.MINE_FUEL_COST) throw "Not enough fuel to mine.";
         
         if (this._bc_game_state.karbonite_map[this.me.y][this.me.x]) {
-            if (this.me.karbonite > SPECS.UNITS[SPECS.PILGRIM].KARBONITE_CAPACITY) throw "Cannot mine, as at karbonite capacity.";
+            if (this.me.karbonite >= SPECS.UNITS[SPECS.PILGRIM].KARBONITE_CAPACITY) throw "Cannot mine, as at karbonite capacity.";
         } else if (this._bc_game_state.fuel_map[this.me.y][this.me.x]) {
-            if (this.me.fuel > SPECS.UNITS[SPECS.PILGRIM].FUEL_CAPACITY) throw "Cannot mine, as at fuel capacity.";
+            if (this.me.fuel >= SPECS.UNITS[SPECS.PILGRIM].FUEL_CAPACITY) throw "Cannot mine, as at fuel capacity.";
         } else throw "Cannot mine square without fuel or karbonite.";
 
         return this._bc_action('mine');
@@ -201,7 +201,7 @@ class BCAbstractRobot {
     }
 
     // Get map of visible robot IDs.
-    getVisibleMap() {
+    getVisibleRobotMap() {
         return this._bc_game_state.shadow;
     }
 

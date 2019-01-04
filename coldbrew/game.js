@@ -449,6 +449,8 @@ Game.prototype.enactTurn = function(record) {
         var action = null;
         try { action = robot.hook(dump); }
         catch (e) { this.robotError(e, robot); }
+
+        //console.log(action);
         
         var diff_time = wallClock() - robot.start_time;
         record = new ActionRecord(this, robot);

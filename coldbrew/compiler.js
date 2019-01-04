@@ -22,7 +22,8 @@ class Compiler {
     }
 
     static Python(code, callback, error) {
-        var source = PYTHON_STARTER + "\n\n" + this.Concat(code) + "\n\n" + "robot = MyRobot()\n";
+        var source = "SPECS = " + JSON.stringify(SPECS) + "\n";
+        source += PYTHON_STARTER + "\n\n" + this.Concat(code) + "\n\n" + "robot = MyRobot()\n";
 
         axios.post(TRANSPILER_TARGET, {
             'lang':'python','src':source
