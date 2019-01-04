@@ -65,7 +65,7 @@ def compile(sources, min=True):
     
     else:
         path = os.getcwd() + "/" + dir + "/"
-        errors = "\n".join(o.split("\n")[5:-3]).replace(path,"")
+        errors = "\n".join(o.split("\n")[6:-3]).replace(path,"")
 
     # Cleanup working file.
     shutil.rmtree(dir)
