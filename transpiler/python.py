@@ -5,6 +5,7 @@ from time import sleep
 import math
 import shutil
 import re
+import glob
 
 WORKSPACE = "python_workspace"
 
@@ -57,13 +58,12 @@ def compile(sources, min=True):
 
     if o.split("\n")[-3] == "Ready":
         success = True
-
-        with open(dir + "/__target__/robot.js") as f:
-            js = f.read()
-
-        with open(dir + "/__target__/robot.map") as f:
-            source_map = f.read()
-
+        
+        files = {}
+        for filepath in glob.iglob(dir + "/__target__/*.js"):
+            with open(filepath) as f:
+                files[filepath.split("/")[-1]] = f.read()
+    
     else:
         path = os.getcwd() + "/" + dir + "/"
         errors = "\n".join(o.split("\n")[5:-3]).replace(path,"")
