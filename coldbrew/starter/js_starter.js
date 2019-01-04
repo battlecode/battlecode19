@@ -123,7 +123,7 @@ export class BCAbstractRobot {
         
         if (!Number.isInteger(dx) || !Number.isInteger(dx) || dx < -1 || dy < -1 || dx > 1 || dy > 1) throw "Can only build in adjacent squares.";
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't build units off of map.";
-        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] !== 0) throw "Cannot build on occupied tile.";
+        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] <= 0) throw "Cannot build on occupied tile.";
         if (!this._bc_game_state.map[this.me.y+dy][this.me.x+dx]) throw "Cannot build onto impassable terrain.";
         if (this.karbonite < SPECS.UNITS[unit].CONSTRUCTION_KARBONITE || this.fuel < SPECS.UNITS[unit].CONSTRUCTION_FUEL) throw "Cannot afford to build specified unit.";
 
@@ -136,7 +136,7 @@ export class BCAbstractRobot {
     move(dx, dy) {
         if (this.me.unit === SPECS.CASTLE || this.me.unit === SPECS.CHURCH) throw "Churches and Castles cannot move.";
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't move off of map.";
-        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === null) throw "Cannot move outside of vision range.";
+        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === -1) throw "Cannot move outside of vision range.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] !== 0) throw "Cannot move onto occupied tile.";
         if (!this._bc_game_state.map[this.me.y+dy][this.me.x+dx]) throw "Cannot move onto impassable terrain.";
 
@@ -165,7 +165,7 @@ export class BCAbstractRobot {
     give(dx, dy, karbonite, fuel) {
         if (dx > 1 || dx < -1 || dy > 1 || dy < -1 || (dx === 0 && dy === 0)) throw "Can only give to adjacent squares.";
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't give off of map.";
-        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dy] === 0) throw "Cannot give to empty square.";
+        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dy] <= 0) throw "Cannot give to empty square.";
         if (karbonite < 0 || fuel < 0 || this.me.karbonite < karbonite || this.me.fuel < fuel) throw "Do not have specified amount to give.";
 
         return this._bc_action('give', {
@@ -179,7 +179,7 @@ export class BCAbstractRobot {
         if (this.me.unit !== SPECS.CRUSADER && this.me.unit !== SPECS.PREACHER && this.me.unit !== SPECS.PROPHET) throw "Given unit cannot attack.";
         if (this.fuel < SPECS.UNITS[this.me.unit].ATTACK_FUEL_COST) throw "Not enough fuel to attack.";
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't attack off of map.";
-        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === null) throw "Cannot attack outside of vision range.";
+        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === -1) throw "Cannot attack outside of vision range.";
         if (!this._bc_game_state.map[this.me.y+dy][this.me.x+dx]) throw "Cannot attack impassable terrain.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === 0) throw "Cannot attack empty tile.";
 

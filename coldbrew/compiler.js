@@ -9,7 +9,7 @@ var JAVA_STARTER = require('./starter/java_starter');
 
 var TRANSPILER_TARGET = (typeof window === 'undefined') ? 'http://battlecode.org/compile' : 'https://battlecode.org/compile';
 
-TRANSPILER_TARGET = 'http://localhost:8080/compile'
+//TRANSPILER_TARGET = 'http://localhost:8080/compile'
 
 class Compiler {
 
@@ -68,7 +68,10 @@ class Compiler {
         code = code.filter(file => file.filename.endsWith('.java'));
 
         if (!code.some(file => file.filename === 'MyRobot.java')) error("Could not find MyRobot.Java.")
-        //code.push({'filename':'battlecode.py', 'source':PYTHON_STARTER});
+        
+        for (var filename in JAVA_STARTER) {
+            code.push({'filename':filename, 'source':JAVA_STARTER[filename]});
+        }
 
         axios.post(TRANSPILER_TARGET, {
             'lang':'java','src':code

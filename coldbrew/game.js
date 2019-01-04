@@ -347,7 +347,7 @@ Game.prototype.registerHook = function(hook, robot_id) {
  */
 Game.prototype.getVisible = function(robot) {
     var view = Array(this.shadow.length);
-    for (var i=0; i<this.shadow.length; i++) view[i]=Array(this.shadow[0].length);
+    for (var i=0; i<this.shadow.length; i++) view[i]=Array(this.shadow[0].length).fill(-1);
     
     for (var r=0; r<this.shadow.length; r++) {
         for (var c=0; c<this.shadow[0].length; c++) {

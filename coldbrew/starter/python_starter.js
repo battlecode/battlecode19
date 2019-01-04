@@ -144,7 +144,7 @@ class BCAbstractRobot:
             raise Exception("Churches and Castles cannot move.")
         if not self._bc_check_on_map(self.me['x']+dx,self.me['y']+dy):
             raise Exception("Can't move off of map.")
-        if self._bc_game_state.shadow[self.me['y']+dy][self.me['x']+dx] is None:
+        if self._bc_game_state.shadow[self.me['y']+dy][self.me['x']+dx] == -1:
             raise Exception("Cannot move outside of vision range.")
         if self._bc_game_state.shadow[self.me['y']+dy][self.me['x']+dx] != 0:
             raise Exception("Cannot move onto occupied tile.")
@@ -184,7 +184,7 @@ class BCAbstractRobot:
             raise Exception("Can only give to adjacent squares.")
         if not self._bc_check_on_map(self.me['x']+dx,self.me['y']+dy):
             raise Exception("Can't give off of map.")
-        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dy] == 0:
+        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dy] <= 0:
             raise Exception("Cannot give to empty square.")
         if karbonite < 0 or fuel < 0 or self.me['karbonite'] < karbonite or self.me['fuel'] < fuel:
             raise Exception("Do not have specified amount to give.")
@@ -204,7 +204,7 @@ class BCAbstractRobot:
             raise Exception("Not enough fuel to attack.")
         if not self._bc_check_on_map(self.me['x']+dx,self.me['y']+dy):
             raise Exception("Can't attack off of map.")
-        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] is None:
+        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] == -1:
             raise Exception("Cannot attack outside of vision range.")
         if not self._bc_game_state['map'][self.me['y']+dy][self.me['x']+dx]:
             raise Exception("Cannot attack impassable terrain.")

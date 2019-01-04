@@ -5,7 +5,7 @@ public class MyRobot extends BCAbstractRobot {
         super(s);
     }
 
-    public Action turn() throws Exception {
+    public Action turn() {
     	log(Integer.toString(karbonite) + ", " + Integer.toString(fuel));
         return proposeTrade(10,-10);
     }
