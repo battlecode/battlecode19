@@ -35,7 +35,7 @@ var argv = require('yargs')
 const CHESS_INITIAL = argv.chi;
 const CHESS_EXTRA = argv.che;
 
-const seed = argv.s;
+const seed = argv.s===0 ? Math.floor(Math.random() * Math.pow(2,32)) : argv.s;
 
 function getFolder(dir) {
     code = [];

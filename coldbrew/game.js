@@ -108,13 +108,15 @@ Game.prototype.initializeReplay = function() {
     // The BC19 replay format is an intriguing one.
     // Byte 0: reserved for winner.
     // Byte 1: reserved for win reason.
-    // Bytes 2 and 3: 16 bit map seed
+    // Bytes 2-5: 32 bit map seed
     //
     // After that, we just have a lot of 8 byte robot actions.
 
     this.replay = [0,0];
 
-    this.replay.push(this.seed >> 8);
+    this.replay.push(this.seed >> 24);
+    this.replay.push((this.seed >> 16) % Math.pow(2,8));
+    this.replay.push((this.seed >> 8) % Math.pow(2,8));
     this.replay.push(this.seed % Math.pow(2,8));
 }
 

@@ -55,9 +55,12 @@ public class BCAbstractRobot {
     public int karbonite;
     public int[][] lastOffer;
 
-    public BCAbstractRobot(SpecHolder specs) {
-        SPECS = specs;
+    public BCAbstractRobot() {
         resetState();
+    }
+
+    public void setSpecs(SpecHolder specs) {
+    	SPECS = specs;
     }
 
     private void resetState() {
