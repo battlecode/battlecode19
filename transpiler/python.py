@@ -20,7 +20,12 @@ def compile(sources, min=True):
     if not os.path.exists(dir):
         os.makedirs(dir)
 
-    if not "robot.py" in sources:
+    has_robot = False
+    for source in sources:
+        if source['filename'] == 'robot.py':
+            has_robot = True
+
+    if not has_robot:
         return {'success':False, 'error':"No robot.py provided.", 'js':"", 'map':""}
 
     for source in sources:
@@ -30,6 +35,8 @@ def compile(sources, min=True):
         # Write sources to working directory.
         with open(dir + "/" + source['filename'], mode="w") as f:
             f.write(source['source'])
+
+
 
     print(dir)
 
