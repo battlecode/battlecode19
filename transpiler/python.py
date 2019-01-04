@@ -39,7 +39,7 @@ def compile(sources, min=True):
 
     # Launch compiler.
     p = subprocess.Popen(['python3', '-m', 'transcrypt', 
-                     '-m', '-b', '-p', '.none', 'robot'],
+                     '-n', '-m', '-b', '-p', '.none', 'robot'],
                      cwd=dir,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT)
@@ -58,19 +58,11 @@ def compile(sources, min=True):
     if o.split("\n")[-3] == "Ready":
         success = True
 
-        if min:
-            with open(dir + "/__javascript__/robot.min.js") as f:
-                js = f.read()
+        with open(dir + "/__target__/robot.js") as f:
+            js = f.read()
 
-            with open(dir + "/__javascript__/extra/sourcemap/robot.min.js.map") as f:
-                source_map = f.read()
-        else:
-            with open(dir + "/__javascript__/robot.js") as f:
-                js = f.read()
-
-            with open(dir + "/__javascript__/extra/sourcemap/robot.js.map") as f:
-                source_map = f.read()
-
+        with open(dir + "/__target__/robot.map") as f:
+            source_map = f.read()
 
     else:
         path = os.getcwd() + "/" + dir + "/"
