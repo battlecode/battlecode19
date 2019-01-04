@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Battlecode</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,700" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.10/angular-material.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -150,10 +151,11 @@
 
         #hamburger, #close {
             display: none;
+            position:fixed;
             top: 0;
             left: 0;
             z-index: 3;
-            color: white;
+            color: #444;
             padding-left: 8px;
             padding-top: 8px;
         }
@@ -169,7 +171,7 @@
             color: #fff;
             text-align: center;
             overflow: hidden;
-            background-image:url(https://storage.googleapis.com/battlehack/example.png);
+            background-image:url(background.png);
             position: relative;
             top: 0;
             left: 0;
@@ -177,14 +179,18 @@
             border-bottom: 8px solid #FF5722;
             z-index: 2;
             margin-left: 20%;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
         }
         .hero h1 {
-            font-size: 4.8vw;
-            margin: 60px auto;
+            font-size: 7vw;
+            margin: 100px auto;
             -webkit-transform: skew(-10deg);
             -moz-transform: skew(-10deg);
             -o-transform: skew(-10deg);
-            width: 50%;
+            width: 60%;
+            font-weight:700;
             padding: 0.25em;
             box-shadow: 1px 1px 10px #000;
             background-color: #d84315;
@@ -207,12 +213,16 @@
 
             font-size: 3vw;
             width:40%;
-            margin: 0 auto;
+            margin: -50px auto;
         }
         .hero .holder .register:hover {
             box-shadow: 0px 0px 5px #000;
             color:#eee;
             background-color: #2937e6;
+        }
+
+        h3, h4 {
+            font-weight:300;
         }
 
 
@@ -223,12 +233,12 @@
             }
 
             #hamburger{
-                position: absolute;
+                position: fixed;
                 display: block;
             }
 
             #close {
-                position: absolute;
+                position: fixed;
                 display: none;
             }
 
@@ -248,10 +258,10 @@
 
 <div class="hero">
     <div class="bg-image"></div>
-    <h1>Welcome to <br> BATTLECODE</h1>
-    <div class="holder">
+    <h1>BATTLECODE</h1>
+    <!--<div class="holder">
         <a href="/register" class="register">Register Today!</a>
-    </div>
+    </div>-->
 </div>
 <div class="sidenav">
     <a href="#battlecode-home"><img id="nav-logo" src="battlecode.png"></a>
@@ -270,8 +280,9 @@
         <i class="fa fa-caret-down"></i>
     </div>
     <div class="dropdown-container">
+        <!--
         <a href="#materials-specs">Specs & Software</a>
-        <a href="#materials-tools">Competitor Tools</a>
+        <a href="#materials-tools">Competitor Tools</a>-->
         <a href="#materials-tutorial">Python Tutorial</a>
     </div>
     <br>
@@ -306,7 +317,9 @@
         then compete for a chance at $50,000 in prizes! Anyone can participate, from beginners to experts, and
         enrollment at MIT is not necessary.
     </p>
-    <h5><a class="page-link" href="https://goo.gl/forms/FZP8u6DWtsXq01092">Sign up for our mailing list!</a></h5>
+    <p>
+        The 2019 competition officially kicks off January 7th at 7PM EST.  In the meantime, you can read our website for updated 2019 logistics and join our <a href="https://discord.gg/MxGws34">competitor Discord.</a>
+    </p>
     <!-- Update with new Battlehack once confirmed
     <p>
         Can't wait until January to get your Battlecode fix? Participate in
@@ -357,7 +370,6 @@
     </p>
 
     <md-divider class="ng-scope"></md-divider>
-    <md-divider class="ng-scope"></md-divider>
     <h3>Details</h3>
     <ul>
         <li><b>Team size</b>: 1-4 people.
@@ -371,7 +383,7 @@
         <li><b>Location</b>: For those present at MIT, lectures will be held in 32-123 (there's free food!). Note
             that these are also streamed on Twitch, should you want to participate in Battlecode remotely. The
             Final Tournament will be held in Kresge Auditorium.</li>
-        <li><b>Prizes</b>: $50,000+.</li>
+        <li><b>Prizes</b>: $50,000+ in cash.</li>
     </ul>
 
     <md-divider class="ng-scope"></md-divider>
@@ -380,10 +392,7 @@
         <dt><b>What languages are supported?</b></dt>
         <dd>
             <p>
-                Unlike previous years, Battlecode 2019 will allow you to write a bot in any language! However, we will
-                be providing boilerplate code and helper functions for a select set of languages, which will enable
-                you to set up a bot more easily. This year, we will be providing auxiliary support for Java, Python, and
-                Javascript. Stay tuned for updates, and let us know if there is another language you would like us to support!
+                Battlecode 2019 will allow you to write a bot Javascript, Python, and Java.  As our stack is open source (as usual), more adventurous souls will be able to experiment with different languages of their choosing. Stay tuned for updates, and let us know if there is another language you would like us to support!
             </p>
         </dd>
         <dt><b>So Battlecode is a game AI competition? But what's the game?</b></dt>
@@ -391,8 +400,7 @@
             <p>
                 We can't tell you yet, and we won't reveal this year's game until Battlecode 2019 kicks off on
                 January 7th. The game changes every year, and part of the fun of Battlecode is in not knowing what
-                you're gonna get :). However, we can tell you that the game tends to be a real-time or turn-based
-                strategy game, and robots need to demonstrate a mastery of both broad resource management (macro),
+                you're gonna get :). However, we can tell you that the game tends to be a  turn-based strategy game, and robots need to demonstrate a mastery of both broad resource management (macro),
                 and organized, efficient combat tactics (micro).
             </p>
         </dd>
@@ -400,7 +408,7 @@
         <dd>
             <p>
                 Experience definitely helps, but everyone has to start somewhere. A background in algorithms and AI
-                is not necessary. We'll be available throughout January to help you out as needed. If you have
+                is not necessary. We'll be available throughout January to help you out as needed through our lecture series on Twitch and on the Discord. If you have
                 little or no experience in programming, then we encourage you to consider Battlecode as a fun,
                 engaging project through which you will pick up the skills you need to write programs!
             </p>
@@ -417,11 +425,11 @@
         <dt><b>What is the tournament format?</b></dt>
         <dd>
             <p>
-                Concrete details are still to come, but we will be holding several tournaments throughout the month
+                We will be holding several tournaments throughout the month
                 of January. The penultimate tournament will determine the finalists who will compete at MIT in the
                 Final Tournament. In parallel to this series of tournaments (the "main" event), we will also be
                 holding a Newbie Tournament open to MIT students who have not previously competed in Battlecode,
-                as well as a High School Tournmanet open to US high school students.
+                as well as a High School Tournmanet open to both US and International middle/high school students.
             </p>
         </dd>
         <dt><b>What are scrimmages?</b></dt>
@@ -436,11 +444,17 @@
                 This is not necessary! In fact, you do not even need to be an MIT student!
             </p>
         </dd>
+        <dt><b>How do I register for Battlecode?</b></dt>
+        <dd>
+            <p>
+                Unlike previous years, registration will not open until January 7th at 7PM EST.  At that time, there will be a big shiny button on our homepage to register.
+            </p>
+        </dd>
         <dt><b>I'm an MIT student. How do I get course credit for Battlecode?</b></dt>
         <dd>
             <p>
                 Battlecode is an official 6-unit MIT course, with the course number 6.147. In addition to
-                registering on this site, you must also register through MIT's system. At that point, in order to
+                registering on this site once IAP starts, you must also register for 6.147 through MIT's system. At that point, in order to
                 get credit, you must create a player that is able to beat a reference player that we will release
                 later in the tournament.
             </p>
@@ -454,11 +468,10 @@
     </dl>
 
     <md-divider class="ng-scope"></md-divider>
-    <md-divider class="ng-scope"></md-divider>
     <a id="battlecode-schedule"><h3>Lecture Schedule</h3></a>
     <p>
         Battlecode 2019 will commence on Monday, January 7th, at 7pm ET.
-        <br>
+        <br><br />
         Lectures will be held at <b>7pm</b>, for the first two weeks of the competition. Come by <b>32-123</b> to learn about an
         assortment of topics in game AI, and also grab some free food! If you are not at MIT, fear not; we will be
         streaming lectures on Twitch. We also plan to save the Twitch livestreams and upload them as videos.
@@ -471,25 +484,21 @@
         The submission deadline for all tournaments, except the Newbie, High School, and Final Tournaments, will be
         at 8pm EST the night before the tournament. Unlike in past years, finalists for these tournaments will be
         able to submit code after the Qualifying Tournament, up until Wednesday, January 31st at 8pm.
-        <br>
-        Update: Seeding tournament is now on Wednesday instead of Monday. International Qualifying Tournament is now
-        on Saturday instead of Friday. Submission deadlines have been pushed back similarly.
     </p>
     <ul>
-        <li>Wednesday, January 17th - Sprint Tournament</li>
-        <li>Monday, January 22nd - Seeding Tournament</li>
-        <li>Friday, January 26th - International Qualifying Tournament</li>
-        <li>Monday, January 29th - US Qualifying Tournament</li>
-        <li>Wednesday, January 31st - Final Tournament submission deadline @ 8pm</li>
-        <li>Friday, February 2nd - Finalist’s Celebration</li>
-        <li>Saturday, February 3rd - Newbie, High School, and Final Tournaments</li>
+        <li>Wednesday, January 16th - Sprint Tournament</li>
+        <li>Monday, January 21nd - Seeding Tournament</li>
+        <li>Friday, January 25th - International Qualifying Tournament</li>
+        <li>Monday, January 28th - US Qualifying Tournament</li>
+        <li>Wednesday, January 30st - Final Tournament submission deadline @ 8pm</li>
+        <li>Friday, February 1st - Finalist’s Celebration</li>
+        <li>Saturday, February 2nd - Newbie, High School, and Final Tournaments</li>
     </ul>
     <p>
-        The Final Tournament will occur on Saturday, February 3rd. Doors open at 6PM in MIT's Kresge Auditorium.
+        The Final Tournament will occur on Saturday, February 2nd. Doors open at 6PM in MIT's Kresge Auditorium.
         The competition and stream begin at 7PM.
     </p>
 
-    <md-divider class="ng-scope"></md-divider>
     <md-divider class="ng-scope"></md-divider>
     <a id="battlecode-conduct"><h3>Code of Conduct</h3></a>
     <p>Maintaining a safe and inclusive environment for competitors is a top priority for Battlecode. Battlecode
@@ -517,26 +526,20 @@
         Competitors violating these rules may be banned from current and/or future Battlecode competitions at the
         discretion of Teh Devs.</p>
 
-    <md-divider class="ng-scope"></md-divider>
+    <!--
     <md-divider class="ng-scope"></md-divider>
     <a id="materials-specs"><h3>Specs & Software</h3></a>
     <ul>
-        <li>Follow the installation instructions <a class="page-link" href="https://github.com/battlecode/bc18-scaffold">here</a>.</li>
+        <li>Follow the installation instructions <a class="page-link" href="https://github.com/battlecode/bc19-scaffold">here</a>.  As Battlecode 2019 is a First Person Shooter and supports GPU acceleration, be sure to download the distribution appropriate for your graphics card.</li>
         <li>Download the viewer by running install_viewer.py in the scaffold, using python 3</li>
-        <li>View the game specs <a class="page-link" href="https://s3.amazonaws.com/battlecode-2018/specs/battlecode-specs-2018.html">here</a>.
+        <li>View the game specs <a class="page-link" href="https://s3.amazonaws.com/battlecode-2019/specs/battlecode-specs-2019.html">here</a>.
             It is highly recommended to read this entire document before you begin writing bots.</li>
-        <li>Python API / documentation is <a class="page-link" href="https://s3.amazonaws.com/battlecode-2018/api/python/bc.m.html">here</a>.</li>
-        <li>C API / documentation is <a class="page-link" href="https://gist.github.com/kazimuth/c84e5d83ada1764e408190d4ec46ba33">here</a>.</li>
-        <li>Java API / documentation is <a class="page-link" href="https://s3.amazonaws.com/battlecode-2018/api/java/index.html">here</a>.
-            (Thanks CertifiedPyro for the documentation!)</li>
-        <li>Troubleshooting/help/FAQ and announcements on <a class="page-link" href="https://discord.gg/xg3VVYt">Discord</a>.</li>
     </ul>
-
+    -->
     <md-divider class="ng-scope"></md-divider>
     <h3>Battlecode GitHub</h3>
-    <p>See all of our code <a class="page-link" href="https://github.com/battlecode/battlecode19">here</a>, and give it a star if you like it.</p>
-
-    <md-divider class="ng-scope"></md-divider>
+    <p>See all of our public code <a class="page-link" href="https://github.com/battlecode/">here</a>, and give it a star if you like it.</p>
+    <!--
     <md-divider class="ng-scope"></md-divider>
     <a id="materials-tools"><h3>Competitor Tools</h3></a>
     <p>
@@ -551,6 +554,8 @@
     </ul>
 
     <md-divider class="ng-scope"></md-divider>
+    -->
+
     <md-divider class="ng-scope"></md-divider>
     <a id="materials-tutorial"><h3>Python Tutorials</h3></a>
     <p>
@@ -564,10 +569,9 @@
         <iframe src="https://www.youtube.com/embed/C6mKtIEjY5I" frameborder="0" allowfullscreen></iframe>
     </div>
     <md-divider class="ng-scope"></md-divider>
-    <md-divider class="ng-scope"></md-divider>
     <a id="tournaments-overview"><h3>Tournament Overview</h3></a>
     <p>
-        Battlecode 2018 will consist of 6 tournaments: the Sprint Tournament, the Seeding Tournament, the US
+        Battlecode 2019 will consist of 6 tournaments: the Sprint Tournament, the Seeding Tournament, the US
         Qualifying Tournament, the International Qualifying Tournament, the Newbie Tournament, the High School
         Tournament, and the Final Tournament. We stream and commentate all tournaments online. We may also have
         some bonus (for-fun) tournaments.
@@ -584,8 +588,8 @@
             Final Tournament, there will be <b>separate qualifying tournaments for US
                 and international teams</b>. These tournaments determine the contestants going
             into the Final Tournament, and showcase the final strategies of all the
-            competitors. The top 12 teams from the US Qualifying Tournament and the top
-            4 teams from the International Qualifying Tournament will qualify for the
+            competitors. The top 8 teams from the US Qualifying Tournament and the top
+            8 teams from the International Qualifying Tournament will qualify for the
             Final Tournament.</li>
         <li><b>Newbie Tournament:</b> As part of the Final Tournament, the top MIT newbie
             teams compete for a prize.</li>
@@ -639,7 +643,7 @@
         single elimination. The Final Tournament will start with a blank slate (any losses from the Qualifying Tournament are reset).
         <br><br>
         Each match within a tournament will consist of 3 games on 3 different maps, and the team that wins the most
-        games will advance. The maps used for each tournament are usually brand new.
+        games will advance.
     </p>
 
     <md-divider class="ng-scope"></md-divider>
@@ -964,8 +968,7 @@
     </table>
 
     <p><b>Battlehack</b></p>
-    <p>Battlehack is an MIT-exclusive hackathon, where contestants have only 24 hours to complete their bots. First ran
-        in November 2017, Battlehack features its own game with experimental rulesets.</p>
+    <p>Battlehack is an Battlecode hackathon, where contestants have only 24 hours to complete their bots. First ran in November 2017, Battlehacks feature their own games with experimental rulesets.</p>
     <table>
         <tr>
             <th><b>Year</b></th>
@@ -973,7 +976,17 @@
             <th><b>Members</b></th>
         </tr>
         <tr>
-            <td>2017</td>
+            <td>2019 MIT</td>
+            <td>Water Buffalo</td>
+            <td>Alexander Katz</td>
+        </tr>
+        <tr>
+            <td>2018 West</td>
+            <td>Ivanteam</td>
+            <td>Ivan Belonogov</td>
+        </tr>
+        <tr>
+            <td>2017 MIT</td>
             <td>Not a Hivemind</td>
             <td>Skye Thompson, Cel Skeggs, Joseph Jerkins, Alexander Lam</td>
         </tr>
@@ -985,72 +998,41 @@
     <div ng-view="" layout-padding="" id="page-wrapper" class="layout-padding ng-scope" style=""><link rel="stylesheet" href="../../css/sponsors.css" class="ng-scope">
 
 
-        <div ng-repeat="i in [1, 2, 3, 4]" layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
-            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-1"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/coatue.png');"></div>
-        </div><div ng-repeat="i in [1, 2, 3, 4]" layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
-            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-2"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/deshaw.jpg');"></div>
-        </div><div ng-repeat="i in [1, 2, 3, 4]" layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
-            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/cruise.png');"></div>
-            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/facebook.jpg');"></div>
-            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/hrt.jpg');"></div>
-            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/twosigma.png');"></div>
-            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-3"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/yext.jpg');"></div>
+       <div layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
+            <div class="logo sponsor-2" style="background-image:url('deshaw.jpg');"></div><div class="logo sponsor-2" style="background-image:url('jabil.png');"></div>
+        </div><div layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
+            <div class="logo sponsor-3"
+                 style="background-image:url('hrt.jpg');"></div>
+            <div class="logo sponsor-3"
+                 style="background-image:url('oracle.png');"></div>
+            <div class="logo sponsor-3"
+                 style="background-image:url('ibm.svg');"></div>
+            <div class="logo sponsor-3"
+                 style="background-image:url('disney.png');"></div>
+            <div class="logo sponsor-3"
+                 style="background-image:url('drw.png');"></div>
+
         </div><div ng-repeat="i in [1, 2, 3, 4]" layout="row" layout-align="center" class="ng-scope layout-align-center-stretch layout-row">
             <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-4"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/isee.png');"></div>
-            <div ng-repeat="sponsor in sponsors | filter: { level: i }" class="logo sponsor-4"
-                 style="background-image:url('https://s3.amazonaws.com/battlecode-2018/sponsor/oracle.png');"></div>
+                 style="background-image:url('dsc.png');"></div>
         </div>
 
         <md-divider class="ng-scope"></md-divider>
         <h3>Sponsor Information</h3>
-        <!-- ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
-            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/coatue.png" alt="Coatue">
-            <p><b class="ng-binding">Coatue<br>Platinum Sponsor</b></p>
-            <p><a href="https://www.coatue.com/" class="ng-binding">https://www.coatue.com/</a><br></p>
-            <div align="left" class="ng-binding"><p>Coatue Management is a global investment firm with offices in
-                New York, NY, Menlo Park, CA, and Hong Kong. We manage $12+ billion in assets on behalf of individuals,
-                nonprofit organizations, and institutional investors by focusing on investments in the technology, media,
-                and telecommunications space in both the public and private markets. We’re excited about applying data
-                science to the finance domain! If you’re interested in learning more, please email hack4alpha@coatue.com.</p></div>
-            <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+        <div align="center" class="ng-scope">
             <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/deshaw.jpg" alt="The D.E. Shaw Group">
             <p><b class="ng-binding">The D.E. Shaw Group<br>Gold Sponsor</b></p>
             <p><a href="https://www.deshaw.com/WhoWeAre.shtml" class="ng-binding">https://www.deshaw.com/WhoWeAre.shtml</a><br></p>
-            <div align="left" class="ng-binding"><p>THE D.E. Shaw Group is a global investment and technology development
-                firm with more than $43 billion in investment capital as of July 1, 2017, and offices in North America,
-                Europe, and Asia. Since our founding in 1988, our firm has earned an international reputation for
-                successful investing based on innovation, careful risk management, and the quality and depth of our staff.</p></div>
+            <div align="left" class="ng-binding"><p>Headquartered in New York City, the D. E. Shaw group is a global investment and technology development firm, founded in 1988, with offices around the world. While we’re known as a pioneer in quantitative investing, we also have considerable expertise in areas that involve fundamental analysis or portfolio manager discretion. Our firm has earned an international reputation for successful investing based on innovation, careful risk management, and the quality and depth of our research and staff. With a culture that combines some of the best aspects of academia, finance, and technology, we pride ourselves on a work environment that promotes collaboration, integrity, and a precise approach to solving problems.</p><p>Our staff includes world-class mathematicians, physicists, computer scientists, analysts, business-builders, and system architects relying on specialized trading, operational, and compliance expertise developed over 30 years. Our teams work in close collaboration—not in competitive silos—to share trade ideas, manage risks, streamline processes, and explore new opportunities.</p><p>Outside of the office, we have wide-ranging personal interests that we pursue as entrepreneurs, patent holders, competitive sailors, marathoners, professional opera singers, board members of nonprofit organizations, and champion bridge players, to name a few. The firm is committed to the well-being and happiness of our employees and recognizes that different people thrive in different types of environments: Some are most productive working in t-shirts or listening to music, while others need time away from the office to recharge after a challenging project. We also have pantries stocked with snacks and games, an on-site gym, guest speakers from a range of disciplines, volunteer and public service opportunities, museum memberships, and social events.</p></div>
             <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
-            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/cruise.png" alt="Cruise">
-            <p><b class="ng-binding">Cruise<br>Silver Sponsor</b></p>
-            <p><a href="https://driverless.wonderhowto.com/news/video-breakdown-gms-unicorn-cruise-shows-off-level-4-skills-sf-passing-uber-maybe-waymo-0176031/" class="ng-binding">https://driverless.wonderhowto.com/news/video-breakdown-gms-unicorn-cruise-shows-off-level-4-skills-sf-passing-uber-maybe-waymo-0176031/</a><br></p>
-            <div align="left" class="ng-binding"><p>We're the driverless car company. We’re building the world’s best
-                autonomous vehicles to safely connect people to the places, things, and experiences they care about.
-                Our vehicles are on the road in California, Arizona, and Michigan navigating some of the most
-                challenging and unpredictable driving environments. We’re hiring people who want to solve some of
-                today’s most complex engineering challenges and make a positive impact.</p></div>
+        </div><div align="center" class="ng-scope">
+            <img class="logo-scaled" src="jabil.png" alt="The D.E. Shaw Group">
+            <p><b class="ng-binding">Jabil Inc.<br>Gold Sponsor</b></p>
+            <p><a href="https://www.jabil.com/" class="ng-binding">https://www.jabil.com/</a><br></p>
+            <div align="left" class="ng-binding"><p><!--REMEMBER TO PUT SOMETHING HERE--></p></div>
             <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
-            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/facebook.jpg" alt="Facebook">
-            <p><b class="ng-binding">Facebook<br>Silver Sponsor</b></p>
-            <p><a href="https://www.facebook.com/careers/university" class="ng-binding">https://www.facebook.com/careers/university</a><br></p>
-            <div align="left" class="ng-binding"><p>The chance to move fast, be bold and build products and services
-                with impact has never been greater. At Facebook, we have a saying that the journey is only 1% finished
-                — join us as you begin yours. We have tons of exciting opportunities available for university grads
-                and interns who want to help us in our mission to bring the world closer together.</p></div>
-            <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
-            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/hrt.jpg" alt="Hudson River Trading">
+        </div><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
+            <img class="logo-scaled" src="hrt.jpg" alt="Hudson River Trading">
             <p><b class="ng-binding">Hudson River Trading<br>Silver Sponsor</b></p>
             <p><a href="https://www.hudson-trading.com/" class="ng-binding">https://www.hudson-trading.com/</a><br></p>
             <div align="left" class="ng-binding"><p>Hudson River Trading brings a scientific approach to trading
@@ -1058,65 +1040,44 @@
                 research and development. Our researchers are at the forefront of innovation in the world of algorithmic
                 trading.</p></div>
             <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
-            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/twosigma.png" alt="Two Sigma">
-            <p><b class="ng-binding">Two Sigma<br>Silver Sponsor</b></p>
-            <p><a href="https://www.twosigma.com/" class="ng-binding">https://www.twosigma.com/</a><br></p>
-            <div align="left" class="ng-binding"><p>More than 1,200 people who believe the scientific method is the
-                best way to approach investing. Ideas backed up with information. And improved by iteration. That’s
-                Two Sigma.</p></div>
-            <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
-            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/yext.jpg" alt="Yext">
-            <p><b class="ng-binding">Yext<br>Silver Sponsor</b></p>
-            <p><a href="https://www.yext.com/" class="ng-binding">https://www.yext.com/</a><br></p>
-            <div align="left" class="ng-binding"><p>Yext is pioneering a new category called Digital Knowledge
-                Management, which gives businesses control of all of the public facts that they want consumers to know
-                across the intelligent ecosystem. The Yext Knowledge Engine™ lets companies manage their digital
-                knowledge in the cloud and sync it to over 100 services in the PowerListings® Network. Yext Listings,
-                Pages, and Reviews enable businesses around the globe to facilitate face-to-face and digital interactions
-                that boost brand awareness, drive foot traffic, and increase sales.</p></div>
-            <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
-            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/isee.png" alt="ISEE">
-            <p><b class="ng-binding">ISEE<br>Bronze Sponsor</b></p>
-            <p><a href="http://isee.ai/join.html" class="ng-binding">http://isee.ai/join.html</a><br></p>
-            <div align="left" class="ng-binding"><p>We are a spinoff from MIT computational cognitive science lab. We
-                are a team of scientists, engineers and business professionals in Cambridge, MA. We build a predictive
-                AI engine to enable the self-driving cars to navigate the complex physical and social environment. We
-                have both full-time and part-time positions available. Please contact us if you are interested in
-                joining us to make something awesome!</p></div>
-            <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --><div ng-repeat="sponsor in sponsors" align="center" class="ng-scope">
-            <img class="logo-scaled" src="https://s3.amazonaws.com/battlecode-2018/sponsor/oracle.png" alt="Oracle">
-            <p><b class="ng-binding">Oracle<br>Bronze Sponsor</b></p>
+        </div><div align="center" class="ng-scope">
+            <img class="logo-scaled" src="oracle.png" alt="Oracle">
+            <p><b class="ng-binding">Oracle<br>Silver Sponsor</b></p>
             <p><a href="https://www.oracle.com/college" class="ng-binding">https://www.oracle.com/college</a><br></p>
             <div align="left" class="ng-binding"><p>At Oracle, we’ve revolutionized the tech industry by doing things
                 no other company has done before. With hundreds of thousands of customers around the globe, our
                 solutions are being used by businesses ranging from startups to the Fortune 100, from grade schools
                 to graduate schools, and from counties to countries.</p></div>
             <br>
-        </div><!-- end ngRepeat: sponsor in sponsors --></div>
+        </div><div align="center" class="ng-scope">
+            <img class="logo-scaled" src="ibm.svg" alt="IBM">
+            <p><b class="ng-binding">IBM<br>Silver Sponsor</b></p>
+            <p><a href="https://ibm.biz/TalentExperience" class="ng-binding">https://ibm.biz/TalentExperience</a><br></p>
+            <div align="left" class="ng-binding"><p>There is no other company like IBM and there is no business professional like the IBMer. We are experts in nearly every technical scientific and business field. We are citizens of, and apply our expertise in, more than 170 countries. Yet we are united by a single purpose: to be essential. We do that by creating the most advanced technology to change how our clients work and run their businesses.</p><p>And through them, IBMers change how the world works. The world is at a major turning point: technology is enabling entirely new forms of business operations, business models, industries and outcomes. We have exponentially more power to reach the full potential of our life’s work than any humans before us.</p><p>Explore the different entry-level, intern, co-op and graduate career paths available to you at IBM and <a href="https://ibm.biz/TalentExperience">apply</a> today.</p></div>
+            <br>
+        </div><div align="center" class="ng-scope">
+            <img class="logo-scaled" src="disney.png" alt="Disney">
+            <p><b class="ng-binding">The Walt Disney Company<br>Silver Sponsor</b></p>
+            <p><a href="www.disneytech.com/" class="ng-binding">www.disneytech.com/</a><br></p>
+            <div align="left" class="ng-binding"><p>The mission of The Walt Disney Company is to be one of the world’s leading producers and providers of entertainment and information. Using our portfolio of brands to differentiate our content, services and consumer products, we seek to develop the most creative, innovative and profitable entertainment experiences and related products in the world.</p></div>
+            <br>
+        </div><div align="center" class="ng-scope">
+            <img class="logo-scaled" src="drw.png" alt="DRW">
+            <p><b class="ng-binding">DRW<br>Silver Sponsor</b></p>
+            <p><a href="https://drw.com/oncampus/" class="ng-binding">https://drw.com/oncampus/</a><br></p>
+            <div align="left" class="ng-binding"><p><!--REMEMBER TO PUT SOMETHING HERE--></p></div>
+            <br>
+        </div><div align="center" class="ng-scope">
+            <img class="logo-scaled" src="dsc.png" alt="Dollar SHave Club">
+            <p><b class="ng-binding">Dollar Shave Club<br>Bronze Sponsor</b></p>
+            <p><a href="https://engineering.dollarshaveclub.com/" class="ng-binding">https://engineering.dollarshaveclub.com/</a><br></p>
+            <div align="left" class="ng-binding"><p><!--REMEMBER TO PUT SOMETHING HERE--></p></div>
+            <br>
+        </div></div>
 
     <md-divider class="ng-scope"></md-divider>
-    <md-divider class="ng-scope"></md-divider>
-    <a id="sponsors-interested"><h3>What is Battlecode?</h3></a>
-    <p>
-        Battlecode is MIT's artificial intelligence programming competition. Battlecode contestants write AI software
-        in Java to control virtual robots, which then compete in a video-game-style battle simulation. Each virtual
-        robot roams the screen autonomously, and must communicate with other robots to work together and defeat the
-        opposing team. In addition to being fun to watch, Battlecode matches are tests of both programming skill and
-        sheer intellect.
-        <br><br>
-        Contestants are given the Battlecode software and specifications at the beginning of January. Over the course of
-        a month, they must incorporate artificial intelligence, pathfinding, distributed algorithms, and network
-        communications, not to mention ingenuity and teamwork, to complete their robot players. At the end of January,
-        hundreds of spectators watch as the Battlecode tournament determines the "best of the best" among MIT programmers.
-        <br><br>
-        The spectacle of the final tournament draws crowds from all over MIT and takes place in Kresge Auditorium, MIT's
-        largest venue. Thanks to our sponsors, the top contestants get well-earned prizes.
-    </p>
-    <h3>Why Sponsor Battlecode?</h3>
+    
+    <h3 id="sponsors-interested">Why Sponsor Battlecode?</h3>
     <p>
         Ever wanted a way to filter through job applicants, and find only the best recruits? The Battlecode competition
         is just that. Because it attracts the "best of the best," Battlecode provides targeted results in three key areas:
@@ -1135,9 +1096,8 @@
     </ul>
     <h3>Contact Us</h3>
     <p>For more information about the sponsorship experience, including pricing, email us at
-        <a href="mailto:battlecode-sponsorship@mit.edu">battlecode-sponsorship@mit.edu</a>. We've still got slots open for 2019!</p>
+        <a href="mailto:battlecode-sponsorship@mit.edu">battlecode-sponsorship@mit.edu</a>. We've still got last minute slots open for 2019!</p>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.1.10/angular-material.min.js"></script>
 <script>
     var dropdown = document.getElementsByClassName("dropdown-btn");
     var i;
