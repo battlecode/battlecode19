@@ -21,7 +21,7 @@ RUN	echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-s
 RUN	apt-get install maven -y && \
 	apt-get clean all
 
-RUN pip3 install transcrypt numscrypt flask-cors
+RUN pip3 install transcrypt==3.7.13 numscrypt flask-cors
 
 COPY ./java /app/java
 

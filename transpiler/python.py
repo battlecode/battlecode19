@@ -37,9 +37,6 @@ def compile(sources, min=True):
             f.write(source['source'])
 
 
-
-    print(dir)
-
     # Launch compiler.
     p = subprocess.Popen(['python3', '-m', 'transcrypt', 
                      '-m', '-b', '-p', '.none', 'robot'],
@@ -58,7 +55,7 @@ def compile(sources, min=True):
     js = ""
     source_map = ""
 
-    if o.split("\n")[-2] == "Ready":
+    if o.split("\n")[-3] == "Ready":
         success = True
 
         if min:
