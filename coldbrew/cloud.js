@@ -1,8 +1,8 @@
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
-const Coldstuff = require('./runtime');
-const Coldbrew = Coldstuff.Coldbrew;
+const Game = require('./game');
+const Compiler = require('./compiler');
 
 const Storage = require('@google-cloud/storage');
 const projectId = 'battlecode18';
@@ -54,23 +54,27 @@ UPDATE ` + TABLE + ` SET status = $1, replay = $2 WHERE id = $3;
 function playGame() {
     db.one(queue).then(function(scrimmage) {
         console.log(`[Worker ${process.pid}] Running match ${scrimmage.id}`);
-        var seed = Math.floor(10000*Math.random());
-        let c = new Coldbrew(null, seed, scrimmage.red, scrimmage.blue, CHESS_INITIAL, CHESS_EXTRA, false, function(replay) {
-            var r = JSON.stringify(replay);
-            var replay_name = Math.random().toString(36).substring(2) + ".json";
+        var seed = Math.floor(Math.pow(2,32)*Math.random());
+        
+        let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, false, true);
+        let c = new Coldbrew(g, null, function(logs) {
+            var replay_name = Math.random().toString(36).substring(2) + ".bc19";
             var file = bucket.file('replays/' + replay_name);
             var stream = file.createWriteStream({});
+
             stream.on('finish', ()=> {
-                var url = 'https://hack.battlecode.org/replays/' + replay_name;
-                    console.log(`[Worker ${process.pid}] Match ${scrimmage.id} complete.`);
-                    db.none(end_match,[
-                        replay.winner===0?'redwon':'bluewon',
-                        url, scrimmage.id
-                    ]).then(playGame);
-                    c.destroy();
+                var url = 'https://battlecode.org/replays/' + replay_name;
+                console.log(`[Worker ${process.pid}] Match ${scrimmage.id} complete.`);
+                db.none(end_match,[
+                    game.winner===0?'redwon':'bluewon',
+                    url, scrimmage.id
+                ]).then(playGame);
+                c.destroy();
             });
-            stream.end(Buffer.from(r, 'utf8'));
-        }); c.playGame();
+
+            stream.end(Buffer.from(g.replay));
+            
+        });
     }).catch(function(error) {
         setTimeout(playGame,Math.floor(5000*Math.random()));
     });

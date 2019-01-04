@@ -104,6 +104,33 @@ Game.prototype.makeMap = function() {
     return to_create;
 }
 
+/**
+ * Return a copy of a game at a given point.
+ * 
+ * @return {Game} - A deep copy of the current game that will remain constant.
+ */
+Game.prototype.copy = function() {
+    var g = new Game(this.seed, this.chess_initial, this.chess_extra, this.debug, this.replay);
+    g.replay = replay ? insulate(this.replay) : undefined;
+
+    g.shadow = insulate(this.shadow);
+    g.robots = insulate(this.robots);
+    g.ids = insulate(this.ids);
+
+    g.round = this.round;
+    g.robin = this.robin;
+    g.init_queue = this.init_queue;
+    g.winner = this.winner;
+    g.win_condition = g.win_condition;
+
+    g.logs = insulate(this.logs);
+    g.karbonite = insulate(this.karbonite);
+    g.fuel = insulate(this.fuel);
+    g.last_offer = insulate(this.last_offer);
+
+    return g;
+}
+
 Game.prototype.initializeReplay = function() {
     // The BC19 replay format is an intriguing one.
     // Byte 0: reserved for winner.
