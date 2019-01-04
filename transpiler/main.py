@@ -42,22 +42,21 @@ def compile():
     if not 'lang' in args:
         raise InvalidUsage("Must specify compilation language.", status_code=422)
 
-    # Intake a list of files rather than a source for Java
+    if isinstance(args['src'], (list,)):
+        for src in args['src']:
+            if isinstance(src, dict) and 'source' in src and 'filename' in src:
+                src['source'] = str(src['source'])
+                src['filename'] = str(src['filename']).split('/')[0]
+            else:
+                raise InvalidUsage("Must provide source and filename each file.")
+    else:
+        raise InvalidUsage("Must provide list of JSON sources.", status_code=422)
+
     if args['lang'] == 'java':
-        if isinstance(args['src'], (list,)):
-            for src in args['src']:
-                if isinstance(src, dict) and 'source' in src and 'filename' in src:
-                    src['source'] = str(src['source'])
-                    src['filename'] = str(src['filename']).split('/')[0]
-                else:
-                    raise InvalidUsage("Must provide source and filename for Java files.")
-        else:
-            raise InvalidUsage("Must provide list of JSON sources for Java target.", status_code=422)
-        
         return jsonify(java.compile(args['src']))
 
     elif args['lang'] == 'python':
-        return jsonify(python.compile(str(args['src']), min=False))
+        return jsonify(python.compile(args['src']), min=False)
 
     else:
         raise InvalidUsage("Invalid language specified.", status_code=400)

@@ -4,10 +4,11 @@ import os
 from time import sleep
 import math
 import shutil
+import re
 
 WORKSPACE = "python_workspace"
 
-def compile(source, min=True):
+def compile(sources, min=True):
     p = None
     id = math.floor(random()*1000000)
     dir = WORKSPACE + "/" + str(id)
@@ -19,14 +20,22 @@ def compile(source, min=True):
     if not os.path.exists(dir):
         os.makedirs(dir)
 
-    with open(dir+"/robot.py", mode="w") as f:
-        f.write(source)
+    if not "robot.py" in sources:
+        return {'success':False, 'error':"No robot.py provided.", 'js':"", 'map':""}
+
+    for source in sources:
+        if len(source['filename']) > 20 or not re.match(r'^[A-Za-z0-9_.]+$', source['filename']) or source['filename'].count('.') != 1 or not source['filename'].endswith('.py'):
+            continue
+        
+        # Write sources to working directory.
+        with open(dir + "/" + source['filename'], mode="w") as f:
+            f.write(source['source'])
 
     print(dir)
 
     # Launch compiler.
     p = subprocess.Popen(['python3', '-m', 'transcrypt', 
-                     '-m', '-b', '-p', '.none', 'robot.py'],
+                     '-m', '-b', '-p', '.none', 'robot'],
                      cwd=dir,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT)
