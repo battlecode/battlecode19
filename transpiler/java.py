@@ -56,7 +56,7 @@ def compile(sources):
     for line in o.split("\n"):
         args = line.split(" ")
 
-        if line[0:4] == '2018' and args[2] == 'ERROR' and args[3] == 'JSweetTranspiler:83':
+        if line[0:4] == '2019' and args[2] == 'ERROR' and args[3] == 'JSweetTranspiler:83':
             last_error = True
 
             path = os.getcwd()+"/java/src/main/java/"
