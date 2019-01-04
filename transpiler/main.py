@@ -56,7 +56,7 @@ def compile():
         return jsonify(java.compile(args['src']))
 
     elif args['lang'] == 'python':
-        return jsonify(python.compile(args['src']), min=False)
+        return jsonify(python.compile(args['src'],min=False))
 
     else:
         raise InvalidUsage("Invalid language specified.", status_code=400)
