@@ -21,9 +21,8 @@ function readReplayFromFile(filename) {
 var write = true;
 
 if (write) {
-
-    fs.readFile("./bots/bot.py", "utf8", function(err, code) {
-        Compiler.Python({'main.py':code}, function(compiled) {
+    fs.readFile("./bots/robot.py", "utf8", function(err, code) {
+        Compiler.Compile([{'filename':'robot.py','source':code}], function(compiled) {
             let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, true, true);
             
             let c = new Coldbrew(g, null, function(logs) {
@@ -35,6 +34,7 @@ if (write) {
             console.log(error);
         });
     });
+
  
 } else {
 

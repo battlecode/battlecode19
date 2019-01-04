@@ -1,9 +1,12 @@
-module.exports = `
+var SPECS = require('../specs');
+
+module.exports = 'export var SPECS = ' + JSON.stringify(SPECS) + `
+
 function insulate(content) {
     return JSON.parse(JSON.stringify(content));
 }
 
-class BCAbstractRobot {
+export class BCAbstractRobot {
     constructor() {
         this._bc_reset_state();
     }
@@ -228,6 +231,4 @@ class BCAbstractRobot {
     turn() {
         return null;
     }
-}
-
-`
+}`

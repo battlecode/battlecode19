@@ -1,5 +1,7 @@
 var axios = require('axios');
 var SPECS = require('./specs');
+var rollup = require('rollup');
+var virtual = require('rollup-plugin-virtual');
 
 var JS_STARTER = require('./starter/js_starter');
 var PYTHON_STARTER = require('./starter/python_starter');
@@ -9,10 +11,13 @@ var TRANSPILER_TARGET = (typeof window === 'undefined') ? 'http://battlecode.org
 
 class Compiler {
 
-    static Compile(lang, code, callback, error) {
-        if (lang === 'java') this.Java(code, callback, error);
-        else if (lang === 'javascript') this.JS(code, callback, error);
-        else if (lang === 'python') this.Python(code, callback, error);
+    static Compile(code, callback, error) {
+        var ext = code[0].filename.substr(code[0].filename.lastIndexOf('.') + 1);
+
+        if (ext === 'java') this.Java(code, callback, error);
+        else if (ext === 'js') this.JS(code, callback, error);
+        else if (ext === 'py') this.Python(code, callback, error);
+        else console.log("Unrecognized file extension.");
     }
 
     static Concat(files) {
@@ -22,21 +27,34 @@ class Compiler {
     }
 
     static Python(code, callback, error) {
-        var source = "SPECS = " + JSON.stringify(SPECS) + "\n";
-        source += PYTHON_STARTER + "\n\n" + this.Concat(code) + "\n\n" + "robot = MyRobot()\n";
+        code.push({'filename':'battlecode.py', 'source':PYTHON_STARTER});
 
         axios.post(TRANSPILER_TARGET, {
-            'lang':'python','src':source
+            'lang':'python','src':code
         }).then(function(response) {
-            if (response.data['success']) {
-                var d = response.data['js'].split("\n");
-                d[d.length-4] = 'var robot = robot();'
-                d[0] = "";
-                d = d.join("\n");
-                callback(d);
+            if (response.data['success']) {                
+                rollup.rollup({
+                    input: {'robot':'robot.js'},
+                    plugins: [ virtual(response.data['js']) ]
+                }).then(function(bundle) {
+                    bundle.generate({name:'robot',format:'esm'}).then(function(out) {
+                        var code = out.output[0].code.split("\n");
+                        code.splice(code.length-4,100);
+                        code.push("var robot = {robot: new MyRobot()};")
+                        code = code.join('\n');
+
+                        callback(code);
+                    }).catch(function(e) {
+                        error(e);
+                    });
+                }).catch(function(e) {
+                    error(e);
+                });
+
             } else error(response.data['error']);
-        }).catch(function(error) {
-            console.log(error);
+        }).catch(function(e) {
+            console.log(e);
+            error("Improper request, or server down.");
         });
     }
 
@@ -45,8 +63,31 @@ class Compiler {
     }
 
     static JS(code, callback, error) {
-        var source = "var SPECS = " + JSON.stringify(SPECS) + "\n" + JS_STARTER + this.Concat(code) + "\nvar robot = {'robot':new MyRobot()};";
-        callback(source);
+        var input = {};
+        var is_robot = false;
+        for (var i=0; i<code.length; i++) {
+            if (!code[i].filename.endsWidth('.js')) continue;
+            if (code[i].filename === 'robot.js') is_robot = true;
+            input[code[i].filename] = code[i].source;
+        }
+
+        if (!is_robot) error("No robot.js provided.");
+
+        input['robot.js'] += "\nvar robot = {robot: new MyRobot()};";
+        input['battlecode'] = JS_STARTER;
+
+        rollup.rollup({
+            input: {'robot':'robot.js'},
+            plugins: [ virtual(input) ]
+        }).then(function(bundle) {
+            bundle.generate({format:'cjs'}).then(function(out) {
+                callback(out.output[0].code);
+            }).catch(function(e) {
+                error(e);
+            });
+        }).catch(function(e) {
+            error(e);
+        });
     }
 }
 

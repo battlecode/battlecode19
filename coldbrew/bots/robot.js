@@ -1,5 +1,7 @@
-built = false;
-step = -1;
+import {BCAbstractRobot, SPECS} from 'battlecode';
+
+var built = false;
+var step = -1;
 
 class MyRobot extends BCAbstractRobot {
     turn() {
