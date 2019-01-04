@@ -11,7 +11,8 @@
     "rollup": "^1.0.1",
     "rollup-plugin-virtual": "^1.0.1",
     "vm-browserify": "^1.1.0",
-    "vm2": "^3.6.3"
+    "vm2": "^3.6.3",
+    "yargs": "^12.0.5"
   },
   "browser": {
     "./vm.js": "./vm_browser.js"

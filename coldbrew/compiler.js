@@ -27,6 +27,10 @@ class Compiler {
     }
 
     static Python(code, callback, error) {
+        code = code.filter(file => file.filename.endsWith('.py'));
+
+        if (!code.some(file => file.filename === 'robot.py')) error("Could not find robot.py.")
+
         code.push({'filename':'battlecode.py', 'source':PYTHON_STARTER});
 
         axios.post(TRANSPILER_TARGET, {
@@ -66,7 +70,7 @@ class Compiler {
         var input = {};
         var is_robot = false;
         for (var i=0; i<code.length; i++) {
-            if (!code[i].filename.endsWidth('.js')) continue;
+            if (!code[i].filename.endsWith('.js')) continue;
             if (code[i].filename === 'robot.js') is_robot = true;
             input[code[i].filename] = code[i].source;
         }
