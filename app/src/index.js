@@ -40,17 +40,17 @@ class App extends Component {
                 <div className="main-panel">
                     <NavBar />
                     <Switch>
-                        <Route exact path="/" component={ Home }/>
-                        <Route path="/home" component={ Home }/>
-                        <Route path="/docs" component={ Docs }/>
-                        <Route path="/scrimmaging" component={ Scrimmaging }/>
-                        <Route path="/updates" component={ Updates }/>
-                        <Route path="/search" component={ Search }/>
-                        <Route path="/team" component={ Team }/>
-                        <Route path="/ide" component={ IDE }/>
-                        <Route path="/account" component={ Account }/>
-                        <Route path="/tournaments" component={ Tournaments }/>
-                        <Route path="/replay" component={ ReplayViewer }/>
+                        <Route exact path={`${process.env.PUBLIC_URL}/`} component={ Home }/>
+                        <Route path={`${process.env.PUBLIC_URL}/home`} component={ Home }/>
+                        <Route path={`${process.env.PUBLIC_URL}/docs`} component={ Docs }/>
+                        <Route path={`${process.env.PUBLIC_URL}/scrimmaging`} component={ Scrimmaging }/>
+                        <Route path={`${process.env.PUBLIC_URL}/updates`} component={ Updates }/>
+                        <Route path={`${process.env.PUBLIC_URL}/search`} component={ Search }/>
+                        <Route path={`${process.env.PUBLIC_URL}/team`} component={ Team }/>
+                        <Route path={`${process.env.PUBLIC_URL}/ide`} component={ IDE }/>
+                        <Route path={`${process.env.PUBLIC_URL}/account`} component={ Account }/>
+                        <Route path={`${process.env.PUBLIC_URL}/tournaments`} component={ Tournaments }/>
+                        <Route path={`${process.env.PUBLIC_URL}/replay`} component={ ReplayViewer }/>
                         <Route path="*" component={ NotFound }/>
                     </Switch>
                     <Footer />

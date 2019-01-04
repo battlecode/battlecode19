@@ -7,7 +7,7 @@ function CrossVM(code) {
 }
 
 CrossVM.prototype.turn = function(message) {
-    var code = "robot.robot._do_turn(" + message + ");";
+    var code = "robot._do_turn(" + message + ");";
     var script = VM.createScript(code);
     return script.runInContext(this.context);
 }

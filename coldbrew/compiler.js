@@ -1,5 +1,6 @@
 var axios = require('axios');
 var SPECS = require('./specs');
+
 var rollup = require('rollup');
 var virtual = require('rollup-plugin-virtual');
 
@@ -7,7 +8,7 @@ var JS_STARTER = require('./starter/js_starter');
 var PYTHON_STARTER = require('./starter/python_starter');
 var JAVA_STARTER = require('./starter/java_starter');
 
-var TRANSPILER_TARGET = (typeof window === 'undefined') ? 'http://battlecode.org/compile' : 'https://battlecode.org/compile';
+var TRANSPILER_TARGET = 'http://battlecode.org/compile';
 
 //TRANSPILER_TARGET = 'http://localhost:8080/compile'
 
@@ -19,13 +20,8 @@ class Compiler {
         if (ext === 'java') this.Java(code, callback, error);
         else if (ext === 'js') this.JS(code, callback, error);
         else if (ext === 'py') this.Python(code, callback, error);
+        else if (ext === 'bcx') callback(code[0].source);
         else console.log("Unrecognized file extension.");
-    }
-
-    static Concat(files) {
-        var code = "";
-        for (var key in files) code += "\n" + files[key];
-        return code;
     }
 
     static Python(code, callback, error) {
@@ -46,7 +42,7 @@ class Compiler {
                     bundle.generate({name:'robot',format:'esm'}).then(function(out) {
                         var code = out.output[0].code.split("\n");
                         code.splice(code.length-4,100);
-                        code.push("var robot = {robot: new MyRobot()};")
+                        code.push("var robot = new MyRobot();")
                         code = code.join('\n');
 
                         callback(code);
@@ -77,7 +73,7 @@ class Compiler {
             'lang':'java','src':code
         }).then(function(response) {
             if (response.data['success']) {
-                var postfix = "\nvar specs = " + JSON.stringify(SPECS) + ";\nvar robot = {'robot':new robot.MyRobot()};robot.robot.setSpecs(specs);";
+                var postfix = "\nvar specs = " + JSON.stringify(SPECS) + ";\nvar robot = new robot.MyRobot(); robot.setSpecs(specs);";
 
                 callback(response.data['js']+postfix);
             } else {
@@ -100,7 +96,7 @@ class Compiler {
 
         if (!is_robot) error("No robot.js provided.");
 
-        input['robot.js'] += "\nvar robot = {robot: new MyRobot()};";
+        input['robot.js'] += "\nvar robot = new MyRobot();";
         input['battlecode'] = JS_STARTER;
 
         rollup.rollup({

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import Api from '../api';
-import Coldsys from 'coldbrew';
-import Compiler from '../compiler';
-import * as Cookies from "js-cookie";
 
-var Coldbrew = Coldsys.Coldbrew;
+import Coldbrew from 'coldbrew/runtime';
+import Game from 'coldbrew/game';
+import Compiler from 'coldbrew/compiler';
+
+import * as Cookies from "js-cookie";
 
 var firebase_config = {
     apiKey: "AIzaSyBT7Mu9Bw6UH0Tr-mKXMwhKjdnLppdjvA4",
@@ -93,14 +94,16 @@ class IDE extends Component {
 
         Compiler.Compile(this.state.lang, this.firepad.getText(), function(code) {
             this.setState({theater:true, loading:false});
-            var seed = (!this.state.seed || this.state.seed === '') ? Math.floor(10000*Math.random()) : parseInt(this.state.seed,10);
-            this.c = new Coldbrew(
-                "viewer", seed, code, code,
-                parseInt(this.state.chess_init,10),
-                parseInt(this.state.chess_extra,10)
-            ); this.c.playGame(function(logs) {
+            var seed = (!this.state.seed || this.state.seed === '' || this.state.seed === 0) ? Math.floor(Math.pow(2,32)*Math.random()) : parseInt(this.state.seed,10);
+            
+            this.g = new Game(seed, parseInt(this.state.chess_init,10), parseInt(this.state.chess_extra,10), false, false);
+
+            this.c = new Coldbrew(this.g, null, function(logs) {}, function(logs) {
+                // log receiver
                 this.setState({logs:logs});
             }.bind(this));
+
+            this.c.playGame(code, code);
         }.bind(this), function(errors) {
             this.setState({loading:false, error: true, errors:errors});
         }.bind(this));

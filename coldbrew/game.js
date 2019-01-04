@@ -529,6 +529,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
     if ('logs' in action && 'length' in action['logs']) {
         for (var l=0; l<action['logs'].length; l++) {
             if (typeof action['logs'][l] === "string") this.robotLog(action['logs'][l], robot);
+            else if (Object.prototype.toString.call(action['logs'][l]) === "[object String]") this.robotLog(action['logs'][l].valueOf(), robot);
             else throw "Can only log strings.";
         }
     }

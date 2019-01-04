@@ -2,6 +2,7 @@
   "name": "battlecode-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://battlecode.org/dash",
   "devDependencies": {
     "react-scripts": "1.1.4"
   },
@@ -13,10 +14,10 @@
     "js-cookie": "^2.2.0",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
+    "react-popout": "^1.0.1",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "vm2": "^3.6.3",
-    "react-popout": "^1.0.1"
+    "vm2": "^3.6.3"
   },
   "scripts": {
     "start": "react-scripts start",
