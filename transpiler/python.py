@@ -53,16 +53,15 @@ def compile(sources, min=True):
     
     success = False
     errors = ""
-    js = ""
+    js = {}
     source_map = ""
 
     if o.split("\n")[-3] == "Ready":
         success = True
         
-        files = {}
         for filepath in glob.iglob(dir + "/__target__/*.js"):
             with open(filepath) as f:
-                files[filepath.split("/")[-1]] = f.read()
+                js[filepath.split("/")[-1]] = f.read()
     
     else:
         path = os.getcwd() + "/" + dir + "/"
