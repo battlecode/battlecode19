@@ -74,32 +74,260 @@ function Game(seed, chess_initial, chess_extra, debug, create_replay) {
  * @return {Object[]} - A list of robots with x, y, and team.
  */
 Game.prototype.makeMap = function() {
-    var width = 50;
-    var height = 50;
+    var width = Math.floor(this.random()*51)+50;
+    var height = width;
 
-    function make_map(start) {
-        var x = new Array(height);
-        for (var i=0; i<height; i++) {
-            x[i] = new Array(width);
-            for (var j=0; j<width; j++) {
-                x[i][j] = start;
+    //Figure out chunk width and height accordingly.
+    // Here, we have just two players and are assuming horizontal orientation to start, so this is easy
+    var ch = Math.ceil(height/2);
+    var cw = width;
+
+    // Determine passability using ideas from 
+    // https://gamedevelopment.tutsplus.com/tutorials/generate-random-cave-levels-using-cellular-automata--gamedev-9664
+    // Note: It's really sensitive to all three of these parameters.
+    var start_alive = this.random()*0.07 + 0.38;
+    var birth = 5;
+    var death = 4;
+
+    var passmap = Array.apply(null, {length: ch}).map(_ => 
+        Array.apply(null, {length: cw})
+    );
+
+    for (var w=0;w<cw;w++) for (var h=0;h<ch;h++) passmap[h][w] = this.random() > start_alive;
+
+
+    // I hate this so much it hurts
+    var countsite = (l, x, y) => [].concat.apply([], [-1,0,1].map(i => [-1,0,1].map(j => [i,j]))).filter(x => x[0] != 0 || x[1] != 0).map(k => 
+        +(x+k[0] >= 0 && x+k[0] < cw && y+k[1] >= 0 && y+k[1] < ch && l[y+k[1]][x+k[0]])
+    ).reduce((x,y) => x+y);
+
+    for (var i=0; i<2; i++) {
+        for (var m=0; m<cw; m++) {
+            for (var n=0; n<ch; n++) {
+                passmap[n][m] = (passmap[n][m] && countsite(passmap, m, n) >= death) || (!passmap[n][m] && countsite(passmap, m, n) >= birth);
             }
-        } return x;
+        } 
     }
 
-    this.shadow = make_map(0);
-    this.karbonite_map = make_map(false);
-    this.fuel_map = make_map(false);
-    this.map = make_map(true);
+    // Invert the passmap
+    for (var m=0; m<cw; m++) {
+        for (var n=0; n<ch; n++) {
+            passmap[n][m] = !passmap[n][m];
+        }
+    } 
 
-    to_create = [
-        {team:0, x:2, y:2},
-        {team:1, x:47, y:47}
-    ];
+    // Flood fill to find all of the different sections of the map
+    var regions = [];
+    var visited = Array.apply(null, {length: ch}).map(_ => 
+        Array.apply(false, {length: cw})
+    );
 
-    this.fuel_map[4][4] = this.fuel_map[45][45] = true;
-    this.karbonite_map[5][5] = this.karbonite_map[44][44] = true;
+    for (var n=0; n<ch; n++) {
+        for (var m=0; m<cw; m++) {
+            if (passmap[n][m] && !visited[n][m]) {
+                regions.push([]);
+                var stack = [[m,n]]; // Stack-based DFS to flood-fill
+                while (stack.length > 0) {
+                    var coords = stack.pop();
+                    var x = coords[0];
+                    var y = coords[1];
 
+                    regions[regions.length-1].push(coords);
+                    visited[y][x] = true;
+
+                    if (y > 0 && passmap[y-1][x] && !visited[y-1][x]) stack.push([x, y-1]);
+                    if (x > 0 && passmap[y][x-1] && !visited[y][x-1]) stack.push([x-1, y]);
+                    if (y < ch-1 && passmap[y+1][x] && !visited[y+1][x]) stack.push([x, y+1]);
+                    if (x < cw-1 && passmap[y][x+1] && !visited[y][x+1]) stack.push([x+1, y]);
+                }
+            }
+        }
+    }
+
+    regions.sort(x => -1*x.length);
+    for (var region=1; region < regions.length; region++) {
+        for (var i=0; i<regions[region].length; i++) {
+            var coord = regions[region][i];
+            passmap[coord[1]][coord[0]] = false;
+        }
+    }
+
+    // Generate other features: castles, karbonite and fuel depots
+    
+    // Select number of castles:
+    var num_castles = Math.min(Math.max(Math.floor(2.5*this.random() + ((height+width)/100)-0.5), 1), 3);
+
+    // Choose their locations. We prefer for opposing castles to be far away, so we'll weight the distribution towards the bottom of the map depending on prefer_horizontal and ignore castles which are too close to the midline of the map. Additionally, we want castles on the same team to be at least a certain distance from each other, so we'll re-roll if that's not met.
+    var roll_castle = function() {
+        var triangle_ch = ch*(ch+1)/2;
+        var y = 0;
+        while (y<5 || y > ch-12) y = ch - Math.floor(0.5*(Math.sqrt(1+8*this.random()*triangle_ch)-1));
+        var x = Math.floor(this.random()*cw);
+
+        return [x,y]
+    }.bind(this);
+
+    var castles = [];
+    for (var i=0; i<num_castles; i++) {
+        var coord = roll_castle();
+        
+        // forgive me christ
+        while (!passmap[coord[1]][coord[0]] || (castles.length > 0 && Math.min.apply(null, castles.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 20)) {
+            coord = roll_castle();
+        }
+
+        castles.push(coord);
+    }
+
+    var roll_resource_seed = _ => [Math.floor(this.random()*cw),Math.floor(this.random()*ch)];
+
+    var resource_density = this.random() * (1/400 - 1/800) + 1/800
+    var num_resource_clusters = Math.round(cw*ch*resource_density)
+
+    var resources_cluster_seeds = insulate(castles); // Castles must be seeds of resources
+    for (var n=resources_cluster_seeds.length; n<num_resource_clusters; n++) {
+        var coord = roll_resource_seed();
+        
+        // oops i did it again
+        while (!passmap[coord[1]][coord[0]] || Math.min.apply(null, resources_cluster_seeds.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 12) {
+            coord = roll_resource_seed();
+        }
+        
+        resources_cluster_seeds.push(coord);
+    }
+
+    // Now that we have the seed locations for the clusters, we'll roll for how many resources we put in (karbonite and fuel separately)
+    // Locations closer to the midline will tend to have more resources, to discourage turtling.
+    var karbonite_depots = [];
+    var fuel_depots = [];
+    visited = Array.apply(null, {length: ch}).map(_ => 
+        Array.apply(false, {length: cw})
+    );
+
+    // helper to check if coordinate is in a list
+    function c_in(c, l) {
+        for (var i=0; i<l.length; l++) {
+            if (l[i][0] === c[0] && l[i][1] === c[1]) return true;
+        } return false;
+    }
+
+    for (var i=0; i<resources_cluster_seeds.length; i++) {
+        var x;
+        var y;
+
+        [x,y] = resources_cluster_seeds[i];
+
+        // Choose amount of karbonite and fuel in the cluster.
+        var num_karbonite = Math.max(1, Math.round(this.random()*4*(y/ch)));
+        var num_fuel = Math.max(1, Math.round(this.random()*4*(y/ch)));
+        var total_depot = num_karbonite + num_fuel;
+        
+        // We now run a BFS to choose
+        var region = [];
+        var queue = []; // Queue-based BFS for finding the region:
+        queue.push([x,y]);
+
+        for (var z=0; z<5*total_depot; z++) { // Choose an area 4x larger than necessary for the resource cluster.
+            [x,y] = queue.pop(0);
+            region.push([x,y]);
+            visited[y][x] = true;
+
+            if (y > 0 && passmap[y-1][x] && !visited[y-1][x]) queue.push([x, y-1]);
+            if (x > 0 && passmap[y][x-1] && !visited[y][x-1]) queue.push([x-1, y]);
+            if (y < ch-1 && passmap[y+1][x] && !visited[y+1][x]) queue.push([x, y+1]);
+            if (x < cw-1 && passmap[y][x+1] && !visited[y][x+1]) queue.push([x+1, y]);
+
+        }
+
+        // Choose the actual karbonite and fuel locations
+        
+        var counter = 0; // This probably isn't necessary -- it's in the (extremely) rare case that a solution doesn't actually exist, to ensure that we terminate.
+
+        for (var k=0; k<num_karbonite; k++) {
+            [x,y] = region[Math.floor(this.random()*region.length)];
+            
+            while ((c_in([x,y], castles) || c_in([x,y], karbonite_depots) || c_in([x,y], fuel_depots)) && counter < 100000) {
+                [x,y] = region[Math.floor(this.random()*region.length)];
+                counter++;
+            }
+
+            if (counter < 100000) karbonite_depots.push([x,y]);
+        }
+
+        for (var k=0; k<num_fuel; k++) {
+            [x,y] = region[Math.floor(this.random()*region.length)];
+            
+            while ((c_in([x,y], castles) || c_in([x,y], karbonite_depots) || c_in([x,y], fuel_depots)) && counter < 100000) {
+                [x,y] = region[Math.floor(this.random()*region.length)];
+                counter++;
+            }
+
+            if (counter < 100000) fuel_depots.push([x,y]);
+        }
+
+
+    }
+    
+    // Convert lists into bool maps
+    var karb_map = Array.apply(null, {length: ch}).map(_ => 
+        Array.apply(false, {length: cw})
+    );
+
+    var fuel_map = Array.apply(null, {length: ch}).map(_ => 
+        Array.apply(false, {length: cw})
+    );
+
+    for (var i=0; i<karbonite_depots.length; i++) {
+        karb_map[karbonite_depots[i][1]][karbonite_depots[i][0]] = true;
+    }
+
+    for (var i=0; i<fuel_depots.length; i++) {
+        fuel_map[fuel_depots[i][1]][fuel_depots[i][0]] = true;
+    }
+
+    // mirror the map
+    var full_passmap = Array.apply(null, {length: height}).map(_ => 
+        Array.apply(false, {length: width})
+    );
+
+    var full_karbmap = Array.apply(null, {length: height}).map(_ => 
+        Array.apply(false, {length: width})
+    );
+
+    var full_fuelmap = Array.apply(null, {length: height}).map(_ => 
+        Array.apply(false, {length: width})
+    );
+
+    var transpose = this.random() < 0.5;
+    for (var n=0; n<(transpose?height:width); n++) {
+        for (var m=0; m<(transpose?width:height); m++) {
+            full_passmap[n][m] = n<ch ? passmap[n][m] : passmap[height-n-1][m];
+            full_fuelmap[n][m] = n<ch ? fuel_map[n][m] : fuel_map[height-n-1][m];
+            full_karbmap[n][m] = n<ch ? karb_map[n][m] : karb_map[height-n-1][m];
+        }
+    }
+
+    var all_castles = castles.concat(castles.map(c => [c[0], height-c[1]-1]));
+    if (transpose) all_castles = all_castles.map(c => [c[1],c[0]]);
+
+
+    this.shadow = Array.apply(null, {length: height}).map(_ => 
+        Array.apply(0, {length: width})
+    );
+
+    this.karbonite_map = full_karbmap;
+    this.fuel_map = full_fuelmap;
+    this.map = full_passmap;
+
+    var to_create = [];
+
+    for (var i=0; i<all_castles.length; i++) {
+        to_create.push({
+            team:+(i < castles.length), 
+            x:all_castles[i][0], 
+            y:all_castles[i][1]
+        });
+    }
 
     return to_create;
 }

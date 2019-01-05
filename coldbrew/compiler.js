@@ -10,13 +10,12 @@ var JAVA_STARTER = require('./starter/java_starter');
 
 var TRANSPILER_TARGET = 'http://battlecode.org/compile';
 
-//TRANSPILER_TARGET = 'http://localhost:8080/compile'
+TRANSPILER_TARGET = 'http://localhost:8080/compile'
 
 class Compiler {
 
     static Compile(code, callback, error) {
         var ext = code[0].filename.substr(code[0].filename.lastIndexOf('.') + 1);
-
         if (ext === 'java') this.Java(code, callback, error);
         else if (ext === 'js') this.JS(code, callback, error);
         else if (ext === 'py') this.Python(code, callback, error);
@@ -74,13 +73,14 @@ class Compiler {
         }).then(function(response) {
             if (response.data['success']) {
                 var postfix = "\nvar specs = " + JSON.stringify(SPECS) + ";\nvar robot = new robot.MyRobot(); robot.setSpecs(specs);";
-
+                console.log(response.data['js']+postfix);
                 callback(response.data['js']+postfix);
             } else {
+                console.log(response.data);
                 error(response.data['error']);
             }
         }).catch(function(e) {
-            console.log(e);
+            //console.log(e);
             error("Improper request, or server down.");
         });
     }
