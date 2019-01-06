@@ -65,14 +65,18 @@ class BasicUserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'username', 'avatar', 'bio', 'country')
         read_only_fields = ('url', 'username', 'avatar', 'bio', 'country')
 
+class VerifyUserSerializer(serializers.Serializer):
+    registration_key = serializers.CharField(allow_null=True, max_length=32,
+                                             required=True)
+
+
 
 class FullUserSerializer(serializers.HyperlinkedModelSerializer):
-    
     class Meta:
         model = get_user_model()
         fields = ('url', 'email', 'first_name', 'last_name', 'password', 'date_of_birth',
             'username', 'avatar', 'bio', 'country')
-        read_only_fields = ('url',)
+        read_only_fields = ('url', 'registration_key')
         extra_kwargs = {
             'password': {'write_only': True}
         }

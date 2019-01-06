@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'webpack_loader',
     'rest_framework',
+    'django_rest_passwordreset',
     'api'
 ]
 
