@@ -203,6 +203,16 @@ export class BCAbstractRobot {
         } return null;
     }
 
+    // Check if a given robot is visible.
+    isVisible(robot) {
+        return ('x' in robot);
+    }
+
+    // Check if a given robot is sending you radio.
+    isRadioing(robot) {
+        return robot.signal >= 0;
+    }
+
     // Get map of visible robot IDs.
     getVisibleRobotMap() {
         return this._bc_game_state.shadow;

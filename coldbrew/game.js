@@ -89,15 +89,20 @@ Game.prototype.makeMap = function() {
     var birth = 5;
     var death = 4;
 
-    var passmap = Array.apply(null, {length: ch}).map(_ => 
-        Array.apply(null, {length: cw})
-    );
+    function makemap(contents,w,h) {
+        var arr = new Array(h);
+        for (var i=0; i<h; i++) {
+            arr[i] = new Array(w);
+            for (var j=0; j<w; j++) arr[i][j] = contents;
+        } return arr;
+    }
 
-    for (var w=0;w<cw;w++) for (var h=0;h<ch;h++) passmap[h][w] = this.random() > start_alive;
+    var passmap = makemap(null, cw, ch);
 
+    for (var w=0;w<cw;w++) for (var h=0;h<ch;h++) passmap[h][w] = this.random() < start_alive;
 
     // I hate this so much it hurts
-    var countsite = (l, x, y) => [].concat.apply([], [-1,0,1].map(i => [-1,0,1].map(j => [i,j]))).filter(x => x[0] != 0 || x[1] != 0).map(k => 
+    var countsite = (l, x, y) => [].concat.apply([], [-1,0,1].map(i => [-1,0,1].map(j => [i,j]))).filter(k => k[0] != 0 || k[1] != 0).map(k => 
         +(x+k[0] >= 0 && x+k[0] < cw && y+k[1] >= 0 && y+k[1] < ch && l[y+k[1]][x+k[0]])
     ).reduce((x,y) => x+y);
 
@@ -118,9 +123,7 @@ Game.prototype.makeMap = function() {
 
     // Flood fill to find all of the different sections of the map
     var regions = [];
-    var visited = Array.apply(null, {length: ch}).map(_ => 
-        Array.apply(false, {length: cw})
-    );
+    var visited = makemap(false, cw, ch);
 
     for (var n=0; n<ch; n++) {
         for (var m=0; m<cw; m++) {
@@ -153,7 +156,7 @@ Game.prototype.makeMap = function() {
     }
 
     // Generate other features: castles, karbonite and fuel depots
-    
+
     // Select number of castles:
     var num_castles = Math.min(Math.max(Math.floor(2.5*this.random() + ((height+width)/100)-0.5), 1), 3);
 
@@ -187,7 +190,7 @@ Game.prototype.makeMap = function() {
     var resources_cluster_seeds = insulate(castles); // Castles must be seeds of resources
     for (var n=resources_cluster_seeds.length; n<num_resource_clusters; n++) {
         var coord = roll_resource_seed();
-        
+
         // oops i did it again
         while (!passmap[coord[1]][coord[0]] || Math.min.apply(null, resources_cluster_seeds.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 12) {
             coord = roll_resource_seed();
@@ -200,9 +203,7 @@ Game.prototype.makeMap = function() {
     // Locations closer to the midline will tend to have more resources, to discourage turtling.
     var karbonite_depots = [];
     var fuel_depots = [];
-    visited = Array.apply(null, {length: ch}).map(_ => 
-        Array.apply(false, {length: cw})
-    );
+    visited = makemap(false, cw, ch);
 
     // helper to check if coordinate is in a list
     function c_in(c, l) {
@@ -269,13 +270,9 @@ Game.prototype.makeMap = function() {
     }
     
     // Convert lists into bool maps
-    var karb_map = Array.apply(null, {length: ch}).map(_ => 
-        Array.apply(false, {length: cw})
-    );
+    var karb_map = makemap(false, cw, ch);
 
-    var fuel_map = Array.apply(null, {length: ch}).map(_ => 
-        Array.apply(false, {length: cw})
-    );
+    var fuel_map = makemap(false, cw, ch);
 
     for (var i=0; i<karbonite_depots.length; i++) {
         karb_map[karbonite_depots[i][1]][karbonite_depots[i][0]] = true;
@@ -286,17 +283,11 @@ Game.prototype.makeMap = function() {
     }
 
     // mirror the map
-    var full_passmap = Array.apply(null, {length: height}).map(_ => 
-        Array.apply(false, {length: width})
-    );
+    var full_passmap = makemap(false, width, height);
 
-    var full_karbmap = Array.apply(null, {length: height}).map(_ => 
-        Array.apply(false, {length: width})
-    );
+    var full_karbmap = makemap(false, width, height);
 
-    var full_fuelmap = Array.apply(null, {length: height}).map(_ => 
-        Array.apply(false, {length: width})
-    );
+    var full_fuelmap = makemap(false, width, height);
 
     var transpose = this.random() < 0.5;
     for (var n=0; n<(transpose?height:width); n++) {
@@ -311,9 +302,7 @@ Game.prototype.makeMap = function() {
     if (transpose) all_castles = all_castles.map(c => [c[1],c[0]]);
 
 
-    this.shadow = Array.apply(null, {length: height}).map(_ => 
-        Array.apply(0, {length: width})
-    );
+    this.shadow = makemap(0, width, height);
 
     this.karbonite_map = full_karbmap;
     this.fuel_map = full_fuelmap;
@@ -648,8 +637,8 @@ Game.prototype.getGameStateDump = function(robot) {
         }
 
         if (!radioable) {
-            delete r.signal;
-            delete r.signal_radius;
+            r.signal = -1;
+            r.signal_radius = -1;
         }
 
         if (!visible) {
@@ -695,7 +684,7 @@ Game.prototype.enactTurn = function(record) {
         this.fuel[0] += SPECS.TRICKLE_FUEL;
         this.fuel[1] += SPECS.TRICKLE_FUEL;      
     }
-
+    
     var robot = this.robots[this.robin];
 
     if (!record) {

@@ -64,7 +64,7 @@ class Compiler {
             'lang':'java','src':code
         }).then(function(response) {
             if (response.data['success']) {
-                var postfix = "\nvar specs = " + JSON.stringify(SPECS) + ";\nvar robot = {'robot':new robot.MyRobot()};robot.robot.setSpecs(specs);";
+                var postfix = "\nvar specs = " + JSON.stringify(SPECS) + ";\nvar robot = new bc19.MyRobot();robot.setSpecs(specs);";
 
                 callback(response.data['js']+postfix);
             } else {

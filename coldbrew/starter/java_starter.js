@@ -1,6 +1,6 @@
 module.exports = {
 	'Action.java':`
-package robot;
+package bc19;
 
 import java.util.ArrayList;
 
@@ -19,7 +19,7 @@ public class Action {
 }
 	`,
 	'AttackAction.java':`
-package robot;
+package bc19;
 import java.util.ArrayList;
 
 public class AttackAction extends Action {
@@ -37,7 +37,7 @@ public class AttackAction extends Action {
 }
 	`,
 	'BCAbstractRobot.java':`
-package robot;
+package bc19;
 import java.util.ArrayList;
 
 public class BCAbstractRobot {
@@ -70,7 +70,7 @@ public class BCAbstractRobot {
         castleTalk = 0;
     }
 
-    public Action _do_turn(GameState gameState) {
+    public Action _do_turn(GameState gameState) {        
         this.gameState = gameState;
         
         id = gameState.id;
@@ -89,7 +89,7 @@ public class BCAbstractRobot {
         }
 
         if (t == null) t = new Action(signal, signalRadius, logs, castleTalk);
-
+        
         resetState();
 
         return t;
@@ -136,7 +136,7 @@ public class BCAbstractRobot {
         if (dx < -1 || dy < -1 || dx > 1 || dy > 1) throw new BCException("Can only build in adjacent squares.");
         if (!checkOnMap(me.x+dx,me.y+dy)) throw new BCException("Can't build units off of map.");
         if (gameState.shadow[me.y+dy][me.x+dx] != 0) throw new BCException("Cannot build on occupied tile.");
-        if (gameState.map[me.y+dy][me.x+dx]) throw new BCException("Cannot build onto impassable terrain.");
+        if (!gameState.map[me.y+dy][me.x+dx]) throw new BCException("Cannot build onto impassable terrain.");
         if (karbonite < SPECS.UNITS[unit].CONSTRUCTION_KARBONITE || fuel < SPECS.UNITS[unit].CONSTRUCTION_FUEL) throw new BCException("Cannot afford to build specified unit.");
 
         return new BuildAction(unit, dx, dy, signal, signalRadius, logs, castleTalk);
@@ -204,6 +204,20 @@ public class BCAbstractRobot {
 
         return null;
     }
+
+    public boolean isVisible(Robot robot) {
+        for (int x=0; x<gameState.shadow[0].length; x++) {
+            for (int y=0; y<gameState.shadow.length; y++) {
+                if (robot.id == gameState.shadow[y][x]) return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isRadioing(Robot robot) {
+        return robot.signal >= 0;
+    }
     
     // Get map of visible robot IDs.
     public int[][] getVisibleRobotMap() {
@@ -237,7 +251,7 @@ public class BCAbstractRobot {
 }
 	`,
 	'BCException.java':`
-package robot;
+package bc19;
 
 public class BCException extends RuntimeException {
     public BCException(String errorMessage) {
@@ -246,7 +260,7 @@ public class BCException extends RuntimeException {
 }
 	`,
 	'BuildAction.java':`
-package robot;
+package bc19;
 import java.util.ArrayList;
 
 public class BuildAction extends Action {
@@ -266,7 +280,7 @@ public class BuildAction extends Action {
 }
 	`,
 	'ErrorAction.java':`
-package robot;
+package bc19;
 import java.util.ArrayList;
 
 public class ErrorAction extends Action {
@@ -280,7 +294,7 @@ public class ErrorAction extends Action {
 }
 	`,
 	'GameState.java':`
-package robot;
+package bc19;
 
 
 @jsweet.lang.Interface
@@ -297,7 +311,7 @@ public class GameState {
 }
 	`,
 	'GiveAction.java':`
-package robot;
+package bc19;
 import java.util.ArrayList;
 
 public class GiveAction extends Action {
@@ -319,7 +333,7 @@ public class GiveAction extends Action {
 }
 	`,
 	'MineAction.java':`
-package robot;
+package bc19;
 import java.util.ArrayList;
 
 public class MineAction extends Action {
@@ -332,7 +346,7 @@ public class MineAction extends Action {
 }
 	`,
 	'MoveAction.java':`
-package robot;
+package bc19;
 import java.util.ArrayList;
 
 public class MoveAction extends Action {
@@ -350,7 +364,7 @@ public class MoveAction extends Action {
 }
 	`,
 	'Robot.java':`
-package robot;
+package bc19;
 
 import java.util.ArrayList;
 
@@ -362,7 +376,6 @@ public class Robot {
 	public int y;
 	public int unit;
 
-	//@jsweet.lang.Optional
 	public int health;
 	public int karbonite;
 	public int fuel;
@@ -373,7 +386,7 @@ public class Robot {
 }
 	`,
 	'SpecHolder.java':`
-package robot;
+package bc19;
 
 @jsweet.lang.Interface
 public class SpecHolder {
@@ -401,7 +414,7 @@ public class SpecHolder {
 }
 	`,
 	'TradeAction.java':`
-package robot;
+package bc19;
 import java.util.ArrayList;
 
 public class TradeAction extends Action {
@@ -419,7 +432,7 @@ public class TradeAction extends Action {
 }
 	`,
 	'UnitSpec.java':`
-package robot;
+package bc19;
 
 @jsweet.lang.Interface
 public class UnitSpec {

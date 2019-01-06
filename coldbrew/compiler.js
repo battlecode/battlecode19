@@ -72,11 +72,9 @@ class Compiler {
             'lang':'java','src':code
         }).then(function(response) {
             if (response.data['success']) {
-                var postfix = "\nvar specs = " + JSON.stringify(SPECS) + ";\nvar robot = new robot.MyRobot(); robot.setSpecs(specs);";
-                console.log(response.data['js']+postfix);
+                var postfix = "\nvar specs = " + JSON.stringify(SPECS) + ";\nvar robot = new bc19.MyRobot(); robot.setSpecs(specs);";
                 callback(response.data['js']+postfix);
             } else {
-                console.log(response.data);
                 error(response.data['error']);
             }
         }).catch(function(e) {
