@@ -54,6 +54,9 @@ public class BCAbstractRobot {
     public int fuel;
     public int karbonite;
     public int[][] lastOffer;
+    public boolean[][] map;
+    public boolean[][] karboniteMap;
+    public boolean[][] fuelMap;
 
     public BCAbstractRobot() {
         resetState();
@@ -78,7 +81,13 @@ public class BCAbstractRobot {
         fuel = gameState.fuel;
         lastOffer = gameState.last_offer;
 
-        this.me = getRobot(this.id);
+        me = getRobot(this.id);
+
+        if (me.turn == 1) {
+            map = gameState.map;
+            karboniteMap = gameState.karbonite_map;
+            fuelMap = gameState.fuel_map;
+        }
 
         Action t = null;
         
@@ -136,7 +145,7 @@ public class BCAbstractRobot {
         if (dx < -1 || dy < -1 || dx > 1 || dy > 1) throw new BCException("Can only build in adjacent squares.");
         if (!checkOnMap(me.x+dx,me.y+dy)) throw new BCException("Can't build units off of map.");
         if (gameState.shadow[me.y+dy][me.x+dx] != 0) throw new BCException("Cannot build on occupied tile.");
-        if (!gameState.map[me.y+dy][me.x+dx]) throw new BCException("Cannot build onto impassable terrain.");
+        if (!map[me.y+dy][me.x+dx]) throw new BCException("Cannot build onto impassable terrain.");
         if (karbonite < SPECS.UNITS[unit].CONSTRUCTION_KARBONITE || fuel < SPECS.UNITS[unit].CONSTRUCTION_FUEL) throw new BCException("Cannot afford to build specified unit.");
 
         return new BuildAction(unit, dx, dy, signal, signalRadius, logs, castleTalk);
@@ -148,7 +157,7 @@ public class BCAbstractRobot {
         if (!checkOnMap(me.x+dx,me.y+dy)) throw new BCException("Can't move off of map.");
         if (gameState.shadow[me.y+dy][me.x+dx] == -1) throw new BCException("Cannot move outside of vision range.");
         if (gameState.shadow[me.y+dy][me.x+dx] != 0) throw new BCException("Cannot move onto occupied tile.");
-        if (!gameState.map[me.y+dy][me.x+dx]) throw new BCException("Cannot move onto impassable terrain.");
+        if (!map[me.y+dy][me.x+dx]) throw new BCException("Cannot move onto impassable terrain.");
 
         int r = dx*dx + dy*dy;  // Squared radius
         if (r > SPECS.UNITS[me.unit].SPEED) throw new BCException("Slow down, cowboy.  Tried to move faster than unit can.");
@@ -161,9 +170,9 @@ public class BCAbstractRobot {
         if (me.unit != SPECS.PILGRIM) throw new BCException("Only Pilgrims can mine.");
         if (fuel < SPECS.MINE_FUEL_COST) throw new BCException("Not enough fuel to mine.");
         
-        if (gameState.karbonite_map[me.y][me.x]) {
+        if (karboniteMap[me.y][me.x]) {
             if (me.karbonite >= SPECS.UNITS[SPECS.PILGRIM].KARBONITE_CAPACITY) throw new BCException("Cannot mine, as at karbonite capacity.");
-        } else if (gameState.fuel_map[me.y][me.x]) {
+        } else if (fuelMap[me.y][me.x]) {
             if (me.fuel >= SPECS.UNITS[SPECS.PILGRIM].FUEL_CAPACITY) throw new BCException("Cannot mine, as at fuel capacity.");
         } else throw new BCException("Cannot mine square without fuel or karbonite.");
 
@@ -184,7 +193,7 @@ public class BCAbstractRobot {
         if (fuel < SPECS.UNITS[me.unit].ATTACK_FUEL_COST) throw new BCException("Not enough fuel to attack.");
         if (!checkOnMap(me.x+dx,me.y+dy)) throw new BCException("Can't attack off of map.");
         if (gameState.shadow[me.y+dy][me.x+dx] == -1) throw new BCException("Cannot attack outside of vision range.");
-        if (!gameState.map[me.y+dy][me.x+dx]) throw new BCException("Cannot attack impassable terrain.");
+        if (!map[me.y+dy][me.x+dx]) throw new BCException("Cannot attack impassable terrain.");
         if (gameState.shadow[me.y+dy][me.x+dx] == 0) throw new BCException("Cannot attack empty tile.");
 
         int r = dx*dx + dy*dy;
@@ -226,17 +235,17 @@ public class BCAbstractRobot {
 
     // Get boolean map of passable terrain.
     public boolean[][] getPassableMap() {
-        return gameState.map;
+        return map;
     }
 
     // Get boolean map of karbonite points.
     public boolean[][] getKarboniteMap() {
-        return gameState.karbonite_map;
+        return karboniteMap;
     }
 
     // Get boolean map of impassable terrain.
     public boolean[][] getFuelMap() {
-        return gameState.fuel_map;
+        return fuelMap;
     }
 
     // Get a list of robots visible to you.
@@ -375,6 +384,7 @@ public class Robot {
 	public int x;
 	public int y;
 	public int unit;
+    public int turn;
 
 	public int health;
 	public int karbonite;
@@ -410,6 +420,8 @@ public class SpecHolder {
 	public int PREACHER;         
 	public int RED;     
 	public int BLUE;
+    public int CHESS_INITIAL;
+    public int CHESS_EXTRA;
 	public UnitSpec[] UNITS;
 }
 	`,

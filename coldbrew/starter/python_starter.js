@@ -19,6 +19,11 @@ class BCAbstractRobot:
 
         self.me = self.get_robot(self.id)
 
+        if self.me.turn == 1:
+            self.map = game_state['map']
+            self.karbonite_map = game_state['karbonite_map']
+            self.fuel_map = game_state['fuel_map']
+
         try:
             t = self.turn()
         except Exception as e:
@@ -128,7 +133,7 @@ class BCAbstractRobot:
             raise Exception("Can't build units off of map.")
         if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] != 0:
             raise Exception("Cannot build on occupied tile.")
-        if not self._bc_game_state['map'][self.me['y']+dy][self.me['x']+dx]:
+        if not self.map[self.me['y']+dy][self.me['x']+dx]:
             raise Exception("Cannot build onto impassable terrain.")
         if self.karbonite < SPECS['UNITS'][unit]['CONSTRUCTION_KARBONITE'] or self.fuel < SPECS['UNITS'][unit]['CONSTRUCTION_FUEL']:
             raise Exception("Cannot afford to build specified unit.")
@@ -148,7 +153,7 @@ class BCAbstractRobot:
             raise Exception("Cannot move outside of vision range.")
         if self._bc_game_state.shadow[self.me['y']+dy][self.me['x']+dx] != 0:
             raise Exception("Cannot move onto occupied tile.")
-        if not self._bc_game_state.map[self.me['y']+dy][self.me['x']+dx]:
+        if not self.map[self.me['y']+dy][self.me['x']+dx]:
             raise Exception("Cannot move onto impassable terrain.")
 
         r = dx**2 + dy**2  # Squared radius
@@ -167,10 +172,10 @@ class BCAbstractRobot:
         if self.fuel < SPECS['MINE_FUEL_COST']:
             raise Exception("Not enough fuel to mine.")
         
-        if self._bc_game_state['karbonite_map'][self.me['y']][self.me['x']]:
+        if self.karbonite_map[self.me['y']][self.me['x']]:
             if self.me['karbonite'] >= SPECS['UNITS'][SPECS['PILGRIM']]['KARBONITE_CAPACITY']:
                 raise Exception("Cannot mine, as at karbonite capacity.")
-        elif self._bc_game_state['fuel_map'][self.me['y']][self.me['x']]:
+        elif self.fuel_map[self.me['y']][self.me['x']]:
             if self.me['fuel'] >= SPECS['UNITS'][SPECS['PILGRIM']]['FUEL_CAPACITY']:
                 raise Exception("Cannot mine, as at fuel capacity.")
         else:
@@ -206,7 +211,7 @@ class BCAbstractRobot:
             raise Exception("Can't attack off of map.")
         if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] == -1:
             raise Exception("Cannot attack outside of vision range.")
-        if not self._bc_game_state['map'][self.me['y']+dy][self.me['x']+dx]:
+        if not self.map[self.me['y']+dy][self.me['x']+dx]:
             raise Exception("Cannot attack impassable terrain.")
         if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] == 0:
             raise Exception("Cannot attack empty tile.")
@@ -241,13 +246,13 @@ class BCAbstractRobot:
         return self._bc_game_state['shadow']
 
     def get_passable_map():
-        return self._bc_game_state['map']
+        return self.map
 
     def get_karbonite_map():
-        return self._bc_game_state['karbonite_map']
+        return self.karbonite_map
 
     def get_fuel_map():
-        return self._bc_game_state['fuel_map']
+        return self.fuel_map
 
     def get_visible_robots():
         return self._bc_game_state['visible']

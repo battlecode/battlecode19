@@ -391,6 +391,7 @@ Game.prototype.createItem = function(x,y,team,unit) {
     robot.health      = SPECS.UNITS[unit]['STARTING_HP'];
     robot.karbonite   = 0;
     robot.fuel        = 0;    // current holding
+    robot.turn        = 0;
 
     robot.signal      = 0;    // SPECS.COMMUNICATION_BITS max
     robot.signal_radius = 0;  // r^2
@@ -654,17 +655,17 @@ Game.prototype.getGameStateDump = function(robot) {
 
     }
 
-    return JSON.stringify({
+    return 'robot._do_turn(' + JSON.stringify({
         id: robot.id, 
         shadow:shadow, 
         visible:visible_robots, 
-        map:this.map, 
-        karbonite_map:this.karbonite_map, 
-        fuel_map:this.fuel_map,
+        map:robot.turn===1?this.map:[[0],[0]], 
+        karbonite_map:robot.turn===1?this.karbonite_map:[[0],[0]], 
+        fuel_map:robot.turn===1?this.fuel_map:[[0],[0]],
         fuel:this.fuel[robot.team],
         karbonite:this.karbonite[robot.team],
         last_offer:(robot.unit === SPECS.CASTLE ? this.last_offer:null)
-    });
+    }) + ');';
     
 }
 
@@ -684,8 +685,9 @@ Game.prototype.enactTurn = function(record) {
         this.fuel[0] += SPECS.TRICKLE_FUEL;
         this.fuel[1] += SPECS.TRICKLE_FUEL;      
     }
-    
+
     var robot = this.robots[this.robin];
+    robot.turn++;
 
     if (!record) {
         var dump = this.getGameStateDump(robot);
