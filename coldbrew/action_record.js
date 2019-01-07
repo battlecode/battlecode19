@@ -260,7 +260,7 @@ ActionRecord.prototype.enactGive = function() {
 
 ActionRecord.prototype.enactMove = function() {
     var r = (Math.pow(this.dx,2) + Math.pow(this.dy,2));
-    this.game.fuel[this.robot.team] -= r*SPECS.UNITS[robot.unit]['FUEL_PER_MOVE'];
+    this.game.fuel[this.robot.team] -= r*SPECS.UNITS[this.robot.unit]['FUEL_PER_MOVE'];
     
     this.game.shadow[this.robot.y+this.dy][this.robot.x+this.dx] = this.robot.id;
     this.game.shadow[this.robot.y][this.robot.x] = 0;

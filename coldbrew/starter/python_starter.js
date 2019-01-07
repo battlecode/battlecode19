@@ -235,26 +235,26 @@ class BCAbstractRobot:
         return None
 
     # Check if a given robot is visible.
-    def is_visible(robot):
+    def is_visible(self, robot):
         return ('x' in robot.keys())
 
     # Check if a given robot is sending you radio.
-    def is_radioing(robot):
+    def is_radioing(self, robot):
         return robot['signal'] >= 0
 
-    def get_visible_robot_map():
+    def get_visible_robot_map(self):
         return self._bc_game_state['shadow']
 
-    def get_passable_map():
+    def get_passable_map(self):
         return self.map
 
-    def get_karbonite_map():
+    def get_karbonite_map(self):
         return self.karbonite_map
 
-    def get_fuel_map():
+    def get_fuel_map(self):
         return self.fuel_map
 
-    def get_visible_robots():
+    def get_visible_robots(self):
         return self._bc_game_state['visible']
 
     def turn(self):

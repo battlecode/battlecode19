@@ -10,7 +10,7 @@ var JAVA_STARTER = require('./starter/java_starter');
 
 var TRANSPILER_TARGET = 'http://battlecode.org/compile';
 
-TRANSPILER_TARGET = 'http://localhost:8080/compile'
+//TRANSPILER_TARGET = 'http://localhost:8080/compile'
 
 class Compiler {
 
@@ -29,7 +29,6 @@ class Compiler {
         if (!code.some(file => file.filename === 'robot.py')) error("Could not find robot.py.")
 
         code.push({'filename':'battlecode.py', 'source':PYTHON_STARTER});
-        console.log(PYTHON_STARTER);
 
         axios.post(TRANSPILER_TARGET, {
             'lang':'python','src':code
