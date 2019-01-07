@@ -8,7 +8,7 @@ class MyRobot extends BCAbstractRobot {
         step++;
 
         if (this.me.unit === SPECS.CRUSADER && this.me.team === SPECS.RED) {
-            this.log("Preacher health: " + this.me.health);
+            this.log("Crusader health: " + this.me.health);
             return this.attack(-1,-1);
         }
 

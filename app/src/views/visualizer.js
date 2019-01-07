@@ -31,7 +31,7 @@ class Visualizer {
 
         // Parse replay seed
         var seed = 0;
-        for (let i = 0; i<4; i++) seed += this.replay[i] << (24-8*i);
+        for (let i = 0; i<4; i++) seed += (this.replay[i+2] << (24-8*i));
 
         this.game = new Game(seed, 0, 0, false, false);
         this.checkpoints = [this.game.copy()];
@@ -48,6 +48,11 @@ class Visualizer {
         this.robotInfo = document.createElement("div");
         this.papa_container.appendChild(this.container);
         this.papa_container.appendChild(this.robotInfo);
+
+        this.papa_container.style.display = 'flex';
+        this.container.style.flex = '0 0';
+        this.robotInfo.style.flex = '1';
+        this.robotInfo.style.marginLeft = '5px';
 
 
         this.populateCheckpoints();
@@ -153,7 +158,7 @@ class Visualizer {
             }
         }
        
-        this.robotInfo.innerText = "Round " + this.game.round + ", robin " + this.game.robin + ", turn " + this.turn + "\n";
+        this.robotInfo.innerText = "Round " + this.game.round + ", robin " + (isFinite(this.game.robin)?this.game.robin:0) + ", turn " + this.turn + "\n";
         if (this.game.winner === 0 || this.game.winner === 1) this.robotInfo.innerText += "Winner is " + (this.game.winner===0?'red':'blue') + "\n";
 
         // Handle click
@@ -165,7 +170,7 @@ class Visualizer {
 
             if (this.active_id !== 0) {
                 let robot = this.game.getItem(this.active_id);
-                this.robotInfo.innerHTML += "\n" + JSON.stringify(robot);
+                this.robotInfo.innerText += "\n" + JSON.stringify(robot,null, 2);
             }
         }
        
@@ -189,7 +194,7 @@ class Visualizer {
 
         for (let i = last_checkpoint_turn+1; i<new_checkpoint_turn+1; i++) {
             // feed in the i-1th instruction
-            var diff = this.replay.slice(4 + 8*(i-1), 4 + 8*i);
+            var diff = this.replay.slice(6 + 8*(i-1), 6 + 8*i);
             last_checkpoint_game.enactTurn(diff);
             
             if (i%CHECKPOINT === 0) this.checkpoints.push(
@@ -238,14 +243,14 @@ class Visualizer {
     }
 
     nextTurn() {
-        var diff = this.replay.slice(4 + 8*this.turn, 4 + 8*(this.turn+1));
+        var diff = this.replay.slice(6 + 8*this.turn, 6 + 8*(this.turn+1));
         this.game.enactTurn(diff);
         this.turn++;
         if (this.turn_callback) this.turn_callback(this.turn);
     }
 
     numTurns() {
-        return (this.replay.length - 4)/8;
+        return (this.replay.length - 6)/8;
     }
 
     startStop() {

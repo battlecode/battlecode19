@@ -177,22 +177,20 @@ class Api {
     }
 
     static getReplayFromURL(url, callback) {
-        if ($.ajaxSettings && $.ajaxSettings.headers) {
-            delete $.ajaxSettings.headers.Authorization;
-        }
-
         // If `https` not in current url, replace `https` with `http` in above
         if (window.location.href.indexOf("http://") > -1) {
             url = url.replace("https://", "http://");
         }
 
-        $.get(url, function(replay, super_sucess) {
-            $.ajaxSetup({
-                headers: { 'Authorization': 'Bearer ' + Cookies.get('token') }
-            });
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", url, true);
+        oReq.responseType = "arraybuffer";
 
-            callback(replay);
-        });            
+        oReq.onload = function(oEvent) {
+            callback(new Uint8Array(oReq.response));
+        };
+
+        oReq.send();
     }
 
     static getScrimmageHistory(callback) {

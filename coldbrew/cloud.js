@@ -3,7 +3,7 @@ const numCPUs = require('os').cpus().length;
 
 const SPECS = require('./specs');
 const Game = require('./game');
-const Compiler = require('./compiler');
+const Coldbrew = require('./runtime');
 
 const Storage = require('@google-cloud/storage');
 const projectId = 'battlecode18';
@@ -55,9 +55,10 @@ UPDATE ` + TABLE + ` SET status = $1, replay = $2 WHERE id = $3;
 function playGame() {
     db.one(queue).then(function(scrimmage) {
         console.log(`[Worker ${process.pid}] Running match ${scrimmage.id}`);
-        var seed = Math.floor(Math.pow(2,32)*Math.random());
+        var seed = Math.floor(Math.pow(2,31)*Math.random());
         
         let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, false, true);
+
         let c = new Coldbrew(g, null, function(logs) {
             var replay_name = Math.random().toString(36).substring(2) + ".bc19";
             var file = bucket.file('replays/' + replay_name);
@@ -67,15 +68,16 @@ function playGame() {
                 var url = 'https://battlecode.org/replays/' + replay_name;
                 console.log(`[Worker ${process.pid}] Match ${scrimmage.id} complete.`);
                 db.none(end_match,[
-                    game.winner===0?'redwon':'bluewon',
+                    g.winner===0?'redwon':'bluewon',
                     url, scrimmage.id
                 ]).then(playGame);
                 c.destroy();
             });
 
             stream.end(Buffer.from(g.replay));
-            
         });
+
+        c.playGame(scrimmage.red, scrimmage.blue);
     }).catch(function(error) {
         setTimeout(playGame,Math.floor(5000*Math.random()));
     });

@@ -19,6 +19,22 @@ class ReplayViewer extends Component {
         };
     }
 
+    componentDidMount() {
+        // Check for ? in url, if so, grab replay url
+        var url = window.location.href.split('?');
+
+        if (url.length === 2) {
+            var replay_url = url[url.length-1];
+
+            Api.getReplayFromURL(replay_url, function(replay) {
+                this.v = new Visualizer("pixi", replay, function(turn) {
+                    this.setState({turn:turn});
+                }.bind(this));
+                this.setState({numTurns:this.v.numTurns()});
+            }.bind(this));
+        }
+    }
+
     onDrop(files) {
         var reader = new FileReader();
         reader.onload = function() {

@@ -63,12 +63,6 @@ class IDE extends Component {
         this.startStop = this.startStop.bind(this);
     }
 
-    changeSlider(turn) {
-        if (this.v) {
-            this.v.goToTurn(turn);
-            this.setState({turn:turn});
-        }
-    }
 
     startStop() {
         this.v.startStop();
@@ -115,8 +109,7 @@ class IDE extends Component {
 
         Compiler.Compile(this.state.lang, this.firepad.getText(), function(code) {
             this.setState({theater:true, loading:false});
-            var seed = (!this.state.seed || this.state.seed === '' || this.state.seed === 0) ? Math.floor(Math.pow(2,32)*Math.random()) : parseInt(this.state.seed,10);
-            
+            var seed = (!this.state.seed || this.state.seed === '' || this.state.seed === 0) ? Math.floor(Math.pow(2,31)*Math.random()) : parseInt(this.state.seed,10);
             this.g = new Game(seed, parseInt(this.state.chess_init,10), parseInt(this.state.chess_extra,10), false, true);
             this.v = new Visualizer('viewer', this.g.replay, function(turn) {
                 this.setState({turn:turn});

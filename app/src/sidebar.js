@@ -42,6 +42,7 @@ class SideBar extends Component {
                         <NLink to={`${process.env.PUBLIC_URL}/team`}><i className="pe-7s-users" />Team</NLink>
                         { this.state.on_team && <NLink to={`${process.env.PUBLIC_URL}/ide`}><i className="pe-7s-pen" />IDE</NLink> }
                         { this.state.on_team && <NLink to={`${process.env.PUBLIC_URL}/scrimmaging`}><i className="pe-7s-joy" />Scrimmaging</NLink> }
+                        <NLink to={`${process.env.PUBLIC_URL}/replay`}><i className="pe-7s-monitor" />Replay</NLink>
                     </ul>
                 </div>
             </div>

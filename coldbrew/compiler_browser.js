@@ -5,7 +5,7 @@ var JS_STARTER = require('./starter/js_starter');
 var PYTHON_STARTER = require('./starter/python_starter');
 var JAVA_STARTER = require('./starter/java_starter');
 
-var TRANSPILER_TARGET = 'http://battlecode.org/compile';
+var TRANSPILER_TARGET = 'https://battlecode.org/compile';
 
 //TRANSPILER_TARGET = 'http://localhost:8080/compile'
 
@@ -77,7 +77,7 @@ class Compiler {
     }
 
     static JS(code, callback, error) {
-        var code = JS_STARTER + code;
+        var code = JS_STARTER + '\n' + code;
 
         code = hackyCombine(code);
 

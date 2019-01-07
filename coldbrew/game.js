@@ -55,16 +55,16 @@ function Game(seed, chess_initial, chess_extra, debug, create_replay) {
         return x - Math.floor(x);
     }.bind(this);
 
+    if (create_replay) this.initializeReplay();
+
     // The shadow is a 2d map where 0 signifies empty and anything
     // else is the id of the robot/item occupying the square.  This is updated
     // after every action.
-    
+
     var to_create = this.makeMap(); // list of robots
     for (i=0; i<to_create.length; i++) {
         this.createItem(to_create[i].x, to_create[i].y, to_create[i].team, SPECS.CASTLE);
     }
-
-    if (create_replay) this.initializeReplay();
 }
 
 /**
@@ -100,6 +100,7 @@ Game.prototype.makeMap = function() {
     var passmap = makemap(null, cw, ch);
 
     for (var w=0;w<cw;w++) for (var h=0;h<ch;h++) passmap[h][w] = this.random() < start_alive;
+    //[[-1,-1],[1,1],[1,0],[0,1],[-1,1],[1,-1],[0,-1],[-1,0]]
 
     // I hate this so much it hurts
     var countsite = (l, x, y) => [].concat.apply([], [-1,0,1].map(i => [-1,0,1].map(j => [i,j]))).filter(k => k[0] != 0 || k[1] != 0).map(k => 
