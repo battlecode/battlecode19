@@ -182,7 +182,7 @@ class Home extends Component {
                         <div className="col-md-12">
                             <div className="card">
                                 <div className="header">
-                                    <h4 className="title">Welcome to Battlehack 2019: Crusade!</h4>
+                                    <h4 className="title">Welcome to Battlecode 2019: Crusade!</h4>
                                 </div>
                                 <div className="content">
                                     <div className="typo-line">
