@@ -12,9 +12,7 @@ function CrossVM(code) {
 CrossVM.prototype.turn = function(message) {
 	if (this.dead) throw "Robot exceeded memory limits.";
 
-    var code = "robot._do_turn(" + message + ");"
-
-    var action = this.vm.run(code);
+    var action = this.vm.run(message);
 
     if (sizeof(code) > MAX_MEMORY) {
     	this.vm = null;

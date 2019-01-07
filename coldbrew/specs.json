@@ -19,6 +19,8 @@
     "PREACHER":           5,
     "RED":                0,
     "BLUE":               1,
+    "CHESS_INITIAL":      100,
+    "CHESS_EXTRA":        20,
 
     "UNITS": [
         {

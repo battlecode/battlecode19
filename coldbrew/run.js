@@ -1,6 +1,8 @@
 const fs = require("fs");
 const Coldbrew = require('./runtime');
 const Game = require('./game');
+const SPECS = require('./specs');
+
 const Compiler = require('./compiler');
 const path = require('path');
 
@@ -22,10 +24,10 @@ var argv = require('yargs')
     .default('re', 'replay.bc19')
     .describe('re', 'Name of replay file to save to.')
     .alias('chi', 'chess_initial')
-    .default('chi', 100)
+    .default('chi', SPECS.CHESS_INITIAL)
     .describe('chi', 'Initial time, in ms.')
     .alias('che', 'chess_extra')
-    .default('che', 20)
+    .default('che', SPECS.CHESS_EXTRA)
     .describe('che', 'Extra time per turn, in ms.')
     .demandOption(['r','b'])
     .help('h')

@@ -1,6 +1,7 @@
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
+const SPECS = require('./specs');
 const Game = require('./game');
 const Compiler = require('./compiler');
 
@@ -25,8 +26,8 @@ const cn = {
 
 const db = pgp(cn);
 
-const CHESS_INITIAL = 100;
-const CHESS_EXTRA = 20;
+const CHESS_INITIAL = SPECS.CHESS_INITIAL;
+const CHESS_EXTRA = SPECS.CHESS_EXTRA;
 
 const TABLE = 'api_scrimmage'
 

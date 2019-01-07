@@ -21,6 +21,12 @@ export class BCAbstractRobot {
 
         this.me = this.getRobot(this.id);
 
+        if (this.me.turn === 1) {
+            this.map = game_state.map;
+            this.karbonite_map = game_state.karbonite_map;
+            this.fuel_map = game_state.fuel_map;
+        }
+
         try {
             var t = this.turn();
         } catch (e) {
@@ -124,7 +130,7 @@ export class BCAbstractRobot {
         if (!Number.isInteger(dx) || !Number.isInteger(dx) || dx < -1 || dy < -1 || dx > 1 || dy > 1) throw "Can only build in adjacent squares.";
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't build units off of map.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] <= 0) throw "Cannot build on occupied tile.";
-        if (!this._bc_game_state.map[this.me.y+dy][this.me.x+dx]) throw "Cannot build onto impassable terrain.";
+        if (!this.map[this.me.y+dy][this.me.x+dx]) throw "Cannot build onto impassable terrain.";
         if (this.karbonite < SPECS.UNITS[unit].CONSTRUCTION_KARBONITE || this.fuel < SPECS.UNITS[unit].CONSTRUCTION_FUEL) throw "Cannot afford to build specified unit.";
 
         return this._bc_action('build', {
@@ -138,7 +144,7 @@ export class BCAbstractRobot {
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't move off of map.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === -1) throw "Cannot move outside of vision range.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] !== 0) throw "Cannot move onto occupied tile.";
-        if (!this._bc_game_state.map[this.me.y+dy][this.me.x+dx]) throw "Cannot move onto impassable terrain.";
+        if (!this.map[this.me.y+dy][this.me.x+dx]) throw "Cannot move onto impassable terrain.";
 
         var r = Math.pow(dx,2) + Math.pow(dy,2);  // Squared radius
         if (r > SPECS.UNITS[this.me.unit]['SPEED']) throw "Slow down, cowboy.  Tried to move faster than unit can.";
@@ -153,9 +159,9 @@ export class BCAbstractRobot {
         if (this.me.unit !== SPECS.PILGRIM) throw "Only Pilgrims can mine.";
         if (this.fuel < SPECS.MINE_FUEL_COST) throw "Not enough fuel to mine.";
         
-        if (this._bc_game_state.karbonite_map[this.me.y][this.me.x]) {
+        if (this.karbonite_map[this.me.y][this.me.x]) {
             if (this.me.karbonite >= SPECS.UNITS[SPECS.PILGRIM].KARBONITE_CAPACITY) throw "Cannot mine, as at karbonite capacity.";
-        } else if (this._bc_game_state.fuel_map[this.me.y][this.me.x]) {
+        } else if (this.fuel_map[this.me.y][this.me.x]) {
             if (this.me.fuel >= SPECS.UNITS[SPECS.PILGRIM].FUEL_CAPACITY) throw "Cannot mine, as at fuel capacity.";
         } else throw "Cannot mine square without fuel or karbonite.";
 
@@ -180,7 +186,7 @@ export class BCAbstractRobot {
         if (this.fuel < SPECS.UNITS[this.me.unit].ATTACK_FUEL_COST) throw "Not enough fuel to attack.";
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't attack off of map.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === -1) throw "Cannot attack outside of vision range.";
-        if (!this._bc_game_state.map[this.me.y+dy][this.me.x+dx]) throw "Cannot attack impassable terrain.";
+        if (!this.map[this.me.y+dy][this.me.x+dx]) throw "Cannot attack impassable terrain.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === 0) throw "Cannot attack empty tile.";
 
         var r = Math.pow(dx,2) + Math.pow(dy,2);
@@ -220,17 +226,17 @@ export class BCAbstractRobot {
 
     // Get boolean map of passable terrain.
     getPassableMap() {
-        return this._bc_game_state.map;
+        return this.map;
     }
 
     // Get boolean map of karbonite points.
     getKarboniteMap() {
-        return this._bc_game_state.karbonite_map;
+        return this.karbonite_map;
     }
 
     // Get boolean map of impassable terrain.
     getFuelMap() {
-        return this._bc_game_state.fuel_map;
+        return this.fuel_map;
     }
 
     // Get a list of robots visible to you.
