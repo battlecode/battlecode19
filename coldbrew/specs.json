@@ -87,7 +87,7 @@
             "SPEED": 4,
             "FUEL_PER_MOVE": 2,
             "STARTING_HP": 20,
-            "VISION_RADIUS": 6,
+            "VISION_RADIUS": 8,
             "ATTACK_DAMAGE": 10,
             "ATTACK_RADIUS": [4,8],
             "ATTACK_FUEL_COST": 25,
