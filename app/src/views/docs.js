@@ -107,7 +107,7 @@ class RobotTable extends Component {
                     }) }
                 </tr>
                 <tr>
-                    <th scope="row">Attack Range (r^2)</th>
+                    <th scope="row">Attack Fuel Cost</th>
                     <td>N/A</td>
                     { SPECS.UNITS.slice(3).map(function(unit) {
                         return (
@@ -176,16 +176,48 @@ class Docs extends Component {
                                     <p className="category">Updated 8/12/17 2:00PM PST</p>
                                 </div>
                                 <div className="content">
-                                    <p>Javascript is the primary language supported by Battlehack West, and the target all other languages are compiled to, so it's a great choice to develop a bot in (especially for beginners).  Below is a bare minimum bot example:</p>
-                                    <pre>{`class MyRobot extends BCAbstractRobot {
+                                    <p>Javascript is the primary language supported by Battlecode Crusade, and the target all other languages are compiled to, so it's a great choice to develop a bot in (especially for beginners).  Below is a bare minimum bot example:</p>
+                                    <pre>{`import {BCAbstractRobot, SPECS} from 'battlecode';
+
+class MyRobot extends BCAbstractRobot {
     turn() {
-        return this.move(bc.NORTH);
+
+        return this.move(1,0);
+
     }
-}`}</pre>
+}
+
+var robot = new MyRobot();`}</pre>
                                     <p>The main container of your bot code is the <code>MyRobot</code> class, which must be a subclass of <code>BCAbstractRobot</code>. <code>BCAbstractRobot</code> contains all sorts of useful methods that will make developing your bot easier.</p>
-                                    <p>When your bot is spawned, a <code>MyRobot</code> object is created in its own global scope.  For every turn, the <code>turn()</code> method of your class is called.  This is where the heart of your robot code lives.  At the end of the <code>turn()</code> method, if you want to perform an action (move or attack), you must return <code>this.move(direction)</code> or <code>this.attack(direction)</code>, where <code>direction</code> can be <code>bc.NORTH</code>, <code>bc.SOUTHWEST</code>, or any similarly formatted direction.</p>
-                                    <hr /><h6>API Reference</h6><hr />
-                                    <p>There are a number of useful methods you can use to explore and impact the world around you as a bot.  We'll detail them here.</p>
+                                    <p>When your bot is spawned, a <code>MyRobot</code> object is created in its own global scope. For every turn, the <code>turn()</code> method of your class is called.  This is where the heart of your robot code lives. If you want the robot to perform an action, the <code>turn()</code> method should return it.</p>
+                                    <p>Note that the same <code>MyRobot</code> class is used for all units. Some API methods will only be available for some units, and will throw an error if called by unallowed units.</p>
+                                    <hr /><h6>State Information</h6><hr />
+                                    <ul>
+                                        <li><code>this.karbonite</code>: The global amount of Karbonite that the team possesses.</li>
+                                        <li><code>this.fuel</code>: The global amount of Fuel that the team possesses.</li>
+                                        <li><code>this.last_offer</code>: The last offer.</li>
+                                        <li><code>this.me.id</code>: The id of the robot, which is an integer between 1 and {SPECS.MAX_ID}.</li>
+                                        <li><code>this.me.unit</code>: The robot's unit type, where { SPECS.CASTLE } stands for Castle, { SPECS.CHURCH } stands for Church, { SPECS.PILGRIM} stands for Pilgrim, {SPECS.CRUSADER} stands for Crusader, {SPECS.PROPHET} stands for Prophet and {SPECS.PREACHER} stands for Preacher.</li>
+                                        <li><code>this.me.health</code>: The health of the robot.</li>
+                                        <li><code>this.me.team</code>: The team of the robot, where {SPECS.RED} stands for RED and {SPECS.BLUE} stands for BLUE. (This will be the same for all of your robots.)</li>
+                                        <li><code>this.me.x</code>: The x position of the robot.</li>
+                                        <li><code>this.me.y</code>: The y position of the robot.</li>
+                                        <li><code>this.me.fuel</code>: The amount of Fuel that the robot carries.</li>
+                                        <li><code>this.me.karbonite</code>: The amount of Karbonite that the robot carries.</li>
+                                    </ul>
+                                    <hr /><h6>Actions</h6><hr />
+                                    <p>The following is a list of methods that can be returned in <code>turn()</code>.</p>
+                                    <ul>
+                                        <li><code>this.move(dx, dy)</code>: Move <code>dx</code> steps in the x direction, and <code>dy</code> steps in the y direction. Uses Fuel (depending on unit). Available for Pilgrims, Crusaders, Prophets, Preachers. </li>
+                                        <li><code>this.mine()</code>: Mine { SPECS.KARBONITE_YIELD } Karbonite or { SPECS.FUEL_YIELD } Fuel, if on a corresponding resource tile. Uses { SPECS.MINE_FUEL_COST } Fuel. Available for Pilgrims. </li>
+                                        <li><code>this.give(dx, dy, karbonite, fuel)</code>: Give <code>karbonite</code> Karbonite and <code>fuel</code> Fuel to the robot in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from the robot. A robot can only give to another robot that is in one of its 8 adjacent tiles, and cannot give more than it has. Uses 0 Fuel. Available for all units. </li>
+                                        <li><code>this.attack(dx, dy)</code>: Attack the robot in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from the robot. A robot can only attack another robot that is within its attack radius (depending on unit). Uses Fuel (depending on unit). Available for Crusaders, Prophets, Preachers. </li>
+                                        <li><code>this.buildUnit(unit, dx, dy)</code>: Build a unit of the type <code>unit</code> in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from the robot. Can only build in adjacent, empty and passable tiles. Uses Fuel and Karbonite (depending on the constructed unit). Available for Pilgrims, Castles, Churches. Pilgrims can only build Churches, and Castles and Churches can only build Pilgrims, Crusaders, Prophets and Preachers.</li>
+            
+                                    </ul>
+                                    <hr /><h6>Communication</h6><hr />
+                                    <hr /><h6>Helper Methods</h6><hr />
+
                                     <ul>
                                         <li><code>this.me()</code>: Returns an object containing details about your bot, including <code>.health</code>, <code>.id</code>, <code>.x</code>, <code>.y</code>, <code>.fuse</code>, <code>.signal</code>, and <code>.team</code>.</li>
                                         <li><code>this.log(message)</code>: Print a message to the command line.  You cannot use ordinary <code>console.log</code> in Battlehack for security reasons.</li>
@@ -213,7 +245,7 @@ class Docs extends Component {
                                     <pre>{`class MyRobot(BCAbstractRobot):
     def turn(self):
         return self.move(bc.NORTH)`}</pre>
-                                    <p>The main container of your bot code is the <code>MyRobot</code> class, which must be a subclass of <code>BCAbstractRobot</code>. <code>BCAbstractRobot</code> contains all sorts of useful methods that will make developing your bot easier.</p>
+                                    <p>RANDOM.RANDRANGE does not work. The main container of your bot code is the <code>MyRobot</code> class, which must be a subclass of <code>BCAbstractRobot</code>. <code>BCAbstractRobot</code> contains all sorts of useful methods that will make developing your bot easier.</p>
                                     <p>When your bot is spawned, a <code>MyRobot</code> object is created in its own global scope.  For every turn, the <code>turn()</code> method of your class is called.  This is where the heart of your robot code lives.  At the end of the <code>turn()</code> method, if you want to perform an action (move or attack), you must return <code>self.move(direction)</code> or <code>self.attack(direction)</code>, where <code>direction</code> can be <code>bc.NORTH</code>, <code>bc.SOUTHWEST</code>, or any similarly formatted direction.</p>
                                     <hr /><h6>API Reference</h6><hr />
                                     <p>There are a number of useful methods you can use to explore and impact the world around you as a bot.  We'll detail them here.</p>
@@ -236,7 +268,7 @@ class Docs extends Component {
 
                             <div className="card">
                                 <div className="header">
-                                    <h4 className="title">Javas Bot Reference</h4>
+                                    <h4 className="title">Java Bot Reference</h4>
                                     <p className="category">Updated 8/12/17 2:00PM PST</p>
                                 </div>
                                 <div className="content">
