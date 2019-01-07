@@ -74,7 +74,7 @@ function Game(seed, chess_initial, chess_extra, debug, create_replay) {
  * @return {Object[]} - A list of robots with x, y, and team.
  */
 Game.prototype.makeMap = function() {
-    var width = Math.floor(this.random()*51)+50;
+    var width = Math.floor(this.random()*33)+32;
     var height = width;
 
     //Figure out chunk width and height accordingly.
@@ -159,7 +159,7 @@ Game.prototype.makeMap = function() {
     // Generate other features: castles, karbonite and fuel depots
 
     // Select number of castles:
-    var num_castles = Math.min(Math.max(Math.floor(2.5*this.random() + ((height+width)/100)-0.5), 1), 3);
+    var num_castles = Math.min(Math.max(Math.floor(2.5*this.random() + ((height+width)/64)-0.5), 1), 3);
 
     // Choose their locations. We prefer for opposing castles to be far away, so we'll weight the distribution towards the bottom of the map depending on prefer_horizontal and ignore castles which are too close to the midline of the map. Additionally, we want castles on the same team to be at least a certain distance from each other, so we'll re-roll if that's not met.
     var roll_castle = function() {
@@ -185,8 +185,8 @@ Game.prototype.makeMap = function() {
 
     var roll_resource_seed = _ => [Math.floor(this.random()*cw),Math.floor(this.random()*ch)];
 
-    var resource_density = this.random() * (1/400 - 1/800) + 1/800
-    var num_resource_clusters = Math.round(cw*ch*resource_density)
+    var resource_density = this.random() * (1/200 - 1/400) + 1/400;
+    var num_resource_clusters = Math.round(cw*ch*resource_density);
 
     var resources_cluster_seeds = insulate(castles); // Castles must be seeds of resources
     for (var n=resources_cluster_seeds.length; n<num_resource_clusters; n++) {
@@ -220,8 +220,8 @@ Game.prototype.makeMap = function() {
         [x,y] = resources_cluster_seeds[i];
 
         // Choose amount of karbonite and fuel in the cluster.
-        var num_karbonite = Math.max(1, Math.round(this.random()*4*(y/ch)));
-        var num_fuel = Math.max(1, Math.round(this.random()*4*(y/ch)));
+        var num_karbonite = Math.max(1, Math.round(this.random()*4*(y/ch/2+.5)));
+        var num_fuel = Math.max(1, Math.round(this.random()*4*(y/ch/2+.5)));
         var total_depot = num_karbonite + num_fuel;
         
         // We now run a BFS to choose
