@@ -1,13 +1,14 @@
+#!/usr/bin/env node
+
 const fs = require("fs");
-const Coldbrew = require('./runtime');
-const Game = require('./game');
-const Compiler = require('./compiler');
+const Coldbrew = require('../runtime');
+const Game = require('../game');
+const Compiler = require('../compiler');
 const path = require('path');
 
 var argv = require('yargs')
-    .usage('Usage: $0 <command> [options]')
-    .command('compile', 'Compile a battlecode directory.')
-    .example('$0 compile -d bot_dir -o compiled_bot.js', 'Compile the bot in the directory bot_dir to compiled_bot.js.')
+    .usage('Usage: $0 [options]')
+    .example('$0 -d bot_dir -o compiled_bot.js', 'Compile the bot in the directory bot_dir to compiled_bot.js.')
     .alias('d', 'bot_dir')
     .describe('d', 'The source directory.')
     .alias('o', 'output_js')

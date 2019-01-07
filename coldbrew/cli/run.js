@@ -1,17 +1,18 @@
-const fs = require("fs");
-const Coldbrew = require('./runtime');
-const Game = require('./game');
-const SPECS = require('./specs');
+#!/usr/bin/env node
 
-const Compiler = require('./compiler');
+const fs = require("fs");
+const Coldbrew = require('../runtime');
+const Game = require('../game');
+const SPECS = require('../specs');
+
+const Compiler = require('../compiler');
 const path = require('path');
 
 var argv = require('yargs')
-    .usage('Usage: $0 <command> [options]')
-    .command('run', 'Run a battlecode game. Either -r or --rc needs to be supplied, and either -b or --bc needs to be supplied.')
-    .example('$0 run -r red_dir -b blue_dir', 'Run a game between bots in the red_dir and blue_dir directories.')
-    .example('$0 run --rc red_compiled.js -b blue_dir', 'Run a game between the compiled bot red_compiled.js and the blue_dir directory.')
-    .example('$0 run --rc red_compiled.js --bc blue_compiled.js', 'Run a game between the compiled bots red_compiled.js and blue_compiled.js.')
+    .usage('Usage: $0 [options]')
+    .example('$0 -r red_dir -b blue_dir', 'Run a game between bots in the red_dir and blue_dir directories.')
+    .example('$0 --rc red_compiled.js -b blue_dir', 'Run a game between the compiled bot red_compiled.js and the blue_dir directory.')
+    .example('$0 --rc red_compiled.js --bc blue_compiled.js', 'Run a game between the compiled bots red_compiled.js and blue_compiled.js.')
     .alias('r', 'red_dir')
     .describe('r', 'The red source directory.')
     .alias('b', 'blue_dir')
