@@ -88,6 +88,7 @@ class FullUserSerializer(serializers.HyperlinkedModelSerializer):
         try:
             return get_user_model().objects.create_user(**validated_data)
         except Exception as e:
+            print(e)
             error = {'message': ','.join(e.args) if len(e.args) > 0 else 'Unknown Error'}
             raise serializers.ValidationError(error)
 

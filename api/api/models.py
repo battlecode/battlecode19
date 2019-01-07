@@ -8,12 +8,22 @@ import uuid
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres import fields
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django_rest_passwordreset.signals import reset_password_token_created
 
+
+def send_email(recipient, subject, content, is_html):
+    from_address = settings.EMAIL_HOST_USER
+    msg = EmailMultiAlternatives(subject, content, from_address, [recipient])
+    EmailMultiAlternatives
+    if is_html:
+        msg.content_subtype = "html"
+    # msg.send()
 
 HIGHSCHOOL = 'highschool'
 NEWBIE     = 'newbie'
@@ -181,6 +191,16 @@ def gen_registration_key(sender, instance, raw, update_fields, **kwargs):
     """
     if not raw and instance._state.adding:
         instance.registration_key = uuid.uuid4().hex
+        email = instance.email
+        context = {
+            'username': instance.username,
+            'verification_key': instance.registration_key,
+            'url': ' https://battlecode.org/verify/?=' +
+            instance.registration_key
+        }
+        content = render_to_string('email/verification.html', context)
+        send_email(email, 'Email Verification', content, True)
+
 
 
 @receiver(pre_save, sender=Team)
@@ -216,12 +236,10 @@ def password_reset_token_created(sender, reset_password_token, *args, **kwargs):
     :return:
     """
     # send an e-mail to the user
+    email = reset_password_token.user.email
     context = {
-        'current_user': reset_password_token.user,
         'username': reset_password_token.user.username,
-        'email': reset_password_token.user.email,
-        'reset_password_url': "{}?token={}"
-        .format(reverse('password_reset:reset-password-request'), reset_password_token.key)
+        'reset_password_url': "todo"
     }
-    print(context)
-
+    content = render_to_string('email/password_reset.html', context)
+    send_email(email, 'Password Reset Token', content, True)

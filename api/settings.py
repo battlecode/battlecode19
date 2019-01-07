@@ -61,12 +61,19 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 APPEND_SLASH = True
 
+# Email
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'mitbattlecode@gmail.com'
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS")
+
 ROOT_URLCONF = 'urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'battlecode/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'api/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

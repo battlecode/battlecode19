@@ -50,6 +50,10 @@ class UserViewSet(viewsets.GenericViewSet,
     permission_classes = (IsAuthenticatedAsRequestedUser,)
 
 
+class ResumeUpload(viewsets.ViewSet):
+    permission_classes = (IsAuthenticatedAsRequestedUser,)
+
+
 class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     """
     list:
