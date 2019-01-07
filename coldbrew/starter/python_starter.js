@@ -235,11 +235,11 @@ class BCAbstractRobot:
         return None
 
     # Check if a given robot is visible.
-    is_visible(robot):
+    def is_visible(robot):
         return ('x' in robot.keys())
 
     # Check if a given robot is sending you radio.
-    is_radioing(robot) {
+    def is_radioing(robot):
         return robot['signal'] >= 0
 
     def get_visible_robot_map():

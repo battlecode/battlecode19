@@ -1,9 +1,13 @@
-from battlecode import BCAbstractRobot, SPECS
+#from battlecode import BCAbstractRobot, SPECS
+import battlecode
 
 __pragma__('iconv')
 __pragma__('tconv')
 #__pragma__('opov')
 
+print("hello world")
+
+"""
 class MyRobot(BCAbstractRobot):
     def __init__(self):
         self.step = -1
@@ -25,3 +29,4 @@ class MyRobot(BCAbstractRobot):
                 self.log("Castle health: " + str(self.me['health']))
 
 robot = MyRobot()
+"""
