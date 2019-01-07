@@ -6,12 +6,18 @@ const path = require('path');
 
 var argv = require('yargs')
     .usage('Usage: $0 <command> [options]')
-    .command('run', 'Run a battlecode game.')
+    .command('run', 'Run a battlecode game. Either -r or --rc needs to be supplied, and either -b or --bc needs to be supplied.')
     .example('$0 run -r red_dir -b blue_dir', 'Run a game between bots in the red_dir and blue_dir directories.')
+    .example('$0 run --rc red_compiled.js -b blue_dir', 'Run a game between the compiled bot red_compiled.js and the blue_dir directory.')
+    .example('$0 run --rc red_compiled.js --bc blue_compiled.js', 'Run a game between the compiled bots red_compiled.js and blue_compiled.js.')
     .alias('r', 'red_dir')
-    .describe('r', 'Load the red source directory')
+    .describe('r', 'The red source directory.')
     .alias('b', 'blue_dir')
-    .describe('b', 'Load the blue source directory')
+    .describe('b', 'The blue source directory.')
+    .alias('rc', 'red_compiled')
+    .describe('rc', 'The red compiled js file.')
+    .alias('bc', 'blue_compiled')
+    .describe('bc', 'The blue compiled js file.')
     .alias('s', 'seed')
     .default('s', 0)
     .describe('s', 'The mapmaking random (integer) seed.  0 means random.')
@@ -27,7 +33,10 @@ var argv = require('yargs')
     .alias('che', 'chess_extra')
     .default('che', 20)
     .describe('che', 'Extra time per turn, in ms.')
-    .demandOption(['r','b'])
+    .implies('--no-r', 'rc')
+    .implies('r', '--no-rc')
+    .implies('--no-b', 'bc')
+    .implies('b', '--no-bc')
     .help('h')
     .alias('h', 'help')
     .argv;
@@ -50,9 +59,6 @@ function getFolder(dir) {
     return code;
 }
 
-const red_dir = getFolder(argv.r);
-const blue_dir = getFolder(argv.b);
-
 function writeReplayToFile(replay, filename) {
     var buff = new Uint8Array(replay);
     fs.writeFileSync(filename, Buffer.from(buff));
@@ -62,20 +68,62 @@ function readReplayFromFile(filename) {
     return fs.readFileSync(filename, null);
 }
 
-Compiler.Compile(red_dir, function(compiled_red) {
-    Compiler.Compile(blue_dir, function(compiled_blue) {
+if (argv.r != null) {
+    const red_dir = getFolder(argv.r);
+    Compiler.Compile(red_dir, function(compiled_red) {
+        if (argv.b != null) {
+            const blue_dir = getFolder(argv.b);
+            Compiler.Compile(blue_dir, function(compiled_blue) {
+                let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
+
+                let c = new Coldbrew(g, null, function(logs) {
+                    writeReplayToFile(g.replay, argv.re);         
+                });
+
+                c.playGame(compiled_red, compiled_blue);
+            }, function(error) {
+                console.log("BLUE COMPILE ERROR");
+                console.log(error);
+            });
+        } else {
+            var compiled_blue = fs.readFileSync(argv.bc, null);
+            let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
+
+            let c = new Coldbrew(g, null, function(logs) {
+                writeReplayToFile(g.replay, argv.re);         
+            });
+
+            c.playGame(compiled_red, compiled_blue);
+        }
+    }, function(error) {
+        console.log("RED COMPILE ERROR");
+        console.log(error);
+    });
+} else {
+    var compiled_red = fs.readFileSync(argv.rc, null);
+    if (argv.b != null) {
+        const blue_dir = getFolder(argv.b);
+        Compiler.Compile(blue_dir, function(compiled_blue) {
+            let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
+
+            let c = new Coldbrew(g, null, function(logs) {
+                writeReplayToFile(g.replay, argv.re);         
+            });
+
+            c.playGame(compiled_red, compiled_blue);
+        }, function(error) {
+            console.log("BLUE COMPILE ERROR");
+            console.log(error);
+        });
+    } else {
+        var compiled_blue = fs.readFileSync(argv.bc, null);
         let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
-        
+
         let c = new Coldbrew(g, null, function(logs) {
             writeReplayToFile(g.replay, argv.re);         
         });
 
         c.playGame(compiled_red, compiled_blue);
-    }, function(error) {
-        console.log("BLUE COMPILE ERROR");
-        console.log(error)
-    });
-}, function(error) {
-    console.log("RED COMPILE ERROR");
-    console.log(error);
-});
+    }
+}
+

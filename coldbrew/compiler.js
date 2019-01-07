@@ -10,7 +10,7 @@ var JAVA_STARTER = require('./starter/java_starter');
 
 var TRANSPILER_TARGET = 'http://battlecode.org/compile';
 
-TRANSPILER_TARGET = 'http://localhost:8080/compile'
+//TRANSPILER_TARGET = 'http://localhost:8080/compile'
 
 class Compiler {
 
