@@ -290,11 +290,11 @@ Game.prototype.makeMap = function() {
     var full_fuelmap = makemap(false, width, height);
 
     var transpose = this.random() < 0.5;
-    for (var n=0; n<(transpose?height:width); n++) {
-        for (var m=0; m<(transpose?width:height); m++) {
-            full_passmap[n][m] = n<ch ? passmap[n][m] : passmap[height-n-1][m];
-            full_fuelmap[n][m] = n<ch ? fuel_map[n][m] : fuel_map[height-n-1][m];
-            full_karbmap[n][m] = n<ch ? karb_map[n][m] : karb_map[height-n-1][m];
+    for (var n=0; n<height; n++) {
+        for (var m=0; m<width; m++) {
+            full_passmap[transpose?m:n][transpose?n:m] = n<ch ? passmap[n][m] : passmap[height-n-1][m];
+            full_fuelmap[transpose?m:n][transpose?n:m] = n<ch ? fuel_map[n][m] : fuel_map[height-n-1][m];
+            full_karbmap[transpose?m:n][transpose?n:m] = n<ch ? karb_map[n][m] : karb_map[height-n-1][m];
         }
     }
 
@@ -328,7 +328,7 @@ Game.prototype.makeMap = function() {
  */
 Game.prototype.copy = function() {
     var g = new Game(this.seed, this.chess_initial, this.chess_extra, this.debug, this.replay);
-    g.replay = replay ? insulate(this.replay) : undefined;
+    g.replay = this.replay ? insulate(this.replay) : undefined;
 
     g.shadow = insulate(this.shadow);
     g.robots = insulate(this.robots);

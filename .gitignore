@@ -15,5 +15,5 @@ lib/
 */.jsweet/
 env/
 build/
-
+*.bc19
 .DS_Store

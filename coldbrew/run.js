@@ -67,7 +67,7 @@ function writeReplayToFile(replay, filename) {
 }
 
 function readReplayFromFile(filename) {
-    return fs.readFileSync(filename, null);
+    return new Uint8Array(fs.readFileSync(filename, null));
 }
 
 if (argv.r != null) {
