@@ -86,7 +86,14 @@ if (argv.r != null) {
                 console.log(error);
             });
         } else {
-            var compiled_blue = fs.readFileSync(argv.bc, null);
+            var compiled_blue;
+            try {
+                compiled_blue = fs.readFileSync(argv.bc, null);
+            } catch (err) {
+                console.log("ERROR LOADING BLUE COMPILED JS");
+                console.log(err);
+                process.exit();
+            }
             let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
 
             let c = new Coldbrew(g, null, function(logs) {
@@ -100,7 +107,14 @@ if (argv.r != null) {
         console.log(error);
     });
 } else {
-    var compiled_red = fs.readFileSync(argv.rc, null);
+    var compiled_red;
+    try {
+        compiled_red = fs.readFileSync(argv.rc, null);
+    } catch (err) {
+        console.log("ERROR LOADING RED COMPILED JS");
+        console.log(err);
+        process.exit();
+    }
     if (argv.b != null) {
         const blue_dir = getFolder(argv.b);
         Compiler.Compile(blue_dir, function(compiled_blue) {
@@ -116,7 +130,14 @@ if (argv.r != null) {
             console.log(error);
         });
     } else {
-        var compiled_blue = fs.readFileSync(argv.bc, null);
+        var compiled_blue;
+        try {
+            compiled_blue = fs.readFileSync(argv.bc, null);
+        } catch (err) {
+            console.log("ERROR LOADING BLUE COMPILED JS");
+            console.log(err);
+            process.exit();
+        }
         let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
 
         let c = new Coldbrew(g, null, function(logs) {
