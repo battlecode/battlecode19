@@ -2,22 +2,18 @@ import React, { Component } from 'react';
 import Api from '../api';
 
 class LoginRegister extends Component {
-  constructor() {
-    super();
-    this.state = {
-      email: '',
-      password: '',
-      username: '',
-      first: '',
-      last: '',
-      dob: '',
-      register: false,
-      error: '',
-      success: '',
-    };
 
-    this.changeHandler = this.changeHandler.bind(this);
-  }
+  state = {
+    email: '',
+    password: '',
+    username: '',
+    first: '',
+    last: '',
+    dob: '',
+    register: false,
+    error: '',
+    success: '',
+  };
 
   login = () => {
     const { username, password } = this.state;
@@ -38,12 +34,15 @@ class LoginRegister extends Component {
     }
   }
 
-  formSubmit = (event) => {
-    if (event.key === 'Enter') {
-      const { register } = this.state;
-      if (register) this.register();
-      else this.login();
+  formSubmit = (e) => {
+    e.preventDefault();
+    const { register } = this.state;
+    if (register) {
+      this.register();
     }
+    else {
+      this.login();
+    } 
   }
 
   register = () => {
@@ -68,35 +67,51 @@ class LoginRegister extends Component {
       else {
         Api.register(email, username, password, first, last, dob, this.callback);
       }
-    } else this.setState({ register: true });
+    } else this.setState({ register: true, error: "" });
   };
 
-  forgot = () => {
-    const { email } = this.state;
-    Api.forgotPassword(email, (success) => {
-      if (success) {
-        this.setState({
-          success: 'An email has been sent if such a user exists.',
-        });
-      } else {
-        this.setState({
-          error: 'Password reset failed, something went wrong.',
-        });
-      }
-    });
-  };
-
-  changeHandler(e) {
+  changeHandler = (e) => {
     const { id } = e.target;
     const val = e.target.value;
-    this.setState((prevState) => {
-      prevState[id] = val;
-      return prevState;
-    });
+    this.setState({[id]: val});
   }
 
   render() {
     const { error, success, register } = this.state;
+
+    const errorDiv = error && (
+      <div
+        className="card"
+        style={{
+          padding: '20px',
+          width: '350px',
+          margin: '40px auto',
+          marginBottom: '0px',
+          fontSize: '1.1em',
+        }}
+      >
+        <b>Error.</b>
+        {error}
+      </div>
+    );
+
+    const successDiv = success && (
+      <div
+        className="card"
+        style={{
+          padding: '20px',
+          width: '350px',
+          margin: '40px auto',
+          marginBottom: '0px',
+          fontSize: '1.1em',
+        }}
+      >
+        <b>Success.</b>
+        {' '}
+        {success}
+      </div>
+    );
+
     return (
       <div
         className="content orangeBackground"
@@ -108,145 +123,118 @@ class LoginRegister extends Component {
           left: '0px',
         }}
       >
-        {error && (
+        {errorDiv}
+        {successDiv}
+        <form onSubmit={this.formSubmit}>
           <div
             className="card"
             style={{
-              padding: '20px',
               width: '350px',
-              margin: '40px auto',
-              marginBottom: '0px',
-              fontSize: '1.1em',
+              margin: error ? '20px auto' : '100px auto',
             }}
           >
-            <b>Error.</b>
-            {error}
-          </div>
-        )}
+            <div className="content">
+              <div className="row">
+                <div className="col-md-12">
+                  <div className="form-group">
+                    <label>Username</label>
+                    <input
+                      type="text"
+                      id="username"
+                      className="form-control"
+                      onChange={this.changeHandler}
+                    />
+                  </div>
+                </div>
+                <div style={{ display: register ? 'block' : 'none' }}>
+                  <div className="col-xs-6">
+                    <div className="form-group">
+                      <label>First Name</label>
+                      <input
+                        type="text"
+                        id="first"
+                        className="form-control"
+                        onChange={this.changeHandler}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-xs-6">
+                    <div className="form-group">
+                      <label>Last Name</label>
+                      <input
+                        type="text"
+                        id="last"
+                        className="form-control"
+                        onChange={this.changeHandler}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-xs-6">
+                    <div className="form-group">
+                      <label>Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        className="form-control"
+                        onChange={this.changeHandler}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-xs-6">
+                    <div className="form-group">
+                      <label>Date of Birth</label>
+                      <input
+                        type="text"
+                        id="dob"
+                        placeholder="YYYY-MM-DD"
+                        className="form-control"
+                        onChange={this.changeHandler}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-12">
+                  <div className="form-group">
+                    <label>Password</label>
+                    <input
+                      type="password"
+                      id="password"
+                      className="form-control"
+                      onChange={this.changeHandler}
+                    />
+                  </div>
+                </div>
+              </div>
+              {!register && (
+                <button
+                  type="submit"
+                  value="submit"
+                  className="btn btn-success btn-block btn-fill"
+                >
+                  Login
+                </button>)
+              }
+              <button
+                type= {register ? "submit" : "button"}
+                value= {register && "submit"}
+                onClick={this.register}
+                className="btn btn-primary btn-block btn-fill"
+              >
+                Register
+              </button>
+              <a
+                type="button"
+                href="/forgotPassword"
+                className="btn btn-secondary btn-block btn-fill"
+              >
+                Forgot Password
 
-        {success && (
-          <div
-            className="card"
-            style={{
-              padding: '20px',
-              width: '350px',
-              margin: '40px auto',
-              marginBottom: '0px',
-              fontSize: '1.1em',
-            }}
-          >
-            <b>Success.</b>
-            {' '}
-            {success}
-          </div>
-        )}
+              </a>
 
-        <div
-          className="card"
-          style={{
-            width: '350px',
-            margin: error ? '20px auto' : '100px auto',
-          }}
-        >
-          <div className="content">
-            <div className="row">
-              <div className="col-md-12">
-                <div className="form-group">
-                  <label>Username</label>
-                  <input
-                    type="text"
-                    id="username"
-                    className="form-control"
-                    onChange={this.changeHandler}
-                  />
-                </div>
-              </div>
-              <div style={{ display: register ? 'block' : 'none' }}>
-                <div className="col-xs-6">
-                  <div className="form-group">
-                    <label>First Name</label>
-                    <input
-                      type="text"
-                      id="first"
-                      className="form-control"
-                      onChange={this.changeHandler}
-                    />
-                  </div>
-                </div>
-                <div className="col-xs-6">
-                  <div className="form-group">
-                    <label>Last Name</label>
-                    <input
-                      type="text"
-                      id="last"
-                      className="form-control"
-                      onChange={this.changeHandler}
-                    />
-                  </div>
-                </div>
-                <div className="col-xs-6">
-                  <div className="form-group">
-                    <label>Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      className="form-control"
-                      onChange={this.changeHandler}
-                    />
-                  </div>
-                </div>
-                <div className="col-xs-6">
-                  <div className="form-group">
-                    <label>Date of Birth</label>
-                    <input
-                      type="text"
-                      id="dob"
-                      placeholder="YYYY-MM-DD"
-                      className="form-control"
-                      onChange={this.changeHandler}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-12">
-                <div className="form-group">
-                  <label>Password</label>
-                  <input
-                    type="password"
-                    id="password"
-                    className="form-control"
-                    onChange={this.changeHandler}
-                    onKeyPress={this.formSubmit}
-                  />
-                </div>
-              </div>
+              <div className="clearfix" />
             </div>
-            <button
-              type="button"
-              onClick={this.login}
-              className="btn btn-success btn-block btn-fill"
-            >
-              Login
-            </button>
-            <button
-              type="button"
-              onClick={this.register}
-              className="btn btn-primary btn-block btn-fill"
-            >
-              Register
-            </button>
-            <a
-              type="button"
-              href="/forgotPassword"
-              className="btn btn-secondary btn-block btn-fill"
-            >
-              Forgot Password
-
-            </a>
-
-            <div className="clearfix" />
           </div>
-        </div>
+        </form> 
       </div>
     );
   }
