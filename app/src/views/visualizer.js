@@ -1,7 +1,7 @@
 import Game from 'bc19/game';
 import * as PIXI from "pixi.js";
 
-var CHECKPOINT = 100;
+var CHECKPOINT = 1000;
 var TIME_PER_TURN = 50;
 
 /*
@@ -34,13 +34,17 @@ class Visualizer {
         for (let i = 0; i<4; i++) seed += (this.replay[i+2] << (24-8*i));
 
         this.game = new Game(seed, 0, 0, false, false);
+        console.log('here 0');
         this.checkpoints = [this.game.copy()];
+        console.log('here 0.1');
         this.turn = 0;
         this.running = false;
         this.turn_callback = turn_callback || false;
+        console.log('here .25');
 
         this.width = width || 640;
         this.height = height || 640;
+        console.log('here 0.5');
 
         this.papa_container = document.getElementById(div);
         this.papa_container.innerHTML = "";
@@ -48,12 +52,14 @@ class Visualizer {
         this.robotInfo = document.createElement("div");
         this.papa_container.appendChild(this.container);
         this.papa_container.appendChild(this.robotInfo);
+        console.log('here .75');
 
         this.papa_container.style.display = 'flex';
         this.container.style.flex = '0 0';
         this.robotInfo.style.flex = '1';
         this.robotInfo.style.marginLeft = '5px';
 
+        console.log('here 1');
 
         this.populateCheckpoints();
         this.initViewer();
@@ -187,20 +193,23 @@ class Visualizer {
 
     populateCheckpoints() {
         var last_checkpoint_turn = CHECKPOINT * (this.checkpoints.length-1);
-        var new_checkpoint_turn = this.numTurns() - (this.numTurns()%CHECKPOINT); // checkpoint before/at numturns
-        if (new_checkpoint_turn === last_checkpoint_turn) return; // have all possible checkpoints
+        var final_checkpoint_turn = this.numTurns() - (this.numTurns()%CHECKPOINT); // checkpoint before/at numturns
+        if (final_checkpoint_turn === last_checkpoint_turn) return; // have all possible checkpoints
 
         var last_checkpoint_game = this.checkpoints[this.checkpoints.length-1].copy();
 
-        for (let i = last_checkpoint_turn+1; i<new_checkpoint_turn+1; i++) {
+        for (let i = last_checkpoint_turn+1; i<final_checkpoint_turn+1; i++) {
+            console.log('checkpoint i = '+i);
             // feed in the i-1th instruction
             var diff = this.replay.slice(6 + 8*(i-1), 6 + 8*i);
             last_checkpoint_game.enactTurn(diff);
-            
-            if (i%CHECKPOINT === 0) this.checkpoints.push(
-                (i===new_checkpoint_turn) ? last_checkpoint_game : last_checkpoint_game.copy()
-            );
+            if (i%CHECKPOINT === 0) {
+                this.checkpoints.push(last_checkpoint_game);
+                break;
+            }
         }
+
+        setTimeout(this.populateCheckpoints.bind(this),50);
     }
 
     goToTurn(turn) {

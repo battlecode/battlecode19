@@ -29,7 +29,7 @@ function wallClock() {
 * @param {number} seed - The seed for map generation.
  * @param {boolean} [debug=false] - Enables debug mode (default false).
  */
-function Game(seed, chess_initial, chess_extra, debug, create_replay) {    
+function Game(seed, chess_initial, chess_extra, debug, create_replay, dont_create_map) {    
     this.robots = [] // objects active in the game.
     this.ids = []; // list of "spent" item ids.
 
@@ -61,9 +61,11 @@ function Game(seed, chess_initial, chess_extra, debug, create_replay) {
     // else is the id of the robot/item occupying the square.  This is updated
     // after every action.
 
-    var to_create = this.makeMap(); // list of robots
-    for (i=0; i<to_create.length; i++) {
-        this.createItem(to_create[i].x, to_create[i].y, to_create[i].team, SPECS.CASTLE);
+    if (!dont_create_map) {
+        var to_create = this.makeMap(); // list of robots
+        for (i=0; i<to_create.length; i++) {
+            this.createItem(to_create[i].x, to_create[i].y, to_create[i].team, SPECS.CASTLE);
+        }
     }
 }
 
@@ -108,11 +110,13 @@ Game.prototype.makeMap = function() {
     ).reduce((x,y) => x+y);
 
     for (var i=0; i<2; i++) {
+        var newpassmap = makemap(null, cw, ch);
         for (var m=0; m<cw; m++) {
             for (var n=0; n<ch; n++) {
-                passmap[n][m] = (passmap[n][m] && countsite(passmap, m, n) >= death) || (!passmap[n][m] && countsite(passmap, m, n) >= birth);
+                newpassmap[n][m] = (passmap[n][m] && countsite(passmap, m, n) >= death) || (!passmap[n][m] && countsite(passmap, m, n) >= birth);
             }
         } 
+        passmap = newpassmap;
     }
 
     // Invert the passmap
@@ -204,11 +208,11 @@ Game.prototype.makeMap = function() {
     // Locations closer to the midline will tend to have more resources, to discourage turtling.
     var karbonite_depots = [];
     var fuel_depots = [];
-    visited = makemap(false, cw, ch);
+    visited = makemap(null, cw, ch);
 
     // helper to check if coordinate is in a list
     function c_in(c, l) {
-        for (var i=0; i<l.length; l++) {
+        for (var i=0; i<l.length; i++) {
             if (l[i][0] === c[0] && l[i][1] === c[1]) return true;
         } return false;
     }
@@ -330,8 +334,12 @@ Game.prototype.makeMap = function() {
  * @return {Game} - A deep copy of the current game that will remain constant.
  */
 Game.prototype.copy = function() {
-    var g = new Game(this.seed, this.chess_initial, this.chess_extra, this.debug, this.replay);
+    console.log('weee')
+    var g = new Game(this.seed, this.chess_initial, this.chess_extra, false, false, true);
     g.replay = this.replay ? insulate(this.replay) : undefined;
+    g.map = insulate(this.map);
+    g.karbonite_map = insulate(this.karbonite_map);
+    g.fuel_map = insulate(this.fuel_map);
 
     g.shadow = insulate(this.shadow);
     g.robots = insulate(this.robots);
