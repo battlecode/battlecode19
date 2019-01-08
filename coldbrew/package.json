@@ -1,6 +1,6 @@
 {
   "name": "bc19",
-  "version": "0.1.2",
+  "version": "0.1.7",
   "private": false,
   "main": "runtime.js",
   "dependencies": {

@@ -182,19 +182,36 @@
             display: flex;
             justify-content: center;
             align-items: center; 
+            white-space:pre;
         }
+
+        .hero .header {
+            margin: 100px auto;
+            width: 60%;
+        }
+
         .hero h1 {
             font-size: 7vw;
-            margin: 100px auto;
             -webkit-transform: skew(-10deg);
             -moz-transform: skew(-10deg);
             -o-transform: skew(-10deg);
-            width: 60%;
+            width: 100%;
             font-weight:700;
             padding: 0.25em;
             box-shadow: 1px 1px 10px #000;
             background-color: #d84315;
         }
+        .hero a {
+            font-size: 3vw;
+            margin: -50px auto;
+            font-weight:700;
+            padding: 0.25em 1em;
+            box-shadow: 1px 1px 10px #000;
+            background-color: blue;
+            color:#fff;
+            border-radius: 5px;
+        }
+
         .hero .holder {
             font-size: 3vw;
             width:40%;
@@ -258,7 +275,13 @@
 
 <div class="hero">
     <div class="bg-image"></div>
+    <div class='header'>
+    
     <h1>BATTLECODE</h1>
+    <a href="https://battlecode.org/dash/">Register Now!</a>
+    
+    </div>
+
     <!--<div class="holder">
         <a href="/register" class="register">Register Today!</a>
     </div>-->
@@ -318,7 +341,7 @@
         enrollment at MIT is not necessary.
     </p>
     <p>
-        The 2019 competition officially kicks off January 7th at 7PM EST.  In the meantime, you can read our website for updated 2019 logistics and join our <a href="https://discord.gg/MxGws34">competitor Discord.</a>
+        The 2019 competition <i>Battlecode: Crusade</i> has officially begun!  Start coding by clicking the big blue button above.  You can also join our <a href="https://discord.gg/MxGws34">competitor Discord.</a>
     </p>
     <!-- Update with new Battlehack once confirmed
     <p>
@@ -470,7 +493,7 @@
     <md-divider class="ng-scope"></md-divider>
     <a id="battlecode-schedule"><h3>Lecture Schedule</h3></a>
     <p>
-        Battlecode 2019 will commence on Monday, January 7th, at 7pm ET.
+        Battlecode 2019 commenced on Monday, January 7th, at 7pm ET.
         <br><br />
         Lectures will be held at <b>7pm</b>, for the first two weeks of the competition. Come by <b>32-123</b> to learn about an
         assortment of topics in game AI, and also grab some free food! If you are not at MIT, fear not; we will be
@@ -538,7 +561,7 @@
     -->
     <md-divider class="ng-scope"></md-divider>
     <h3>Battlecode GitHub</h3>
-    <p>See all of our public code <a class="page-link" href="https://github.com/battlecode/">here</a>, and give it a star if you like it.</p>
+    <p>See all of our public code for 2019 <a class="page-link" href="https://github.com/battlecode/battlecode19">here</a>, and give it a star if you like it.</p>
     <!--
     <md-divider class="ng-scope"></md-divider>
     <a id="materials-tools"><h3>Competitor Tools</h3></a>

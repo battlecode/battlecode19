@@ -47,6 +47,26 @@ var argv = require('yargs')
 const CHESS_INITIAL = argv.chi;
 const CHESS_EXTRA = argv.che;
 
+function writeReplayToFile(replay, filename) {
+    var buff = new Uint8Array(replay);
+    fs.writeFileSync(filename, Buffer.from(buff));
+}
+
+function readReplayFromFile(filename) {
+    return new Uint8Array(fs.readFileSync(filename, null));
+}
+
+var g = null;
+
+process.on('SIGINT', function() {
+    if (g) {
+        console.log("Exiting nicely, saving replay.");
+        writeReplayToFile(g.replay, argv.re);
+    } else console.log("Closing.");
+    
+    process.exit();
+});
+
 const seed = argv.s===0 ? Math.floor(Math.random() * Math.pow(2,31)) : argv.s;
 
 function getFolder(dir) {
@@ -62,14 +82,6 @@ function getFolder(dir) {
     return code;
 }
 
-function writeReplayToFile(replay, filename) {
-    var buff = new Uint8Array(replay);
-    fs.writeFileSync(filename, Buffer.from(buff));
-}
-
-function readReplayFromFile(filename) {
-    return new Uint8Array(fs.readFileSync(filename, null));
-}
 
 if (argv.r != null) {
     const red_dir = getFolder(argv.r);
@@ -77,7 +89,7 @@ if (argv.r != null) {
         if (argv.b != null) {
             const blue_dir = getFolder(argv.b);
             Compiler.Compile(blue_dir, function(compiled_blue) {
-                let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
+                g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
 
                 let c = new Coldbrew(g, null, function(logs) {
                     writeReplayToFile(g.replay, argv.re);         
@@ -97,7 +109,7 @@ if (argv.r != null) {
                 console.log(err);
                 process.exit();
             }
-            let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
+            g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
 
             let c = new Coldbrew(g, null, function(logs) {
                 writeReplayToFile(g.replay, argv.re);         
@@ -121,7 +133,7 @@ if (argv.r != null) {
     if (argv.b != null) {
         const blue_dir = getFolder(argv.b);
         Compiler.Compile(blue_dir, function(compiled_blue) {
-            let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
+            g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
 
             let c = new Coldbrew(g, null, function(logs) {
                 writeReplayToFile(g.replay, argv.re);         
@@ -141,7 +153,7 @@ if (argv.r != null) {
             console.log(err);
             process.exit();
         }
-        let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
+        g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, argv.d, true);
 
         let c = new Coldbrew(g, null, function(logs) {
             writeReplayToFile(g.replay, argv.re);         

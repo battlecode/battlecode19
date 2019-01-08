@@ -171,7 +171,7 @@ export class BCAbstractRobot {
     give(dx, dy, karbonite, fuel) {
         if (dx > 1 || dx < -1 || dy > 1 || dy < -1 || (dx === 0 && dy === 0)) throw "Can only give to adjacent squares.";
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't give off of map.";
-        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dy] <= 0) throw "Cannot give to empty square.";
+        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] <= 0) throw "Cannot give to empty square.";
         if (karbonite < 0 || fuel < 0 || this.me.karbonite < karbonite || this.me.fuel < fuel) throw "Do not have specified amount to give.";
 
         return this._bc_action('give', {
