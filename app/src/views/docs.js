@@ -418,6 +418,26 @@ public class MyRobot extends BCAbstractRobot {
                                 </div>
                             </div>
 
+                            <div className="card">
+                                <div className="header">
+                                    <h4 className="title">CLI Reference</h4>
+                                    <p className="category">Updated 1/7/19 7:00PM EST</p>
+                                </div>
+                                <div className="content">
+
+                                    <He>Mac Installation</He>
+
+                                    <p>First <a href='https://brew.sh/'>install Brew</a>. Then, in Terminal, run <code>brew install node</code>.</p>
+
+                                    <p>Finally, to install Battlecode, run <code>npm install -g bc19</code> in Terminal.</p>
+
+                                    <He>Using the Command Line Interface</He>
+                            
+                                    <p>The three main commands are <code>bc19run</code>, <code>bc19compile</code> and <code>bc19upload</code>. For usage instructions, run the commands without options.</p>
+                                    <p>Note that the bot code needs to be in its own directory. The above commands will take the name of that directory as a parameter.</p>
+                                    
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
