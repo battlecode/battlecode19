@@ -169,6 +169,20 @@ class Docs extends Component {
 
                             <div className="card">
                                 <div className="header">
+                                    <h4 className="title">Installation</h4>
+                                    <p className="category">Updated 1/7/19 7:00PM EST</p>
+                                </div>
+                                <div className="content">
+                                    <p className="category">This year, Battlecode will be run through the Node Package Manager (npm). Installation for npm varies from operating system to operating system, but generally achieved through the <a href='https://nodejs.org/en/'>Node Website</a>. If you are on a Mac, download Homebrew and install from there using <code>brew install node npm</code>.</p>
+                                    <ol>
+                                        <li>Install npm </li>
+                                        <li><code>npm install -g bc19</code></li>
+                                        <li>Run or Compile your code using <code>bc19run</code> or <code>bc19compile</code>. Example (using the examplefuncsplayer): <code>bc19run -b exampy -r example_js --chi 1000</code></li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div className="card">
+                                <div className="header">
                                     <h4 className="title">Javascript Bot Reference</h4>
                                     <p className="category">Updated 1/7/19 7:00PM EST</p>
                                 </div>
