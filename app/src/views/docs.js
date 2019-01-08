@@ -169,6 +169,20 @@ class Docs extends Component {
 
                             <div className="card">
                                 <div className="header">
+                                    <h4 className="title">Installation</h4>
+                                    <p className="category">Updated 1/7/19 7:00PM EST</p>
+                                </div>
+                                <div className="content">
+                                    <p className="category">This year, Battlecode will be run through the Node Package Manager (npm). Installation for npm varies from operating system to operating system, but generally achieved through the <a href='https://nodejs.org/en/'>Node Website</a>. If you are on a Mac, download Homebrew and install from there using <code>brew install node npm</code>.</p>
+                                    <ol>
+                                        <li>Install npm </li>
+                                        <li><code>npm install -g bc19</code></li>
+                                        <li>Run or Compile your code using <code>bc19run</code> or <code>bc19compile</code>. Example (using the <a href="https://github.com/npfoss/examplefuncsplayer"> examplefuncsplayer </a>): <code>bc19run -b exampy -r example_js --chi 1000</code></li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div className="card">
+                                <div className="header">
                                     <h4 className="title">Javascript Bot Reference</h4>
                                     <p className="category">Updated 1/7/19 7:00PM EST</p>
                                 </div>
@@ -176,10 +190,27 @@ class Docs extends Component {
                                     <p>Javascript is the primary language supported by Battlecode Crusade, and the target all other languages are compiled to, so it's a great choice to develop a bot in (especially for beginners).  Below is a bare minimum bot example:</p>
                                     <pre>{`import {BCAbstractRobot, SPECS} from 'battlecode';
 
+var step = -1;
+
 class MyRobot extends BCAbstractRobot {
     turn() {
+        step++;
 
-        return this.move(1,0);
+        if (this.me.unit === SPECS.CRUSADER) {
+            // this.log("Crusader health: " + this.me.health);
+            const choices = [[0,-1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
+            const choice = choices[Math.floor(Math.random()*choices.length)]
+            return this.move(...choice);
+        }
+
+        else if (this.me.unit === SPECS.CASTLE) {
+            if (step % 10 === 0) {
+                this.log("Building a crusader at " + (this.me.x+1) + ", " + (this.me.y+1));
+                return this.buildUnit(SPECS.CRUSADER, 1, 1);
+            } else {
+                return // this.log("Castle health: " + this.me.health);
+            }
+        }
 
     }
 }
@@ -255,15 +286,35 @@ var robot = new MyRobot();`}</pre>
                                 <div className="content">
                                     <p>Below is a bare minimum bot example in Python:</p>
                                     <pre>{`from battlecode import BCAbstractRobot, SPECS
+import battlecode as bc
+import random
 
 __pragma__('iconv')
 __pragma__('tconv')
 #__pragma__('opov')
 
+# don't try to use global variables!!
 class MyRobot(BCAbstractRobot):
+    step = -1
 
     def turn(self):
-        return self.move(1,0)
+        self.step += 1
+        self.log("START TURN " + self.step)
+        if self.me['unit'] == SPECS['CRUSADER']:
+            self.log("Crusader health: " + str(self.me['health']))
+            # The directions: North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest
+            choices = [(0,-1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
+            choice = random.choice(choices)
+            self.log('TRYING TO MOVE IN DIRECTION ' + str(choice))
+            return self.move(*choice)
+
+        elif self.me['unit'] == SPECS['CASTLE']:
+            if self.step < 10:
+                self.log("Building a crusader at " + str(self.me['x']+1) + ", " + str(self.me['y']+1))
+                return self.build_unit(SPECS['CRUSADER'], 1, 1)
+
+            else:
+                self.log("Castle health: " + self.me['health'])
 
 robot = MyRobot()
 `}</pre>
@@ -331,6 +382,7 @@ robot = MyRobot()
                                     <ul>
                                         <li><code>random.randrange</code> does not work</li>
                                         <li>Global variables do not work.</li>
+                                        <li>imports don't work on the online IDE</li>
                                     </ul>
                                 </div>
                             </div>
@@ -418,6 +470,26 @@ public class MyRobot extends BCAbstractRobot {
                                 </div>
                             </div>
 
+                            <div className="card">
+                                <div className="header">
+                                    <h4 className="title">CLI Reference</h4>
+                                    <p className="category">Updated 1/7/19 7:00PM EST</p>
+                                </div>
+                                <div className="content">
+
+                                    <He>Mac Installation</He>
+
+                                    <p>First <a href='https://brew.sh/'>install Brew</a>. Then, in Terminal, run <code>brew install node</code>.</p>
+
+                                    <p>Finally, to install Battlecode, run <code>npm install -g bc19</code> in Terminal.</p>
+
+                                    <He>Using the Command Line Interface</He>
+                            
+                                    <p>The three main commands are <code>bc19run</code>, <code>bc19compile</code> and <code>bc19upload</code>. For usage instructions, run the commands without options.</p>
+                                    <p>Note that the bot code needs to be in its own directory. The above commands will take the name of that directory as a parameter.</p>
+                                    
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
