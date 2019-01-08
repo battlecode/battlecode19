@@ -26,7 +26,7 @@ Tank by Sandhi Priyasmoro from the Noun Project
 */
  
 class Visualizer {
-    constructor(div, replay, turn_callback, width, height) {
+    constructor(div, replay, turn_callback, width=720, height=600) {
         this.replay = replay;
 
         // Parse replay seed
@@ -42,8 +42,8 @@ class Visualizer {
         this.turn_callback = turn_callback || false;
         console.log('here .25');
 
-        this.width = width || 640;
-        this.height = height || 640;
+        this.width = width;
+        this.height = height;
         console.log('here 0.5');
 
         this.papa_container = document.getElementById(div);
@@ -71,39 +71,49 @@ class Visualizer {
         this.active_x = -1;
         this.active_y = -1;
         this.active_id = 0;
+
+        this.grid_width = this.width * 5/6;
+        this.grid_height = this.height;
+        this.graph_width = this.width - this.grid_width;
+        this.graph_height = this.height;
  
         this.stage = new PIXI.Container();
         this.stage.interactive = true;
  
         this.stage.click = function(e) {
             var point = e.data.getLocalPosition(this.stage);
-            this.active_x =  Math.floor(this.MAP_WIDTH * point.x / this.width);
-            this.active_y = Math.floor(this.MAP_HEIGHT * point.y / this.height);
+            this.active_x =  Math.floor(this.MAP_WIDTH * point.x / this.grid_width);
+            this.active_y = Math.floor(this.MAP_HEIGHT * point.y / this.grid_height);
         }.bind(this);
 
         this.mapGraphics = new PIXI.Graphics();
         this.stage.addChild(this.mapGraphics);
 
+        this.graphGraphics = new PIXI.Graphics();
+        this.stage.addChild(this.graphGraphics);
+
         this.spritestage = new PIXI.Container();
         this.stage.addChild(this.spritestage);
-
-        var BLANK = 0x666666,
-            OBSTACLE = '0x111111',
-            KARBONITE = '0x22BB22',
-            FUEL = '0xFFFF00';
  
-
-        this.renderer = PIXI.autoDetectRenderer(0, 0, { backgroundColor: BLANK, antialias: true, transparent: false });
+        this.renderer = PIXI.autoDetectRenderer(0, 0, { backgroundColor: 0x222222, antialias: true, transparent: false });
         this.renderer.resize(this.width, this.height);
    
         // Clear container before draw
         this.container.innerHTML = '';
         this.container.append(this.renderer.view);
+
+        var BLANK = '0x444444',
+            OBSTACLE = '0xFFFFFF',//'0x111111',
+            KARBONITE = '0x22BB22',
+            FUEL = '0xFFFF00';
    
         this.MAP_WIDTH = this.game.map[0].length;
         this.MAP_HEIGHT = this.game.map.length;
-        var draw_width = this.width / this.MAP_WIDTH;
-        var draw_height = this.height / this.MAP_HEIGHT;
+        var draw_width = this.grid_width / this.MAP_WIDTH;
+        var draw_height = this.grid_height / this.MAP_HEIGHT;
+        this.mapGraphics.beginFill(BLANK);
+        this.mapGraphics.drawRect(0, 0, this.grid_width, this.grid_height);
+        this.mapGraphics.endFill();
         for (let y = 0; y < this.MAP_HEIGHT; y++) for (let x = 0; x < this.MAP_WIDTH; x++) {
             if (!this.game.map[y][x] || this.game.karbonite_map[y][x] || this.game.fuel_map[y][x]) {
                 var color = this.game.karbonite_map[y][x] ? KARBONITE : this.game.fuel_map[y][x] ? FUEL : OBSTACLE;
@@ -118,15 +128,31 @@ class Visualizer {
             }
         }
 
+        // Gridlines
         this.mapGraphics.lineStyle(1, '0xFFFFFF');
-        for(var y = 0; y < this.MAP_HEIGHT; y++) {
+        for(var y = 0; y <= this.MAP_HEIGHT; y++) {
             this.mapGraphics.moveTo(0, y*draw_height);
-            this.mapGraphics.lineTo(this.width, y*draw_height);
+            this.mapGraphics.lineTo(this.grid_width, y*draw_height);
         }
-        for(var x = 0; x < this.MAP_WIDTH; x++){
+        for(var x = 0; x <= this.MAP_WIDTH; x++){
             this.mapGraphics.moveTo(x*draw_width, 0);
-            this.mapGraphics.lineTo(x*draw_width, this.height);
+            this.mapGraphics.lineTo(x*draw_width, this.grid_height);
         }
+
+        // Indicate karbonite vs fuel sections of graphs
+        this.mapGraphics.lineStyle(0);
+        this.IND_G_WIDTH = this.graph_width*.8 / 2;
+        this.LR_BORDER = (this.graph_width - 2*this.IND_G_WIDTH) / 3;
+        this.TB_BORDER_HEIGHT = this.graph_height * 0.04;
+        this.IND_G_HEIGHT = this.graph_height - 4*this.TB_BORDER_HEIGHT;
+        this.mapGraphics.beginFill(KARBONITE);
+        this.mapGraphics.drawRect(this.grid_width+this.LR_BORDER, this.TB_BORDER_HEIGHT, this.IND_G_WIDTH, this.TB_BORDER_HEIGHT);
+        this.mapGraphics.drawRect(this.grid_width+this.LR_BORDER, this.graph_height-2*this.TB_BORDER_HEIGHT, this.IND_G_WIDTH, this.TB_BORDER_HEIGHT);
+        this.mapGraphics.endFill();
+        this.mapGraphics.beginFill(FUEL);
+        this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.TB_BORDER_HEIGHT, this.IND_G_WIDTH, this.TB_BORDER_HEIGHT);
+        this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.graph_height-2*this.TB_BORDER_HEIGHT, this.IND_G_WIDTH, this.TB_BORDER_HEIGHT);
+        this.mapGraphics.endFill();
    
         // Initialize textures
         this.textures = new Array(6);
@@ -160,9 +186,45 @@ class Visualizer {
 
     draw(strategic=false) { // for later perhaps making strategic view
 
-        var draw_width = this.width / this.MAP_WIDTH;
-        var draw_height = this.height / this.MAP_HEIGHT;
-       
+        var draw_width = this.grid_width / this.MAP_WIDTH;
+        var draw_height = this.grid_height / this.MAP_HEIGHT;
+
+        // Draw graphs
+        // First, figure out max height for the graphs.
+        var MAX_KARB = Math.ceil(Math.max(5, this.game.karbonite[0]/20, this.game.karbonite[1]/20));
+        var MAX_FUEL = Math.ceil(Math.max(5, this.game.fuel[0]/100, this.game.fuel[1]/100));
+        // Then, draw! I'm so sorry this is so disgusting. We do, in order, red karb, red fuel, blue karb, and blue fuel.
+        // This puts those in the right places.
+        this.graphGraphics.clear();
+        this.graphGraphics.beginFill('0xFF0000');
+        this.graphGraphics.drawRect(this.grid_width+this.LR_BORDER,
+            2*this.TB_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.karbonite[0]/MAX_KARB/20),
+            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.karbonite[0]/MAX_KARB/20);
+        this.graphGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER,
+            2*this.TB_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.fuel[0]/MAX_FUEL/100),
+            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.fuel[0]/MAX_FUEL/100);
+        this.graphGraphics.endFill();
+        this.graphGraphics.beginFill('0x0000FF');
+        this.graphGraphics.drawRect(this.grid_width+this.IND_G_WIDTH/2+this.LR_BORDER,
+            2*this.TB_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.karbonite[1]/MAX_KARB/20),
+            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.karbonite[1]/MAX_KARB/20);
+        this.graphGraphics.drawRect(this.grid_width+this.IND_G_WIDTH*3/2+2*this.LR_BORDER,
+            2*this.TB_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.fuel[1]/MAX_FUEL/100),
+            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.fuel[1]/MAX_FUEL/100);
+        this.graphGraphics.endFill();
+
+        // Draw markers in graphs.
+        this.graphGraphics.lineStyle(3, '0xFFFFFF');
+        for(var k = 1; k < MAX_KARB; k++) {
+            this.graphGraphics.moveTo(this.grid_width+this.LR_BORDER, 2*this.TB_BORDER_HEIGHT+k/MAX_KARB*this.IND_G_HEIGHT);
+            this.graphGraphics.lineTo(this.grid_width+this.LR_BORDER+this.IND_G_WIDTH,2*this.TB_BORDER_HEIGHT+k/MAX_KARB*this.IND_G_HEIGHT);
+        }
+        for(var f = 1; f < MAX_FUEL; f++){
+            this.graphGraphics.moveTo(this.grid_width+2*this.LR_BORDER+this.IND_G_WIDTH, 2*this.TB_BORDER_HEIGHT+f/MAX_FUEL*this.IND_G_HEIGHT);
+            this.graphGraphics.lineTo(this.grid_width+2*this.LR_BORDER+2*this.IND_G_WIDTH,2*this.TB_BORDER_HEIGHT+f/MAX_FUEL*this.IND_G_HEIGHT);
+        }
+
+        // Draw units       
         var units = new Array(6);
         for (let i = 0; i < 6; i++) units[i] = [];
         for (let i = 0; i < this.game.robots.length; i++) {
