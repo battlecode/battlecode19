@@ -176,10 +176,27 @@ class Docs extends Component {
                                     <p>Javascript is the primary language supported by Battlecode Crusade, and the target all other languages are compiled to, so it's a great choice to develop a bot in (especially for beginners).  Below is a bare minimum bot example:</p>
                                     <pre>{`import {BCAbstractRobot, SPECS} from 'battlecode';
 
+var step = -1;
+
 class MyRobot extends BCAbstractRobot {
     turn() {
+        step++;
 
-        return this.move(1,0);
+        if (this.me.unit === SPECS.CRUSADER) {
+            // this.log("Crusader health: " + this.me.health);
+            const choices = [[0,-1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
+            const choice = choices[Math.floor(Math.random()*choices.length)]
+            return this.move(...choice);
+        }
+
+        else if (this.me.unit === SPECS.CASTLE) {
+            if (step % 10 === 0) {
+                this.log("Building a crusader at " + (this.me.x+1) + ", " + (this.me.y+1));
+                return this.buildUnit(SPECS.CRUSADER, 1, 1);
+            } else {
+                return // this.log("Castle health: " + this.me.health);
+            }
+        }
 
     }
 }
@@ -255,15 +272,35 @@ var robot = new MyRobot();`}</pre>
                                 <div className="content">
                                     <p>Below is a bare minimum bot example in Python:</p>
                                     <pre>{`from battlecode import BCAbstractRobot, SPECS
+import battlecode as bc
+import random
 
 __pragma__('iconv')
 __pragma__('tconv')
 #__pragma__('opov')
 
+# don't try to use global variables!!
 class MyRobot(BCAbstractRobot):
+    step = -1
 
     def turn(self):
-        return self.move(1,0)
+        self.step += 1
+        self.log("START TURN " + self.step)
+        if self.me['unit'] == SPECS['CRUSADER']:
+            self.log("Crusader health: " + str(self.me['health']))
+            # The directions: North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest
+            choices = [(0,-1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
+            choice = random.choice(choices)
+            self.log('TRYING TO MOVE IN DIRECTION ' + str(choice))
+            return self.move(*choice)
+
+        elif self.me['unit'] == SPECS['CASTLE']:
+            if self.step < 10:
+                self.log("Building a crusader at " + str(self.me['x']+1) + ", " + str(self.me['y']+1))
+                return self.build_unit(SPECS['CRUSADER'], 1, 1)
+
+            else:
+                self.log("Castle health: " + self.me['health'])
 
 robot = MyRobot()
 `}</pre>
