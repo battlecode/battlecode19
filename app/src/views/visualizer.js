@@ -34,17 +34,13 @@ class Visualizer {
         for (let i = 0; i<4; i++) seed += (this.replay[i+2] << (24-8*i));
 
         this.game = new Game(seed, 0, 0, false, false);
-        console.log('here 0');
         this.checkpoints = [this.game.copy()];
-        console.log('here 0.1');
         this.turn = 0;
         this.running = false;
         this.turn_callback = turn_callback || false;
-        console.log('here .25');
 
         this.width = width;
         this.height = height;
-        console.log('here 0.5');
 
         this.papa_container = document.getElementById(div);
         this.papa_container.innerHTML = "";
@@ -52,14 +48,11 @@ class Visualizer {
         this.robotInfo = document.createElement("div");
         this.papa_container.appendChild(this.container);
         this.papa_container.appendChild(this.robotInfo);
-        console.log('here .75');
 
         this.papa_container.style.display = 'flex';
         this.container.style.flex = '0 0';
         this.robotInfo.style.flex = '1';
         this.robotInfo.style.marginLeft = '5px';
-
-        console.log('here 1');
 
         this.populateCheckpoints();
         this.initViewer();

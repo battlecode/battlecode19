@@ -5,6 +5,13 @@ const Coldbrew = require('../runtime');
 const Game = require('../game');
 const Compiler = require('../compiler');
 const path = require('path');
+const updateNotifier = require('update-notifier');
+const pkg = require('../package.json');
+
+updateNotifier({
+    pkg,
+    updateCheckInterval:1000*20 // 20 seconds
+}).notify();
 
 var argv = require('yargs')
     .usage('Usage: $0 [options]')

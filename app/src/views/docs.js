@@ -181,7 +181,7 @@ class Docs extends Component {
                                         <li>Upload compiled code using <code>bc19upload</code>.  Make sure you've defined environment variables <code>BC_USERNAME</code> and <code>BC_PASSWORD</code>, which should be the credentials you use to access this site.</li>
                                     </ol>
 
-                                    You must have internet access to compile Python and Java code.  Additionally, be sure to frequently update by running <code>npm update -g bc19</code>.  If you are not running the most recent distribution, replays will not render correctly.
+                                    You must have internet access to compile Python and Java code.  Additionally, be sure to frequently update by running <code>npm install -g bc19</code>.  If you are not running the most recent distribution, replays will not render correctly.
                                 </div>
                             </div>
                             <div className="card">

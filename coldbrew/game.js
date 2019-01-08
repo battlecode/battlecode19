@@ -341,7 +341,6 @@ Game.prototype.makeMap = function() {
  * @return {Game} - A deep copy of the current game that will remain constant.
  */
 Game.prototype.copy = function() {
-    console.log('weee')
     var g = new Game(this.seed, this.chess_initial, this.chess_extra, false, false, true);
     g.replay = this.replay ? insulate(this.replay) : undefined;
     g.map = insulate(this.map);
@@ -716,8 +715,6 @@ Game.prototype.enactTurn = function(record) {
         try { action = robot.hook(dump); }
         catch (e) { this.robotError(e, robot); }
 
-        //console.log(action);
-        
         var diff_time = wallClock() - robot.start_time;
         record = new ActionRecord(this, robot);
 

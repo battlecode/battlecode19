@@ -39,10 +39,11 @@ class Compiler {
             'lang':'python','src':code
         }).then(function(response) {
             if (response.data['success']) {
-                var code = response.data.js['org.transcrypt.__runtime__.js']
-                         + '\n' + response.data.js['battlecode.js']
-                         + response.data.js['robot.js']
-
+                var code = "";
+                for (var key in response.data.js) {
+                    code += response.data.js[key] + '\n';
+                }
+                
                 code = hackyCombine(code);
 
                 callback(code);

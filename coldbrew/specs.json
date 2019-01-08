@@ -21,6 +21,8 @@
     "BLUE":               1,
     "CHESS_INITIAL":      100,
     "CHESS_EXTRA":        20,
+    "TURN_MAX_TIME":      200,
+    "MAX_MEMORY":         50000000,
 
     "UNITS": [
         {
