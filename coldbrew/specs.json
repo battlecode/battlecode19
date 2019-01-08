@@ -105,7 +105,7 @@
             "ATTACK_DAMAGE": 20,
             "ATTACK_RADIUS": [1,4],
             "ATTACK_FUEL_COST": 15,
-            "DAMAGE_SPREAD": 9
+            "DAMAGE_SPREAD": 3
         }
     ]
 }

@@ -92,7 +92,7 @@ class RobotTable extends Component {
                     <th scope="row">Attack Damage</th>
                     { SPECS.UNITS.slice(2).map(function(unit) {
                         return unit.ATTACK_DAMAGE===null?(<td>N/A</td>):(
-                            <td>{unit.ATTACK_DAMAGE}HP {unit.DAMAGE_SPREAD!==0?"for " + unit.DAMAGE_SPREAD + " squares":""}</td>
+                            <td>{unit.ATTACK_DAMAGE}HP {unit.DAMAGE_SPREAD!==0?"for " + unit.DAMAGE_SPREAD + " r^2":""}</td>
                         );
                     }) }
                 </tr>
