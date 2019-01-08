@@ -182,8 +182,8 @@ public class BCAbstractRobot {
     public GiveAction give(int dx, int dy, int k, int f) {
         if (dx > 1 || dx < -1 || dy > 1 || dy < -1 || (dx == 0 && dy == 0)) throw new BCException("Can only give to adjacent squares.");
         if (!checkOnMap(me.x+dx,me.y+dy)) throw new BCException("Can't give off of map.");
-        if (gameState.shadow[me.y+dy][me.x+dy] <= 0) throw new BCException("Cannot give to empty square.");
-        if (k < 0 || f < 0 || me.karbonite < karbonite || me.fuel < fuel) throw new BCException("Do not have specified amount to give.");
+        if (gameState.shadow[me.y+dy][me.x+dx] <= 0) throw new BCException("Cannot give to empty square.");
+        if (k < 0 || f < 0 || me.karbonite < k || me.fuel < f) throw new BCException("Do not have specified amount to give.");
 
         return new GiveAction(k, f, dx, dy, signal, signalRadius, logs, castleTalk);
     }
