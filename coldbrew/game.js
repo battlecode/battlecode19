@@ -839,7 +839,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
 
     else if (action.action === 'give') {
         if (action.dx > 1 || action.dy > 1) throw "Can only give to adjacent squares.";
-        if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0 && action.give_fuel < 64 && action.give_karbonite < 64) {
+        if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0 && action.give_fuel < Math.pow(2,8) && action.give_karbonite < Math.pow(2,8)) {
             if (robot.karbonite < action.give_karbonite || robot.fuel < action.give_fuel) throw "Tried to give more than you have.";
 
             record.give(action.dx, action.dy, action.give_karbonite, action.give_fuel);
