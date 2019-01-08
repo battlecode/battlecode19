@@ -177,7 +177,7 @@ class Docs extends Component {
                                     <ol>
                                         <li>Install npm </li>
                                         <li><code>npm install -g bc19</code></li>
-                                        <li>Run or Compile your code using <code>bc19run</code> or <code>bc19compile</code>. Example (using the examplefuncsplayer): <code>bc19run -b exampy -r example_js --chi 1000</code></li>
+                                        <li>Run or Compile your code using <code>bc19run</code> or <code>bc19compile</code>. Example (using the <a href="https://github.com/npfoss/examplefuncsplayer"> examplefuncsplayer </a>): <code>bc19run -b exampy -r example_js --chi 1000</code></li>
                                     </ol>
                                 </div>
                             </div>
