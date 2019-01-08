@@ -87,27 +87,45 @@ class Visualizer {
         this.spritestage = new PIXI.Container();
         this.stage.addChild(this.spritestage);
 
-        this.renderer = PIXI.autoDetectRenderer(0, 0, { backgroundColor: 0x000000, antialias: true, transparent: true });
+        var BLANK = 0x666666,
+            OBSTACLE = '0x111111',
+            KARBONITE = '0x22BB22',
+            FUEL = '0xFFFF00';
+ 
+
+        this.renderer = PIXI.autoDetectRenderer(0, 0, { backgroundColor: BLANK, antialias: true, transparent: false });
         this.renderer.resize(this.width, this.height);
    
         // Clear container before draw
         this.container.innerHTML = '';
         this.container.append(this.renderer.view);
    
-        var BLANK = '0x222222',
-            OBSTACLE = '0x880000',
-            KARBONITE = '0x22BB22',
-            FUEL = '0xFFFF00';
-   
         this.MAP_WIDTH = this.game.map[0].length;
         this.MAP_HEIGHT = this.game.map.length;
         var draw_width = this.width / this.MAP_WIDTH;
         var draw_height = this.height / this.MAP_HEIGHT;
         for (let y = 0; y < this.MAP_HEIGHT; y++) for (let x = 0; x < this.MAP_WIDTH; x++) {
-            var color = this.game.karbonite_map[y][x] ? KARBONITE : this.game.fuel_map[y][x] ? FUEL : this.game.map[y][x] ? BLANK : OBSTACLE;
-            this.mapGraphics.beginFill(color);
-            this.mapGraphics.drawRect(x*draw_width, y*draw_height, draw_width, draw_height);
-            this.mapGraphics.endFill();
+            if (!this.game.map[y][x] || this.game.karbonite_map[y][x] || this.game.fuel_map[y][x]) {
+                var color = this.game.karbonite_map[y][x] ? KARBONITE : this.game.fuel_map[y][x] ? FUEL : OBSTACLE;
+                this.mapGraphics.beginFill(color);
+                if (this.game.karbonite_map[y][x] || this.game.fuel_map[y][x]) {
+                    const SIZE_FACTOR = 0.6;
+                    const BORDER = (1 - SIZE_FACTOR) / 2;
+                    this.mapGraphics.drawRect((x+BORDER)*draw_width, (y+BORDER)*draw_height, SIZE_FACTOR*draw_width, SIZE_FACTOR*draw_height);
+                }
+                else this.mapGraphics.drawRect(x*draw_width, y*draw_height, draw_width, draw_height);
+                this.mapGraphics.endFill();
+            }
+        }
+
+        this.mapGraphics.lineStyle(1, '0xFFFFFF');
+        for(var y = 0; y < this.MAP_HEIGHT; y++) {
+            this.mapGraphics.moveTo(0, y*draw_height);
+            this.mapGraphics.lineTo(this.width, y*draw_height);
+        }
+        for(var x = 0; x < this.MAP_WIDTH; x++){
+            this.mapGraphics.moveTo(x*draw_width, 0);
+            this.mapGraphics.lineTo(x*draw_width, this.height);
         }
    
         // Initialize textures
@@ -140,7 +158,8 @@ class Visualizer {
         }
     }
 
-    draw() {
+    draw(strategic=false) { // for later perhaps making strategic view
+
         var draw_width = this.width / this.MAP_WIDTH;
         var draw_height = this.height / this.MAP_HEIGHT;
        
