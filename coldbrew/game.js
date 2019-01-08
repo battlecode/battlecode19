@@ -318,15 +318,19 @@ Game.prototype.makeMap = function() {
 
     var to_create = [];
 
-    for (var i=0; i<all_castles.length; i++) {
+    for (var i=0; i<all_castles.length/2; i++) {
         to_create.push({
-            team:+(i < castles.length), 
+            team:0, 
             x:all_castles[i][0], 
             y:all_castles[i][1]
         });
-    }
 
-    console.log("MADE MAP");
+        to_create.push({
+            team:1, 
+            x:all_castles[(all_castles.length/2) + i][0], 
+            y:all_castles[(all_castles.length/2) + i][1]
+        });
+    }
 
     return to_create;
 }

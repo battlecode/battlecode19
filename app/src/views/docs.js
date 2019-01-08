@@ -138,48 +138,50 @@ class Docs extends Component {
                                     <p>Battlecode: Crusade is a turn based game, where robots on a tiled grid are each controlled by individual computer programs.  Robots include Castles, Churches, Pilgrims, Crusaders, Prophets, and Preachers.  The objective of the game is to destroy the enemy team Castles.  If by { SPECS.MAX_ROUNDS } rounds both blue and red Castles remain, the winner is determined by the team with more castles, followed by the team with more unit value, followed by a coin flip.</p>
                                     <He>Map and Resources Overview</He>
                                     <p>Game maps are procedurally generated, and are square 2d grids ranging between 32x32 and 64x64 tiles.  Every map is either horizontally or vertically symmetric, and the top left corner has the coordinates (0,0).   Each tile in the map is either passable or impassable rocky terrain, and each team starts with 1-3 Castles on the map, { SPECS.INITIAL_KARBONITE } Karbonite, and { SPECS.INITIAL_FUEL } Fuel.</p>
-                                    <p>Passable tiles can have resource points on them which when mined by Pilgrims provide either Karbonite, which is used to construct units, or Fuel, which is used to run them.  Once mined, these resources can be transferred between units and deposited for global usage at Castles or Churches.  Almost any action in Battlecode Crusade consumes either Karbonite or Fuel.  Note that rather than being distributed evenly, Karbonite and Fuel depots are usually found in small discrete clumps on the map.  In addition to the resources teams start with and mine, at every round each team receives { SPECS.TRICKLE_FUEL } fuel.</p>
+                                    <p>Passable tiles can have resource points on them which when mined by Pilgrims provide either Karbonite, which is used to construct units, or Fuel, which is used to run them.  Once mined, these resources can be transferred between units and deposited for global usage at Castles or Churches.  Before being deposited at a Castle or Church, resources are unrefined, and cannot be utilized.  Almost any action in Battlecode Crusade consumes either Karbonite or Fuel, all from the global refined stores.  Note that rather than being distributed evenly, Karbonite and Fuel depots are usually found in small discrete clumps on the map.  In addition to the resources teams start with and mine, at every round each team receives { SPECS.TRICKLE_FUEL } fuel.</p>
                                     <p>Robots have knowledge of the full map at the beginning of the game (including resource depots), and can only see robots within their vision radius.</p>
                                     <He>Units Overview</He>
                                     <p>Unlike last year’s Battlecode game, each unit is controlled by its own process.  Each unit is initialized with a { SPECS.CHESS_INITIAL }ms chess clock, and receives { SPECS.CHESS_EXTRA }ms of additional computation each round.  When a unit is spawned, it is assigned a unique 32 bit integer ID, and always occupies a single tile. When the health of a unit is reduced to 0, the unit is immediately removed from the game.</p>
-                                    <p>There are two types of units: robots and structures. Robots are mobile units that fight, move to adjacent squares, build factories, carry resources, or mine fuel and karbonite from the map. There are two types of structures: Castles and Churches.  Castles are like Churches that cannot be created and carry special abilities.  Churches produce robots, and provide a depot for Pilgrims to deposit resources into the global economy.</p>
+                                    <p>There are two types of units: robots and structures. Robots are mobile units that fight, move, build factories, carry resources, or mine fuel and karbonite from the map. There are two types of structures: Castles and Churches.  Castles are like Churches that cannot be created and carry special abilities.  Churches produce robots, and provide a depot for Pilgrims to deposit resources into the global economy.</p>
                                     <Hee>Castles</Hee>
                                     <p>Each team starts with 1-3 castles on the map, each with initial health { SPECS.UNITS[SPECS.CASTLE].STARTING_HP } and vision radius { SPECS.UNITS[SPECS.CASTLE].VISION_RADIUS}.  Castles have all the abilities of Churches, but cannot be built, and have greater health.  Castles also have unique communication abilities; not only can all units send messages to Castles for free (discussed in the Communication section), but Castles can also trade Karbonite and Fuel with opposing team castles.</p>
                                     <p>Each turn, a castle can offer a Barter to a castle of the opposing team.  Barters are offers to trade X Karbonite for Y Fuel (or vice versa).  Players can use this functionality to collaborate with the opposing team for mutual benefit.</p>
                                     <p>When all of a team’s castles are destroyed, the team is considered defeated.</p>
                                     <Hee>Churches</Hee>
-                                    <p>Churches are structures with the ability to produce robots for their Karbonite and Fuel cost.  In any given turn a church can spawn a robot in any adjacent square, with that robot added to the end of the turn queue.  Robots adjacent to churches in their turn can deposit Fuel and Karbonite, adding those resources to the team’s global stores.</p>
+                                    <p>Churches are structures with the ability to produce robots for their Karbonite and Fuel cost.  In any given turn a church or castle can spawn a robot in any adjacent square (where adjacent is defined to include diagonals), with that robot added to the end of the turn queue.  Robots adjacent to churches and castles in their turn can deposit Fuel and Karbonite, adding those resources to the team’s global stores.</p>
                                     <p>Churches can be constructed by Pilgrims for { SPECS.UNITS[SPECS.CHURCH].CONSTRUCTION_KARBONITE } Karbonite and { SPECS.UNITS[SPECS.CHURCH].CONSTRUCTION_FUEL } Fuel, and have an initial starting health of { SPECS.UNITS[SPECS.CHURCH].STARTING_HP } and a vision radius of { SPECS.UNITS[SPECS.CHURCH].VISION_RADIUS}.</p>
                                     <Hee>Robots</Hee>
                                     <p>There are four classes of robots: Pilgrims, Crusaders, Prophets, and Preachers.  Pilgrims are scouting, mining, and building robots, while the other robots are only capable of combat and resource transportation.   Below is a summary of the robot types, with more description following.</p>
                                     <RobotTable />
-                                    <p>Pilgrims are non-combat robots that can mine a single unit of Karbonite or Fuel and deliver them to Castles and Churches.  For each turn a Pilgrim mines a Karbonite depot, they receive { SPECS.KARBONITE_YIELD } Karbonite.  Similarly, for each turn a Pilgrim mines a Fuel depot they receive { SPECS.FUEL_YIELD } Fuel.  Pilgrims can also construct Churches.</p>
+                                    <p>Pilgrims are non-combat robots that can mine unrefined Karbonite or Fuel and deliver them to Castles and Churches.  For each turn a Pilgrim mines a Karbonite depot, they receive { SPECS.KARBONITE_YIELD } unrefined Karbonite.  Similarly, for each turn a Pilgrim mines a Fuel depot they receive { SPECS.FUEL_YIELD } unrefined Fuel.  Pilgrims can also construct Churches.</p>
                                     <p>Crusaders are capable of shorter-range combat, Prophets are longer range, and Preachers deal AOE damage.</p>
                                     <p>Robots can move to or attack any square within their speed or attack radius, even if that terrain is technically unreachable using a smaller step size.  In each turn, a unit can only perform one physical action, including moving, attacking, depositing/giving, mining, trading, and building.</p>
                                     <He>Reclaim</He>
-                                    <p>When units are destroyed they leave half of the Karbonite required to build them, in addition to any resources they may have been carrying, to the unit that destroyed them.  So, if the Pilgrim from the previous example were destroyed and was carrying 10 Fuel and 3 Karbonite, the attacker would now have an additional 10 Fuel and {3+SPECS.UNITS[SPECS.PILGRIM].CONSTRUCTION_KARBONITE/2} Karbonite.</p>
+                                    <p>When units are destroyed, the robot that destroyed them receives half of the Karbonite required to build the destroyed unit, in addition to any resources they may have been carrying.  So, if the Pilgrim from the previous example were destroyed and was carrying 10 Fuel and 3 Karbonite, the attacker would now have an additional 10 Fuel and {3+SPECS.UNITS[SPECS.PILGRIM].CONSTRUCTION_KARBONITE/2} Karbonite.</p>
                                     <He>Communication</He>
                                     <p>Each unit on the board has its own process, and is sandboxed from other units.  To facilitate communication and global planning, each unit has two possible methods of communication.</p>
                                     <p>Radio is the primary method of communication usable by unit.  In any given turn, a unit can broadcast a {SPECS.COMMUNICATION_BITS} bit message to all units within squared radius X^2, consuming X^2 Fuel.  For example, a unit with id 1984 that wanted to broadcast a message with a squared radius of 10 squares would need to expend 10 Fuel.  On the next round, all units within that radius will see that the a unit with ID 1984 broadcasted the given message.  Units can radio broadcast simultaneously with all other actions.  Note that robots can see the unit ID that produced a broadcast, but not which team the unit belongs to.</p>
                                     <p>Units also have a direct channel to communicate an {SPECS.CASTLE_TALK_BITS} bit value to all their team’s Castles for free from any distance.  This can also be combined with any other action, including general radio communications.</p>
                                     <He>Turn Queue</He>
-                                    <p>Battlecode Crusade games consist of up to {SPECS.MAX_ROUNDS} rounds, and each round consists of a turn for every unit on the board at that time.  This is acheived by cycling each round through a queue that consists of all units on the map.  This queue is initialized with each team’s Castles in alternating Red, Blue order.  Then, whenever a unit produces a new unit, that unit is added to the end of the turn queue as soon as the constructor unit’s turn ends.  A round consists of a full pass through the turn queue.</p>
+                                    <p>Battlecode Crusade games consist of up to {SPECS.MAX_ROUNDS} rounds, and each round consists of a turn for every unit on the board at that time.  This is acheived by cycling each round through a queue that consists of all units on the map.  This queue is initialized with each team’s Castles in alternating Red, Blue order.  Then, whenever a unit produces a new unit, that unit is added to the end of the turn queue as soon as the constructor unit’s turn ends.  To rephrase, units built in a round will get a turn in the same round.  A round consists of a full pass through the turn queue.</p>
                                 </div>
                             </div>
 
                             <div className="card">
                                 <div className="header">
-                                    <h4 className="title">Installation</h4>
+                                    <h4 className="title">Installation and CLI usage</h4>
                                     <p className="category">Updated 1/7/19 7:00PM EST</p>
                                 </div>
                                 <div className="content">
-                                    <p className="category">This year, Battlecode will be run through the Node Package Manager (npm). Installation for npm varies from operating system to operating system, but generally achieved through the <a href='https://nodejs.org/en/'>Node Website</a>. If you are on a Mac, download Homebrew and install from there using <code>brew install node npm</code>.</p>
+                                    <p>This year, Battlecode will be run through the Node Package Manager (npm). Installation for npm varies from operating system to operating system, but generally achieved through the <a href='https://nodejs.org/en/'>Node Website</a>. If you are on a Mac, download Homebrew and install from there using <code>brew install node npm</code>.</p>
                                     <ol>
-                                        <li>Install npm </li>
-                                        <li><code>npm install -g bc19</code></li>
-                                        <li>Run or compile your code using <code>bc19run</code> or <code>bc19compile</code>. Example (using the <a href="https://github.com/npfoss/examplefuncsplayer"> examplefuncsplayer </a>): <code>bc19run -b bots/exampy -r bots/example_js --chi 1000</code>.</li>
+                                        <li>Install npm.</li>
+                                        <li><code>npm install -g bc19</code>.</li>
+                                        <li>Run or compile your code using <code>bc19run</code> or <code>bc19compile</code>. Note that the bot code needs to be in its own directory.  Example (using the <a href="https://github.com/npfoss/examplefuncsplayer"> examplefuncsplayer </a>): <code>bc19run -b bots/exampy -r bots/example_js --chi 1000</code>.</li>
                                         <li>Upload compiled code using <code>bc19upload</code>.  Make sure you've defined environment variables <code>BC_USERNAME</code> and <code>BC_PASSWORD</code>, which should be the credentials you use to access this site.</li>
                                     </ol>
+
+                                    You must have internet access to compile Python and Java code.  Additionally, be sure to frequently update by running <code>npm update -g bc19</code>.  If you are not running the most recent distribution, replays will not render correctly.
                                 </div>
                             </div>
                             <div className="card">
@@ -467,27 +469,6 @@ public class MyRobot extends BCAbstractRobot {
                                     <hr /><h6>Known Bugs</h6><hr />
                                     <ul>
                                     </ul>
-                                </div>
-                            </div>
-
-                            <div className="card">
-                                <div className="header">
-                                    <h4 className="title">CLI Reference</h4>
-                                    <p className="category">Updated 1/7/19 7:00PM EST</p>
-                                </div>
-                                <div className="content">
-
-                                    <He>Mac Installation</He>
-
-                                    <p>First <a href='https://brew.sh/'>install Brew</a>. Then, in Terminal, run <code>brew install node</code>.</p>
-
-                                    <p>Finally, to install Battlecode, run <code>npm install -g bc19</code> in Terminal.</p>
-
-                                    <He>Using the Command Line Interface</He>
-                            
-                                    <p>The three main commands are <code>bc19run</code>, <code>bc19compile</code> and <code>bc19upload</code>. For usage instructions, run the commands without options.</p>
-                                    <p>Note that the bot code needs to be in its own directory. The above commands will take the name of that directory as a parameter.</p>
-                                    
                                 </div>
                             </div>
                         </div>

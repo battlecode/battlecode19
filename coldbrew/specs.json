@@ -75,7 +75,7 @@
             "STARTING_HP": 40,
             "VISION_RADIUS": 36,
             "ATTACK_DAMAGE": 10,
-            "ATTACK_RADIUS": [1,4],
+            "ATTACK_RADIUS": [1,16],
             "ATTACK_FUEL_COST": 10,
             "DAMAGE_SPREAD": 0
         },
@@ -89,7 +89,7 @@
             "STARTING_HP": 20,
             "VISION_RADIUS": 64,
             "ATTACK_DAMAGE": 10,
-            "ATTACK_RADIUS": [4,8],
+            "ATTACK_RADIUS": [16,64],
             "ATTACK_FUEL_COST": 25,
             "DAMAGE_SPREAD": 0
         },
@@ -103,7 +103,7 @@
             "STARTING_HP": 60,
             "VISION_RADIUS": 16,
             "ATTACK_DAMAGE": 20,
-            "ATTACK_RADIUS": [1,4],
+            "ATTACK_RADIUS": [1,16],
             "ATTACK_FUEL_COST": 15,
             "DAMAGE_SPREAD": 3
         }
