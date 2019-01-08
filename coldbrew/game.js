@@ -169,22 +169,24 @@ Game.prototype.makeMap = function() {
     var roll_castle = function() {
         var triangle_ch = ch*(ch+1)/2;
         var y = 0;
-        while (y<5 || y > ch-12) y = ch - Math.floor(0.5*(Math.sqrt(1+8*this.random()*triangle_ch)-1));
+        while (y<3 || y > ch-8) y = ch - Math.floor(0.5*(Math.sqrt(1+8*this.random()*triangle_ch)-1));
         var x = Math.floor(this.random()*cw);
 
         return [x,y]
     }.bind(this);
 
     var castles = [];
+    var counter = 0; // This is for the rare case that a solution doesn't actually exist, to ensure that we terminate.
     for (var i=0; i<num_castles; i++) {
         var coord = roll_castle();
         
         // forgive me christ
-        while (!passmap[coord[1]][coord[0]] || (castles.length > 0 && Math.min.apply(null, castles.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 20)) {
+        while (!passmap[coord[1]][coord[0]] || (castles.length > 0 && Math.min.apply(null, castles.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 16) && counter < 1000) {
             coord = roll_castle();
+            counter += 1;
         }
 
-        castles.push(coord);
+        if (counter < 1000) castles.push(coord);
     }
 
     var roll_resource_seed = _ => [Math.floor(this.random()*cw),Math.floor(this.random()*ch)];
@@ -193,15 +195,17 @@ Game.prototype.makeMap = function() {
     var num_resource_clusters = Math.round(cw*ch*resource_density);
 
     var resources_cluster_seeds = insulate(castles); // Castles must be seeds of resources
+    counter = 0; // This is for the rare case that a solution doesn't actually exist, to ensure that we terminate.
     for (var n=resources_cluster_seeds.length; n<num_resource_clusters; n++) {
         var coord = roll_resource_seed();
 
         // oops i did it again
-        while (!passmap[coord[1]][coord[0]] || Math.min.apply(null, resources_cluster_seeds.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 12) {
+        while (!passmap[coord[1]][coord[0]] || Math.min.apply(null, resources_cluster_seeds.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 12 && counter < 1000) {
             coord = roll_resource_seed();
+            counter += 1;
         }
         
-        resources_cluster_seeds.push(coord);
+        if (counter < 1000) resources_cluster_seeds.push(coord);
     }
 
     // Now that we have the seed locations for the clusters, we'll roll for how many resources we put in (karbonite and fuel separately)
@@ -247,28 +251,27 @@ Game.prototype.makeMap = function() {
 
         // Choose the actual karbonite and fuel locations
         
-        var counter = 0; // This probably isn't necessary -- it's in the (extremely) rare case that a solution doesn't actually exist, to ensure that we terminate.
-
+        counter = 0; // This is for the rare case that a solution doesn't actually exist, to ensure that we terminate.
         for (var k=0; k<num_karbonite; k++) {
             [x,y] = region[Math.floor(this.random()*region.length)];
             
-            while ((c_in([x,y], castles) || c_in([x,y], karbonite_depots) || c_in([x,y], fuel_depots)) && counter < 100000) {
+            while ((c_in([x,y], castles) || c_in([x,y], karbonite_depots) || c_in([x,y], fuel_depots)) && counter < 10000) {
                 [x,y] = region[Math.floor(this.random()*region.length)];
                 counter++;
             }
 
-            if (counter < 100000) karbonite_depots.push([x,y]);
+            if (counter < 10000) karbonite_depots.push([x,y]);
         }
-
+        counter = 0; // This is for the rare case that a solution doesn't actually exist, to ensure that we terminate.
         for (var k=0; k<num_fuel; k++) {
             [x,y] = region[Math.floor(this.random()*region.length)];
             
-            while ((c_in([x,y], castles) || c_in([x,y], karbonite_depots) || c_in([x,y], fuel_depots)) && counter < 100000) {
+            while ((c_in([x,y], castles) || c_in([x,y], karbonite_depots) || c_in([x,y], fuel_depots)) && counter < 10000) {
                 [x,y] = region[Math.floor(this.random()*region.length)];
                 counter++;
             }
 
-            if (counter < 100000) fuel_depots.push([x,y]);
+            if (counter < 10000) fuel_depots.push([x,y]);
         }
 
 
