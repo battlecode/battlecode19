@@ -382,6 +382,7 @@ robot = MyRobot()
                                     <ul>
                                         <li><code>random.randrange</code> does not work</li>
                                         <li>Global variables do not work.</li>
+                                        <li>imports don't work on the online IDE</li>
                                     </ul>
                                 </div>
                             </div>
