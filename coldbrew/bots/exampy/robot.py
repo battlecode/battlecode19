@@ -2,8 +2,9 @@ from battlecode import BCAbstractRobot, SPECS
 import battlecode as bc
 import random
 
-__pragma__('iconv')
-__pragma__('tconv')
+# Only enable these if you really need them.
+#__pragma__('iconv')
+#__pragma__('tconv')
 #__pragma__('opov')
 
 # don't try to use global variables!!

@@ -3,6 +3,13 @@
 const fs = require("fs");
 const axios = require("axios");
 const path = require('path');
+const updateNotifier = require('update-notifier');
+const pkg = require('../package.json');
+
+updateNotifier({
+    pkg,
+    updateCheckInterval:1000*20 // 20 seconds
+}).notify();
 
 var argv = require('yargs')
     .usage('Usage: $0 [options]')
