@@ -1,4 +1,4 @@
-import Game from 'coldbrew/game';
+import Game from 'bc19/game';
 import * as PIXI from "pixi.js";
 
 var CHECKPOINT = 100;

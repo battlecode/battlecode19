@@ -18,6 +18,20 @@ function ActionRecord() {
     this.build_unit = null;
 }
 
+ActionRecord.prototype.isEqual = function(that) {
+    return this.signal === that.signal && 
+           this.signal_radius === that.signal_radius && 
+           this.castle_talk === that.castle_talk &&
+           this.action === that.action &&
+           this.trade_fuel === that.trade_fuel &&
+           this.trade_karbonite === that.trade_karbonite &&
+           this.dx === that.dx &&
+           this.dy === that.dy &&
+           this.give_karbonite === that.give_karbonite &&
+           this.give_fuel === that.give_fuel &&
+           this.build_unit === that.build_unit;
+} 
+
 ActionRecord.prototype.serialize = function() {
     // Behold, the serialization format for ActionRecords.
     //
@@ -258,7 +272,7 @@ ActionRecord.prototype.enactGive = function() {
     this.robot.fuel -= this.give_fuel;    
 }
 
-ActionRecord.prototype.enactMove = function() {
+ActionRecord.prototype.enactMove = function() {    
     var r = (Math.pow(this.dx,2) + Math.pow(this.dy,2));
     this.game.fuel[this.robot.team] -= r*SPECS.UNITS[this.robot.unit]['FUEL_PER_MOVE'];
     

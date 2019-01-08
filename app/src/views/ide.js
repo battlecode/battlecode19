@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Api from '../api';
 
-import Coldbrew from 'coldbrew/runtime';
-import Game from 'coldbrew/game';
-import Compiler from 'coldbrew/compiler';
+import bc19 from 'bc19/runtime';
+import Game from 'bc19/game';
+import Compiler from 'bc19/compiler';
 
 import Visualizer from './visualizer';
 import Slider from 'rc-slider';
@@ -114,7 +114,7 @@ class IDE extends Component {
             this.v = new Visualizer('viewer', this.g.replay, function(turn) {
                 this.setState({turn:turn});
             }.bind(this), 300, 300);
-            this.c = new Coldbrew(this.g, null, function(logs) {}, function(logs) {
+            this.c = new bc19(this.g, null, function(logs) {}, function(logs) {
                 // log receiver
                 this.setState({logs:logs,numTurns:this.v.numTurns(),turn:this.v.turn});
                 this.v.populateCheckpoints();

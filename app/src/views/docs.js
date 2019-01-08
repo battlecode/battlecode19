@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import SPECS from 'coldbrew/specs';
+import SPECS from 'bc19/specs';
 import styled from 'styled-components';
 
 const He = styled.h5`

@@ -229,7 +229,7 @@ Game.prototype.makeMap = function() {
         var queue = []; // Queue-based BFS for finding the region:
         queue.push([x,y]);
 
-        for (var z=0; z<5*total_depot; z++) { // Choose an area 4x larger than necessary for the resource cluster.
+        for (var z=0; z<5*total_depot; z++) { // Choose an area 5x larger than necessary for the resource cluster.
             [x,y] = queue.pop(0);
             region.push([x,y]);
             visited[y][x] = true;
@@ -318,6 +318,8 @@ Game.prototype.makeMap = function() {
             y:all_castles[i][1]
         });
     }
+
+    console.log("MADE MAP");
 
     return to_create;
 }
@@ -707,6 +709,7 @@ Game.prototype.enactTurn = function(record) {
         try {
             this.processAction(robot, action, diff_time, record);
         } catch(e) { this.robotError(e, robot); }
+
     } else record = ActionRecord.FromBytes(record);
 
     try {

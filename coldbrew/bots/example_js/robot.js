@@ -10,7 +10,7 @@ class MyRobot extends BCAbstractRobot {
         if (this.me.unit === SPECS.CRUSADER) {
             // this.log("Crusader health: " + this.me.health);
             const choices = [[0,-1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
-            const choice = choices[Math.floor(Math.random()*choices.length)]
+            const choice = choices[Math.floor(Math.random()*choices.length)];
             return this.move(...choice);
         }
 
