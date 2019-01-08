@@ -21,11 +21,30 @@ class LoginRegister extends Component {
 
   login = () => {
     const { username, password } = this.state;
-    Api.login(username, password, (success) => {
-      if (success) window.location.reload();
-      else this.setState({ error: 'Incorrect email/password.' });
-    });
+    Api.login(username, password, this.callback);
   };
+
+  forgotPassword = () => {
+    window.location.replace('/forgotPassword');
+  }
+
+  callback = (message, success) => {
+    if (success) {
+      window.location.reload();
+    } else {
+      this.setState({
+        error: message,
+      });
+    }
+  }
+
+  formSubmit = (event) => {
+    if (event.key === 'Enter') {
+      const { register } = this.state;
+      if (register) this.register();
+      else this.login();
+    }
+  }
 
   register = () => {
     const {
@@ -47,20 +66,14 @@ class LoginRegister extends Component {
       else if (dob.split('-').length !== 3 || dob.length !== 10) this.setState({ error: 'Must provide DOB in YYYY-MM-DD form.' });
       else if (password.length < 6) this.setState({ error: 'Password must be at least 6 characters.' });
       else {
-        Api.register(email, username, password, first, last, dob, (success) => {
-          if (success) window.location.reload();
-          else {
-            this.setState({
-              error: 'Registration failed.  Maybe account exists?',
-            });
-          }
-        });
+        Api.register(email, username, password, first, last, dob, this.callback);
       }
     } else this.setState({ register: true });
   };
 
   forgot = () => {
-    Api.forgotPassword(this.state.email, (success) => {
+    const { email } = this.state;
+    Api.forgotPassword(email, (success) => {
       if (success) {
         this.setState({
           success: 'An email has been sent if such a user exists.',
@@ -74,9 +87,9 @@ class LoginRegister extends Component {
   };
 
   changeHandler(e) {
-    const id = e.target.id;
+    const { id } = e.target;
     const val = e.target.value;
-    this.setState((prevState, props) => {
+    this.setState((prevState) => {
       prevState[id] = val;
       return prevState;
     });
@@ -203,6 +216,7 @@ class LoginRegister extends Component {
                     id="password"
                     className="form-control"
                     onChange={this.changeHandler}
+                    onKeyPress={this.formSubmit}
                   />
                 </div>
               </div>
@@ -221,6 +235,14 @@ class LoginRegister extends Component {
             >
               Register
             </button>
+            <a
+              type="button"
+              href="/forgotPassword"
+              className="btn btn-secondary btn-block btn-fill"
+            >
+              Forgot Password
+
+            </a>
 
             <div className="clearfix" />
           </div>

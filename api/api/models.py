@@ -23,7 +23,7 @@ def send_email(recipient, subject, content, is_html):
     EmailMultiAlternatives
     if is_html:
         msg.content_subtype = "html"
-    # msg.send()
+    msg.send()
 
 HIGHSCHOOL = 'highschool'
 NEWBIE     = 'newbie'
@@ -195,7 +195,7 @@ def gen_registration_key(sender, instance, raw, update_fields, **kwargs):
         context = {
             'username': instance.username,
             'verification_key': instance.registration_key,
-            'url': ' https://battlecode.org/verify/?=' +
+            'url': ' https://battlecode.org/verify/' +
             instance.registration_key
         }
         content = render_to_string('email/verification.html', context)

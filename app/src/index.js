@@ -16,6 +16,7 @@ import Account from './views/account';
 import ReplayViewer from './views/replay';
 import LoginRegister from './views/login_register';
 import VerifyUser from './views/VerifyUser';
+import ForgotPassword from './views/forgot_password';
 
 import Footer from './footer';
 import NavBar from './navbar';
@@ -42,6 +43,7 @@ class App extends Component {
           <div className="main-panel">
             <NavBar />
             <Switch>
+              <Route path="/forgotPassword" component={ForgotPassword} />
               <Route exact path="/" component={Home} />
               <Route path="/home" component={Home} />
               <Route path="/docs" component={Docs} />
@@ -60,7 +62,14 @@ class App extends Component {
           </div>
         </div>
       );
-    } if (this.state.logged_in === false) return <LoginRegister />;
+    } if (this.state.logged_in === false) {
+      return (
+        <Switch>
+          <Route path="/forgotPassword" component={ForgotPassword} />
+          <Route path="/" component={LoginRegister} />
+        </Switch>
+      );
+    }
     return <div />;
   }
 }

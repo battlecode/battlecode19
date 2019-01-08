@@ -29,6 +29,13 @@ class Api {
     });
   }
 
+  static logout(callback) {
+    Cookies.set('token', '');
+    Cookies.set('refresh', '');
+    callback();
+  }
+
+
   static getUpdates(callback) {
     $.get(`${URL}/api/league/${LEAGUE}/`, (data, success) => {
       for (let i = 0; i < data.updates.length; i++) {
@@ -325,9 +332,9 @@ class Api {
         headers: { Authorization: `Bearer ${Cookies.get('token')}` },
       });
 
-      callback(true);
+      callback(data, true);
     }).fail((xhr, status, error) => {
-      callback(false);
+      callback(xhr, false);
     });
   }
 
@@ -346,13 +353,14 @@ class Api {
     }).done((data, status) => {
       this.login(username, password, callback);
     }).fail((xhr, status, error) => {
-      console.log('WHAT');
-      console.log(error);
+      if (xhr.responseJSON.username) callback(xhr.responseJSON.username, false);
+      else if (xhr.responseJSON.email) callback(xhr.responseJSON.email, false);
+      else { callback('there was an error', false); }
     });
   }
 
   static doResetPassword(password, token, callback) {
-    $.post('{URL}/api/password_rest/confirm/',
+    $.post(`${URL}/api/password_reset/confirm/`,
       {
         password,
         token,
@@ -360,10 +368,10 @@ class Api {
   }
 
   static forgotPassword(email, callback) {
-    $.post('{URL}/api/password_rest/',
+    $.post(`${URL}/api/password_reset/`,
       {
         email,
-      }, (data) => { callback(data); });
+      }, (data, success) => { callback(data, success); });
   }
 
   static pushTeamCode(code, callback) {
