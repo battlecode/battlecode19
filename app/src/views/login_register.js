@@ -15,11 +15,6 @@ class LoginRegister extends Component {
     success: '',
   };
 
-  login = () => {
-    const { username, password } = this.state;
-    Api.login(username, password, this.callback);
-  };
-
   forgotPassword = () => {
     window.location.replace('/forgotPassword');
   }
@@ -35,17 +30,28 @@ class LoginRegister extends Component {
   }
 
   formSubmit = (e) => {
+    console.log("HI!");
     e.preventDefault();
     const { register } = this.state;
     if (register) {
-      this.register();
+      this.submitRegister();
     }
     else {
-      this.login();
+      this.submitLogin();
     } 
   }
 
-  register = () => {
+  startRegister = () => {
+    console.log("HIIII")
+    this.setState({ register: true, error: "" });
+  }
+
+  submitLogin = () => {
+    const { username, password } = this.state;
+    Api.login(username, password, this.callback);
+  };
+
+  submitRegister = () => {
     const {
       username,
       register,
@@ -55,19 +61,17 @@ class LoginRegister extends Component {
       dob,
       password,
     } = this.state;
-    if (register) {
       // ensure that all fields are correct
       if (username.length < 4) this.setState({ error: 'Username must be at least 4 characters.' });
       else if (email.length < 4) this.setState({ error: 'Email must be at least 4 characters.' });
       else if (username.indexOf('.') > -1) this.setState({ error: 'Username must not contain dots.' });
-      else if (first.length < 1) this.setState({ error: 'Must provide first name.' });
-      else if (last.length < 1) this.setState({ error: 'Must provide last name.' });
-      else if (dob.split('-').length !== 3 || dob.length !== 10) this.setState({ error: 'Must provide DOB in YYYY-MM-DD form.' });
+      else if (!first) this.setState({ error: 'Must provide first name.' });
+      else if (!last) this.setState({ error: 'Must provide last name.' });
+      else if (dob.match(/^\d{4}-\d{2}-\d{2}$/g)) this.setState({ error: 'Must provide DOB in YYYY-MM-DD form.' });
       else if (password.length < 6) this.setState({ error: 'Password must be at least 6 characters.' });
       else {
         Api.register(email, username, password, first, last, dob, this.callback);
       }
-    } else this.setState({ register: true, error: "" });
   };
 
   changeHandler = (e) => {
@@ -90,7 +94,7 @@ class LoginRegister extends Component {
           fontSize: '1.1em',
         }}
       >
-        <b>Error.</b>
+        <b>Error. </b>
         {error}
       </div>
     );
@@ -111,6 +115,37 @@ class LoginRegister extends Component {
         {success}
       </div>
     );
+
+    let buttons = null;
+    if (register) {
+      buttons = (
+        <button
+          type="submit"
+          value= "submit"
+          className="btn btn-primary btn-block btn-fill"
+        >
+          Register
+        </button>
+      );
+    } else {
+      buttons = (
+        <div>
+          <button
+            type="submit"
+            value="submit"
+            className="btn btn-success btn-block btn-fill"
+          >
+            Login
+          </button>
+          <button
+            onClick={this.startRegister}
+            className="btn btn-primary btn-block btn-fill"
+          >
+            Register
+          </button>
+        </div>
+      );
+    }
 
     return (
       <div
@@ -205,30 +240,13 @@ class LoginRegister extends Component {
                   </div>
                 </div>
               </div>
-              {!register && (
-                <button
-                  type="submit"
-                  value="submit"
-                  className="btn btn-success btn-block btn-fill"
-                >
-                  Login
-                </button>)
-              }
-              <button
-                type= {register ? "submit" : "button"}
-                value= {register && "submit"}
-                onClick={this.register}
-                className="btn btn-primary btn-block btn-fill"
-              >
-                Register
-              </button>
+              {buttons}
+              <br/>
               <a
-                type="button"
                 href="/forgotPassword"
                 className="btn btn-secondary btn-block btn-fill"
               >
                 Forgot Password
-
               </a>
 
               <div className="clearfix" />
