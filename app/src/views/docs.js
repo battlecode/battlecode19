@@ -142,7 +142,7 @@ class Docs extends Component {
                                     <p>Robots have knowledge of the full map at the beginning of the game (including resource depots), and can only see robots within their vision radius.</p>
                                     <He>Units Overview</He>
                                     <p>Unlike last year’s Battlecode game, each unit is controlled by its own process.  Each unit is initialized with a { SPECS.CHESS_INITIAL }ms chess clock, and receives { SPECS.CHESS_EXTRA }ms of additional computation each round.  When a unit is spawned, it is assigned a unique 32 bit integer ID, and always occupies a single tile. When the health of a unit is reduced to 0, the unit is immediately removed from the game.</p>
-                                    <p>There are two types of units: robots and structures. Robots are mobile units that fight, move to adjacent squares, build factories, carry resources, or mine fuel and karbonite from the map. There are two types of structures: Castles and Churches.  Castles are immovable versions of Churches that cannot be created and carry special abilities.  Churches produce robots, and provide a depot for Pilgrims to deposit resources into the global economy.</p>
+                                    <p>There are two types of units: robots and structures. Robots are mobile units that fight, move to adjacent squares, build factories, carry resources, or mine fuel and karbonite from the map. There are two types of structures: Castles and Churches.  Castles are like Churches that cannot be created and carry special abilities.  Churches produce robots, and provide a depot for Pilgrims to deposit resources into the global economy.</p>
                                     <Hee>Castles</Hee>
                                     <p>Each team starts with 1-3 castles on the map, each with initial health { SPECS.UNITS[SPECS.CASTLE].STARTING_HP } and vision radius { SPECS.UNITS[SPECS.CASTLE].VISION_RADIUS}.  Castles have all the abilities of Churches, but cannot be built, and have greater health.  Castles also have unique communication abilities; not only can all units send messages to Castles for free (discussed in the Communication section), but Castles can also trade Karbonite and Fuel with opposing team castles.</p>
                                     <p>Each turn, a castle can offer a Barter to a castle of the opposing team.  Barters are offers to trade X Karbonite for Y Fuel (or vice versa).  Players can use this functionality to collaborate with the opposing team for mutual benefit.</p>
@@ -177,7 +177,7 @@ class Docs extends Component {
                                     <ol>
                                         <li>Install npm </li>
                                         <li><code>npm install -g bc19</code></li>
-                                        <li>Run or compile your code using <code>bc19run</code> or <code>bc19compile</code>. Example (using the <a href="https://github.com/npfoss/examplefuncsplayer"> examplefuncsplayer </a>): <code>bc19run -b exampy -r example_js --chi 1000</code>.</li>
+                                        <li>Run or compile your code using <code>bc19run</code> or <code>bc19compile</code>. Example (using the <a href="https://github.com/npfoss/examplefuncsplayer"> examplefuncsplayer </a>): <code>bc19run -b bots/exampy -r bots/example_js --chi 1000</code>.</li>
                                         <li>Upload compiled code using <code>bc19upload</code>.  Make sure you've defined environment variables <code>BC_USERNAME</code> and <code>BC_PASSWORD</code>, which should be the credentials you use to access this site.</li>
                                     </ol>
                                 </div>
@@ -266,7 +266,7 @@ var robot = new MyRobot();`}</pre>
                                     <hr /><h6>Helper Methods</h6><hr />
                                     <ul>
                                         <li><code>this.log(message)</code>: Print a message to the command line.  You cannot use ordinary <code>console.log</code> in Battlecode for security reasons.</li>
-                                        <li><code>this.getVisibleRobots()</code>: Returns a list containing all robots within <code>this.me</code>'s vision radius. For castles, robots of the same team not within the vision radius will also be included, to be able to read the <code>castle_talk</code> property. </li>
+                                        <li><code>this.getVisibleRobots()</code>: Returns a list containing all robots within <code>this.me</code>'s vision radius and all robots whose radio broadcasts can be heard (accessed via <code>other_r.signal</code>). For castles, robots of the same team not within the vision radius will also be included, to be able to read the <code>castle_talk</code> property. </li>
                                         <li><code>this.getVisibleRobotMap()</code>: Returns a 2d grid of integers the size of <code>this.map</code>. All tiles outside <code>this.me</code>'s vision radius will contain <code>-1</code>. All tiles within the vision will be <code>0</code> if empty, and will be a robot id if it contains a robot. </li>
                                         <li><code>this.getRobot(id)</code>: Returns a robot object with the given integer <code>id</code>.  Returns <code>null</code> if such a robot is not in your vision (for Castles, it also returns a robot object for all robots on <code>this.me</code>'s team that are not in the robot's vision, to access <code>castle_talk</code>).</li>
                                         <li><code>this.isVisible(robot)</code>: Returns <code>true</code> if the given robot object is visible.</li>
@@ -369,7 +369,7 @@ robot = MyRobot()
                                     <hr /><h6>Helper Methods</h6><hr />
                                     <ul>
                                         <li><code>self.log(message)</code>: Print a message to the command line.  You cannot use ordinary <code>print</code> in Battlecode for security reasons.</li>
-                                        <li><code>self.get_visible_robots()</code>: Returns a list containing all robots within <code>self.me</code>'s vision radius. For castles, robots of the same team not within the vision radius will also be included, to be able to read the <code>castle_talk</code> property. </li>
+                                        <li><code>self.get_visible_robots()</code>: Returns a list containing all robots within <code>self.me</code>'s vision radius and all robots whose radio broadcasts can be heard (accessed via <code>other_r.signal</code>). For castles, robots of the same team not within the vision radius will also be included, to be able to read the <code>castle_talk</code> property. </li>
                                         <li><code>self.get_visible_robot_map()</code>: Returns a 2d grid of integers the size of <code>self.map</code>. All tiles outside <code>self.me</code>'s vision radius will contain <code>-1</code>. All tiles within the vision will be <code>0</code> if empty, and will be a robot id if it contains a robot. </li>
                                         <li><code>self.get_robot(id)</code>: Returns a robot object with the given integer <code>id</code>.  Returns <code>None</code> if such a robot is not in your vision (for Castles, it also returns a robot object for all robots on <code>self.me</code>'s team that are not in the robot's vision, to access <code>castle_talk</code>).</li>
                                         <li><code>self.is_visible(robot)</code>: Returns <code>True</code> if the given robot object is visible.</li>
@@ -377,7 +377,6 @@ robot = MyRobot()
                                         <li><code>self.get_passable_map()</code>: Returns <code>self.map</code>. </li>
                                         <li><code>self.get_karbonite_map()</code>: Returns <code>self.karbonite_map</code>. </li>
                                         <li><code>self.get_fuel_map()</code>: Returns <code>self.fuel_map</code>. </li>
-
                                     </ul>
                                     <hr /><h6>Known Bugs</h6><hr />
                                     <ul>
@@ -455,7 +454,7 @@ public class MyRobot extends BCAbstractRobot {
                                     <hr /><h6>Helper Methods</h6><hr />
                                     <ul>
                                         <li><code>void log(String message)</code>: Print a message to the command line.  You cannot use ordinary <code>System.out.print</code> in Battlecode for security reasons.</li>
-                                        <li><code>Robot[] getVisibleRobots()</code>: Returns a list containing all robots within <code>me</code>'s vision radius. For castles, robots of the same team not within the vision radius will also be included, to be able to read the <code>castle_talk</code> property. </li>
+                                        <li><code>Robot[] getVisibleRobots()</code>: Returns a list containing all robots within <code>me</code>'s vision radius and all robots whose radio broadcasts can be heard (accessed via <code>other_r.signal</code>). For castles, robots of the same team not within the vision radius will also be included, to be able to read the <code>castle_talk</code> property. </li>
                                         <li><code>int[][] getVisibleRobotMap()</code>: Returns a 2d grid of integers the size of <code>map</code>. All tiles outside <code>me</code>'s vision radius will contain <code>-1</code>. All tiles within the vision will be <code>0</code> if empty, and will be a robot id if it contains a robot. </li>
                                         <li><code>Robot getRobot(id)</code>: Returns a robot object with the given integer <code>id</code>.  Returns <code>null</code> if such a robot is not in your vision (for Castles, it also returns a robot object for all robots on <code>me</code>'s team that are not in the robot's vision, to access <code>castle_talk</code>).</li>
                                         <li><code>boolean isVisible(Robot robot)</code>: Returns <code>true</code> if the given robot object is visible.</li>
