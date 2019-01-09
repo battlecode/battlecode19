@@ -61,102 +61,179 @@ class Visualizer {
     }
 
     initViewer() {
-        this.active_x = -1;
-        this.active_y = -1;
-        this.active_id = 0;
-
         this.grid_width = this.height;
         this.grid_height = this.height;
         this.graph_width = this.width - this.grid_width;
         this.graph_height = this.height*.8;
+        this.MAP_WIDTH = this.game.map[0].length;
+        this.MAP_HEIGHT = this.game.map.length;
+
+        // Figure out how to convert between local and screen coordinates
+        this.calculated_offset = false;
+        this.pixi_x_offset = 0;
+        this.pixi_y_offset = 0;
+
+        this.active_id = 0;
+        this.active_x = -1;
+        this.active_y = -1;
+        this.mouse_x = -1;
+        this.mouse_y = -1;
+
+        this.x1 = 0;
+        this.y1 = 0;
+        this.x2 = this.MAP_WIDTH;
+        this.y2 = this.MAP_HEIGHT;
  
         this.stage = new PIXI.Container();
         this.stage.interactive = true;
 
         this.strategic = false; // By default, don't use strategic view.
- 
+
         this.stage.click = function(e) {
             var point = e.data.getLocalPosition(this.stage);
-            this.active_x =  Math.floor(this.MAP_WIDTH * point.x / this.grid_width);
-            this.active_y = Math.floor(this.MAP_HEIGHT * point.y / this.grid_height);
+            this.active_x = Math.floor(this.x1 + (this.x2-this.x1) * point.x / this.grid_width);
+            this.active_y = Math.floor(this.y1 + (this.y2-this.y1) * point.y / this.grid_height);
         }.bind(this);
+
+        this.stage.mousemove = function(e) {
+            var point = e.data.getLocalPosition(this.stage);
+            this.mouse_x = this.x1 + (this.x2-this.x1) * point.x / this.grid_width;
+            this.mouse_y = this.y1 + (this.y2-this.y1) * point.y / this.grid_height;
+            if (!this.calculated_offset) {
+                this.pixi_x_offset = -point.x;
+                this.pixi_y_offset = -point.y;
+            }
+        }.bind(this);
+
+        document.addEventListener('mousemove', function(event) {
+            if (!this.calculated_offset && this.pixi_x_offset !== 0) { // pixi has registered something, go!
+                this.pixi_x_offset += event.clientX;
+                this.pixi_y_offset += event.clientY;
+                this.calculated_offset = true;
+            }
+        }.bind(this));
+
+        document.addEventListener('wheel', function(event) {
+            var p_x = event.clientX-this.pixi_x_offset, p_y = event.clientY-this.pixi_y_offset
+            if (this.calculated_offset && p_x >= 0 && p_x <= this.grid_width && p_y >= 0 && p_y <= this.grid_height) {
+                // Nice-ify event
+                const WHEEL_MOVE = event.wheelDelta / 120;
+                const ZOOM = Math.pow(3/4, WHEEL_MOVE);
+                
+                // Calculate new bounds
+                const OLD_WIDTH = this.x2-this.x1, OLD_HEIGHT = this.y2-this.y1;
+                const NEW_WIDTH = Math.min(this.MAP_WIDTH, Math.max(8, ZOOM*OLD_WIDTH)), NEW_HEIGHT = Math.min(this.MAP_HEIGHT, Math.max(8, ZOOM*OLD_HEIGHT));
+                const ZOOM_X = NEW_WIDTH / OLD_WIDTH, ZOOM_Y = NEW_HEIGHT / OLD_HEIGHT;
+                // Keep tile of focus right where it is.
+                this.x1 = this.mouse_x - (this.mouse_x-this.x1)*ZOOM_X;
+                this.y1 = this.mouse_y - (this.mouse_y-this.y1)*ZOOM_Y;
+                this.x2 = this.mouse_x + (this.x2-this.mouse_x)*ZOOM_X;
+                this.y2 = this.mouse_y + (this.y2-this.mouse_y)*ZOOM_Y;
+                
+                // Correct horizontal bounds.
+                if(this.x1 < 0) {
+                    this.x2 -= this.x1;
+                    this.x1 = 0;
+                }
+                else if(this.x2 > this.MAP_WIDTH) {
+                    this.x1 -= this.x2-this.MAP_WIDTH;
+                    this.x2 = this.MAP_WIDTH;
+                }
+                
+                // Correct vertical bounds
+                if(this.y1 < 0) {
+                    this.y2 -= this.y1;
+                    this.y1 = 0;
+                }
+                else if(this.y2 > this.MAP_HEIGHT) {
+                    this.y1 -= this.y2-this.MAP_HEIGHT;
+                    this.y2 = this.MAP_HEIGHT;
+                }
+            }
+        }.bind(this));
 
         document.onkeypress = function(k) {
             if (k.keyCode === 96) {// `
                 this.strategic = !this.strategic;
             }
+            if (k.keyCode === 97) {// `
+                this.x1++;
+            }
+            if (k.keyCode === 119) {// `
+                this.y1++;
+            }
+            if (k.keyCode === 100) {// `
+                this.x2--;
+            }
+            if (k.keyCode === 115) {// `
+                this.y2--;
+            }
+            console.log(k);
+            console.log(this.x1, this.x2, this.y1, this.y2);
         }.bind(this);
 
-        this.mapGraphics = new PIXI.Graphics();
-        this.stage.addChild(this.mapGraphics);
+        var mapGraphics = new PIXI.Graphics();
 
         this.graphGraphics = new PIXI.Graphics();
         this.stage.addChild(this.graphGraphics);
 
-        this.spritestage = new PIXI.Container();
-        this.stage.addChild(this.spritestage);
- 
         this.renderer = PIXI.autoDetectRenderer(0, 0, { backgroundColor: 0x222222, antialias: true, transparent: false });
         this.renderer.resize(this.width, this.height);
-   
+
         // Clear container before draw
         this.container.innerHTML = '';
         this.container.append(this.renderer.view);
 
-        var BLANK = '0x444444',
-            OBSTACLE = '0xFFFFFF',//'0x111111',
-            KARBONITE = '0x22BB22',
-            FUEL = '0xFFFF00';
+        this.BLANK = '0x444444';
+        this.OBSTACLE = '0xFFFFFF';
+        this.KARBONITE = '0x22BB22';
+        this.FUEL = '0xFFFF00';
    
-        this.MAP_WIDTH = this.game.map[0].length;
-        this.MAP_HEIGHT = this.game.map.length;
         var draw_width = this.grid_width / this.MAP_WIDTH;
         var draw_height = this.grid_height / this.MAP_HEIGHT;
-        this.mapGraphics.beginFill(BLANK);
-        this.mapGraphics.drawRect(0, 0, this.grid_width, this.grid_height);
-        this.mapGraphics.endFill();
+        mapGraphics.beginFill(this.BLANK);
+        mapGraphics.drawRect(0, 0, this.grid_width, this.grid_height);
+        mapGraphics.endFill();
         for (let y = 0; y < this.MAP_HEIGHT; y++) for (let x = 0; x < this.MAP_WIDTH; x++) {
             if (!this.game.map[y][x] || this.game.karbonite_map[y][x] || this.game.fuel_map[y][x]) {
-                var color = this.game.karbonite_map[y][x] ? KARBONITE : this.game.fuel_map[y][x] ? FUEL : OBSTACLE;
-                this.mapGraphics.beginFill(color);
+                var color = this.game.karbonite_map[y][x] ? this.KARBONITE : this.game.fuel_map[y][x] ? this.FUEL : this.OBSTACLE;
+                mapGraphics.beginFill(color);
                 if (this.game.karbonite_map[y][x] || this.game.fuel_map[y][x]) {
                     const SIZE_FACTOR = 0.6;
                     const BORDER = (1 - SIZE_FACTOR) / 2;
-                    this.mapGraphics.drawRect((x+BORDER)*draw_width, (y+BORDER)*draw_height, SIZE_FACTOR*draw_width, SIZE_FACTOR*draw_height);
+                    mapGraphics.drawRect((x+BORDER)*draw_width, (y+BORDER)*draw_height, SIZE_FACTOR*draw_width, SIZE_FACTOR*draw_height);
                 }
-                else this.mapGraphics.drawRect(x*draw_width, y*draw_height, draw_width, draw_height);
-                this.mapGraphics.endFill();
+                else mapGraphics.drawRect(x*draw_width, y*draw_height, draw_width, draw_height);
+                mapGraphics.endFill();
             }
         }
 
         // Gridlines
-        this.mapGraphics.lineStyle(1, '0xFFFFFF');
+        mapGraphics.lineStyle(1, '0xFFFFFF');
         for(var y = 0; y <= this.MAP_HEIGHT; y++) {
-            this.mapGraphics.moveTo(0, y*draw_height);
-            this.mapGraphics.lineTo(this.grid_width, y*draw_height);
+            mapGraphics.moveTo(0, y*draw_height);
+            mapGraphics.lineTo(this.grid_width, y*draw_height);
         }
         for(var x = 0; x <= this.MAP_WIDTH; x++){
-            this.mapGraphics.moveTo(x*draw_width, 0);
-            this.mapGraphics.lineTo(x*draw_width, this.grid_height);
+            mapGraphics.moveTo(x*draw_width, 0);
+            mapGraphics.lineTo(x*draw_width, this.grid_height);
         }
 
-        // Indicate karbonite vs fuel sections of graphs
-        this.mapGraphics.lineStyle(0);
-        this.IND_G_WIDTH = this.graph_width*.8 / 2;
-        this.LR_BORDER = (this.graph_width - 2*this.IND_G_WIDTH) / 3;
-        this.T_BORDER_HEIGHT = this.graph_height * 0.14;
-        this.KF_BORDER_HEIGHT = this.graph_height * 0.05;
-        this.B_BORDER_HEIGHT = this.graph_height * 0.1;
-        this.IND_G_HEIGHT = this.graph_height - (2*this.KF_BORDER_HEIGHT+this.T_BORDER_HEIGHT+this.B_BORDER_HEIGHT);
-        this.mapGraphics.beginFill(KARBONITE);
-        this.mapGraphics.drawRect(this.grid_width+this.LR_BORDER, this.T_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
-        this.mapGraphics.drawRect(this.grid_width+this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT-this.KF_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
-        this.mapGraphics.endFill();
-        this.mapGraphics.beginFill(FUEL);
-        this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.T_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
-        this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT-this.KF_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
-        this.mapGraphics.endFill();
-   
+        PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+        var map_texture = PIXI.RenderTexture.create(this.height, this.height);
+        this.renderer.render(mapGraphics, map_texture);
+        this.map = new PIXI.Sprite(map_texture);
+        this.grid_mask = new PIXI.Graphics();
+        this.grid_mask.beginFill(0xFF0000);
+        this.grid_mask.drawRect(0, 0, this.grid_width, this.grid_height);
+        this.grid_mask.endFill();
+        this.map.mask = this.grid_mask;
+        this.stage.addChild(this.map);
+
+        // Sprites!
+        this.spritestage = new PIXI.Container();
+        this.stage.addChild(this.spritestage);
+
         // Initialize normal textures
         this.textures = new Array(6);
         this.textures[0] = PIXI.Texture.from('assets/img/castle.png');
@@ -172,6 +249,7 @@ class Visualizer {
             var sprite = new PIXI.Sprite(this.textures[0]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
             sprite.visible = false;
+            sprite.mask = this.grid_mask;
             this.spritestage.addChild(sprite);
             this.sprite_pools[0].push(sprite);
         }
@@ -179,6 +257,7 @@ class Visualizer {
             sprite = new PIXI.Sprite(this.textures[i]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
             sprite.visible = false;
+            sprite.mask = this.grid_mask;
             this.spritestage.addChild(sprite);
             this.sprite_pools[i].push(sprite);
         }
@@ -196,6 +275,7 @@ class Visualizer {
         for (let i = 0; i < 6; i++) { // Castles
             var sprite = new PIXI.Sprite(this.strategic_textures[0]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
+            sprite.mask = this.grid_mask;
             sprite.visible = false;
             this.spritestage.addChild(sprite);
             this.strategic_sprite_pools[0].push(sprite);
@@ -204,51 +284,82 @@ class Visualizer {
         for (let i = 1; i < 6; i++) for (let j = 0; j < 1000; j++) { // Other
             sprite = new PIXI.Sprite(this.textures[i]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
+            sprite.mask = this.grid_mask;
             sprite.visible = false;
             this.spritestage.addChild(sprite);
             this.strategic_sprite_pools[i].push(sprite);
         }
 
+        // Borders and such for the graphs
+        this.IND_G_WIDTH = this.graph_width*.8 / 2;
+        this.LR_BORDER = (this.graph_width - 2*this.IND_G_WIDTH) / 3;
+        this.T_BORDER_HEIGHT = this.graph_height * 0.14;
+        this.KF_BORDER_HEIGHT = this.graph_height * 0.05;
+        this.B_BORDER_HEIGHT = this.graph_height * 0.1;
+        this.IND_G_HEIGHT = this.graph_height - (2*this.KF_BORDER_HEIGHT+this.T_BORDER_HEIGHT+this.B_BORDER_HEIGHT);
+
         // Deal with text
+        this.textstage = new PIXI.Container();
+        this.stage.addChild(this.textstage);
+   
         this.red_karbtext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 20, fill: '0xFF0000' });
         this.red_karbtext.position = new PIXI.Point(this.grid_width+this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT+5);
-        this.stage.addChild(this.red_karbtext);
+        this.textstage.addChild(this.red_karbtext);
         this.blue_karbtext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 20, fill: '0x0000FF' });
         this.blue_karbtext.position = new PIXI.Point(this.grid_width+this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT/2);
-        this.stage.addChild(this.blue_karbtext);
+        this.textstage.addChild(this.blue_karbtext);
         this.red_fueltext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 20, fill: '0xFF0000' });
         this.red_fueltext.position = new PIXI.Point(this.grid_width+2*this.LR_BORDER+this.IND_G_WIDTH, this.graph_height-this.B_BORDER_HEIGHT+5);
-        this.stage.addChild(this.red_fueltext);
+        this.textstage.addChild(this.red_fueltext);
         this.blue_fueltext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 20, fill: '0x0000FF' });
         this.blue_fueltext.position = new PIXI.Point(this.grid_width+2*this.LR_BORDER+this.IND_G_WIDTH, this.graph_height-this.B_BORDER_HEIGHT/2);
-        this.stage.addChild(this.blue_fueltext);
+        this.textstage.addChild(this.blue_fueltext);
 
         this.roundtext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 12, fill: '0xFFFFFF' });
         this.roundtext.position = new PIXI.Point(this.grid_width+10, 10);
-        this.stage.addChild(this.roundtext);
+        this.textstage.addChild(this.roundtext);
         this.infotext = new PIXI.Text('Click somewhere for information!', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 12, fill: '0xFFFFFF',  wordWrap: true, wordWrapWidth: this.graph_width });
         this.infotext.position = new PIXI.Point(this.grid_width+10, this.graph_height);
-        this.stage.addChild(this.infotext);
+        this.textstage.addChild(this.infotext);
     }
 
     draw() { // for later perhaps making strategic view
 
-        console.log('in draw s: '+this.strategic);
-        console.log('in draw v: '+this.val);
         var spritepools = this.strategic ? this.strategic_sprite_pools : this.sprite_pools;
 
-        var draw_width = this.grid_width / this.MAP_WIDTH;
-        var draw_height = this.grid_height / this.MAP_HEIGHT;
+        // where to put the map sprite
+        const VIEW_WIDTH = this.x2-this.x1,
+            VIEW_HEIGHT = this.y2-this.y1;
+
+        var draw_width = this.grid_width / VIEW_WIDTH;
+        var draw_height = this.grid_height / VIEW_HEIGHT;
+
+        this.map.width = this.grid_width*this.MAP_WIDTH/VIEW_WIDTH;
+        this.map.height = this.grid_height*this.MAP_HEIGHT/VIEW_HEIGHT;
+
+        this.map.x = -this.grid_width * this.x1 / VIEW_WIDTH;
+        this.map.y = -this.grid_height * this.y1 / VIEW_HEIGHT;
 
         // Draw graphs
-        // First, figure out scaling for the graphs.
+        this.graphGraphics.clear();
+
+        // Indicate karbonite vs fuel sections of graphs
+        this.graphGraphics.lineStyle(0);
+        this.graphGraphics.beginFill(this.KARBONITE);
+        this.graphGraphics.drawRect(this.grid_width+this.LR_BORDER, this.T_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
+        this.graphGraphics.drawRect(this.grid_width+this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT-this.KF_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
+        this.graphGraphics.endFill();
+        this.graphGraphics.beginFill(this.FUEL);
+        this.graphGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.T_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
+        this.graphGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT-this.KF_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
+        this.graphGraphics.endFill();
+        // Figure out scaling for the graphs.
         const KARB_LINE = 20;
         const FUEL_LINE = 100;
         var MAX_KARB = Math.ceil(Math.max(5, this.game.karbonite[0]/KARB_LINE, this.game.karbonite[1]/KARB_LINE));
         var MAX_FUEL = Math.ceil(Math.max(5, this.game.fuel[0]/FUEL_LINE, this.game.fuel[1]/FUEL_LINE));
         // Then, draw! I'm so sorry this is so disgusting. We do, in order, red karb, red fuel, blue karb, and blue fuel.
         // This puts those in the right places.
-        this.graphGraphics.clear();
         this.graphGraphics.beginFill('0xFF0000');
         this.graphGraphics.drawRect(this.grid_width+this.LR_BORDER,
             this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.karbonite[0]/MAX_KARB/KARB_LINE),
@@ -292,9 +403,11 @@ class Visualizer {
 
         // Handle click and infotext
         if (this.active_x !== -1) {
+            console.log('got here');
             this.infotext.text = "Clicked (" + this.active_x + ", " + this.active_y + ")\n";
 
             // Find robot using x, y
+            console.log(this.game.shadow, this.active_y, this.active_x);
             this.active_id = this.game.shadow[this.active_y][this.active_x];
 
             if (this.active_id === 0) {
@@ -336,26 +449,18 @@ class Visualizer {
                 s.visible = true;
                 s.width = draw_width;
                 s.height = draw_height;
-                s.position = new PIXI.Point(draw_width*(robot.x+.5), draw_height*(robot.y+.5));
+                s.position = new PIXI.Point(draw_width*(robot.x-this.x1+.5), draw_height*(robot.y-this.y1+.5));
                 s.tint = robot.team === 0 ? 0xFF0000 : 0x0000FF;
                 counter++;
             }
         }
-
-        
        
         this.renderer.render(this.stage);
-
-        // Remove text
-        //this.stage.removeChild(red_karbtext);
-        //this.stage.removeChild(blue_karbtext);
-        //this.stage.removeChild(red_fueltext);
-        //this.stage.removeChild(blue_fueltext);
        
         // Reset all sprite pools to be invisible
         for (let i = 0; i < 6; i++) spritepools[0][i].visible = false; // Castles
         for (let i = 1; i < 6; i++) for (let j = 0; j < spritepools[i].length && this.sprite_pools[i][j].visible; j++) spritepools[i][j].visible = false; // Other
-       
+        
         requestAnimationFrame(function() {
             setTimeout(this.draw.bind(this),50);
         }.bind(this));
