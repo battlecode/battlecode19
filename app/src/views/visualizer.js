@@ -72,11 +72,19 @@ class Visualizer {
  
         this.stage = new PIXI.Container();
         this.stage.interactive = true;
+
+        this.strategic = false; // By default, don't use strategic view.
  
         this.stage.click = function(e) {
             var point = e.data.getLocalPosition(this.stage);
             this.active_x =  Math.floor(this.MAP_WIDTH * point.x / this.grid_width);
             this.active_y = Math.floor(this.MAP_HEIGHT * point.y / this.grid_height);
+        }.bind(this);
+
+        document.onkeypress = function(k) {
+            if (k.keyCode === 96) {// `
+                this.strategic = !this.strategic;
+            }
         }.bind(this);
 
         this.mapGraphics = new PIXI.Graphics();
@@ -149,7 +157,7 @@ class Visualizer {
         this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT-this.KF_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
         this.mapGraphics.endFill();
    
-        // Initialize textures
+        // Initialize normal textures
         this.textures = new Array(6);
         this.textures[0] = PIXI.Texture.from('assets/img/castle.png');
         this.textures[1] = PIXI.Texture.from('assets/img/church.png');
@@ -157,11 +165,9 @@ class Visualizer {
         this.textures[3] = PIXI.Texture.from('assets/img/crusader.png');
         this.textures[4] = PIXI.Texture.from('assets/img/prophet.png');
         this.textures[5] = PIXI.Texture.from('assets/img/preacher.png');
-   
-        // Create large pools of castles, churches, and crusaders
+        // Create large pools of sprites from which to draw
         this.sprite_pools = new Array(6);
         for (let i = 0; i < 6; i++) this.sprite_pools[i] = [];
-        
         for (let i = 0; i < 6; i++) { // Castles
             var sprite = new PIXI.Sprite(this.textures[0]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
@@ -169,13 +175,38 @@ class Visualizer {
             this.spritestage.addChild(sprite);
             this.sprite_pools[0].push(sprite);
         }
-        
-        for (let i = 1; i < 6; i++) for (let j = 0; j < 200; j++) { // Other
+        for (let i = 1; i < 6; i++) for (let j = 0; j < 1000; j++) { // Other
             sprite = new PIXI.Sprite(this.textures[i]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
             sprite.visible = false;
             this.spritestage.addChild(sprite);
             this.sprite_pools[i].push(sprite);
+        }
+        // Initialize strategic textures
+        this.strategic_textures = new Array(6);
+        this.strategic_textures[0] = PIXI.Texture.from('assets/img/s_castle.png');
+        this.strategic_textures[1] = PIXI.Texture.from('assets/img/s_church.png');
+        this.strategic_textures[2] = PIXI.Texture.from('assets/img/s_pilgrim.png');
+        this.strategic_textures[3] = PIXI.Texture.from('assets/img/s_crusader.png');
+        this.strategic_textures[4] = PIXI.Texture.from('assets/img/s_prophet.png');
+        this.strategic_textures[5] = PIXI.Texture.from('assets/img/s_preacher.png');
+        // Create large pools of strategic sprites from which to draw
+        this.strategic_sprite_pools = new Array(6);
+        for (let i = 0; i < 6; i++) this.strategic_sprite_pools[i] = [];
+        for (let i = 0; i < 6; i++) { // Castles
+            var sprite = new PIXI.Sprite(this.strategic_textures[0]);
+            sprite.anchor = new PIXI.Point(0.5, 0.5);
+            sprite.visible = false;
+            this.spritestage.addChild(sprite);
+            this.strategic_sprite_pools[0].push(sprite);
+        }
+        
+        for (let i = 1; i < 6; i++) for (let j = 0; j < 1000; j++) { // Other
+            sprite = new PIXI.Sprite(this.textures[i]);
+            sprite.anchor = new PIXI.Point(0.5, 0.5);
+            sprite.visible = false;
+            this.spritestage.addChild(sprite);
+            this.strategic_sprite_pools[i].push(sprite);
         }
 
         // Deal with text
@@ -200,7 +231,11 @@ class Visualizer {
         this.stage.addChild(this.infotext);
     }
 
-    draw(strategic=false) { // for later perhaps making strategic view
+    draw() { // for later perhaps making strategic view
+
+        console.log('in draw s: '+this.strategic);
+        console.log('in draw v: '+this.val);
+        var spritepools = this.strategic ? this.strategic_sprite_pools : this.sprite_pools;
 
         var draw_width = this.grid_width / this.MAP_WIDTH;
         var draw_height = this.grid_height / this.MAP_HEIGHT;
@@ -297,7 +332,7 @@ class Visualizer {
             var counter = 0;
             for (let j = 0; j < units[i].length; j++) {
                 let robot = units[i][j];
-                let s = this.sprite_pools[i][counter];
+                let s = spritepools[i][counter];
                 s.visible = true;
                 s.width = draw_width;
                 s.height = draw_height;
@@ -318,8 +353,8 @@ class Visualizer {
         //this.stage.removeChild(blue_fueltext);
        
         // Reset all sprite pools to be invisible
-        for (let i = 0; i < 6; i++) this.sprite_pools[0][i].visible = false; // Castles
-        for (let i = 1; i < 6; i++) for (let j = 0; j < this.sprite_pools[i].length && this.sprite_pools[i][j].visible; j++) this.sprite_pools[i][j].visible = false; // Other
+        for (let i = 0; i < 6; i++) spritepools[0][i].visible = false; // Castles
+        for (let i = 1; i < 6; i++) for (let j = 0; j < spritepools[i].length && this.sprite_pools[i][j].visible; j++) spritepools[i][j].visible = false; // Other
        
         requestAnimationFrame(function() {
             setTimeout(this.draw.bind(this),50);
