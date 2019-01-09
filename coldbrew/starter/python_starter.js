@@ -97,7 +97,7 @@ class BCAbstractRobot:
         self.fuel -= radius
 
     def castle_talk(self, value):
-        if value < 0 or value >= SPECS['CASTLE_TALK_BITS']**2:
+        if value < 0 or value >= 2**SPECS['CASTLE_TALK_BITS']:
             raise Exception('Invalid castle talk, must be between 0 and 2^8.')
 
         self._bc_castle_talk = value
