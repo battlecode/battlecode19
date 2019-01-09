@@ -42,17 +42,7 @@ class Visualizer {
         this.width = width;
         this.height = height;
 
-        this.papa_container = document.getElementById(div);
-        this.papa_container.innerHTML = "";
-        this.container = document.createElement("div");
-        this.robotInfo = document.createElement("div");
-        this.papa_container.appendChild(this.container);
-        this.papa_container.appendChild(this.robotInfo);
-
-        this.papa_container.style.display = 'flex';
-        this.container.style.flex = '0 0';
-        this.robotInfo.style.flex = '1';
-        this.robotInfo.style.marginLeft = '5px';
+        this.container = document.getElementById(div);
 
         this.populateCheckpoints();
         this.initViewer();
@@ -113,11 +103,12 @@ class Visualizer {
             }
         }.bind(this));
 
-        document.addEventListener('wheel', function(event) {
+        this.container.addEventListener('wheel', function(event) {
             var p_x = event.clientX-this.pixi_x_offset, p_y = event.clientY-this.pixi_y_offset
             if (this.calculated_offset && p_x >= 0 && p_x <= this.grid_width && p_y >= 0 && p_y <= this.grid_height) {
                 // Nice-ify event
-                const WHEEL_MOVE = event.wheelDelta / 120;
+                const WHEEL_MOVE = event.deltaY / 120;
+                console.log(WHEEL_MOVE);
                 const ZOOM = Math.pow(3/4, WHEEL_MOVE);
                 
                 // Calculate new bounds
@@ -149,7 +140,7 @@ class Visualizer {
                     this.y1 -= this.y2-this.MAP_HEIGHT;
                     this.y2 = this.MAP_HEIGHT;
                 }
-            }
+            } event.preventDefault();
         }.bind(this));
 
         document.onkeypress = function(k) {

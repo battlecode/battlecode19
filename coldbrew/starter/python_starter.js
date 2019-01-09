@@ -2,10 +2,6 @@ var SPECS = require('../specs');
 
 module.exports = 'SPECS = ' + JSON.stringify(SPECS) + `
 
-__pragma__('iconv')
-__pragma__('tconv')
-__pragma__('opov')
-
 class BCAbstractRobot:
     def __init__(self):
         self._bc_reset_state()
@@ -236,7 +232,11 @@ class BCAbstractRobot:
 
     # Check if a given robot is visible.
     def is_visible(self, robot):
-        return ('x' in robot.keys())
+        __pragma__('tconv')
+        x = 'x' in robot
+        __pragma__('notconv')
+        
+        return x
 
     # Check if a given robot is sending you radio.
     def is_radioing(self, robot):

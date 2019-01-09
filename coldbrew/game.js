@@ -721,7 +721,7 @@ Game.prototype.enactTurn = function(record) {
 
         var diff_time = wallClock() - robot.start_time;
 
-        action = insulate(action);
+        //action = insulate(action);
 
         record = new ActionRecord(this, robot);
 
