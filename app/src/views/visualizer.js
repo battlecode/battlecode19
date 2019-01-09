@@ -156,20 +156,7 @@ class Visualizer {
             if (k.keyCode === 96) {// `
                 this.strategic = !this.strategic;
             }
-            if (k.keyCode === 97) {// `
-                this.x1++;
-            }
-            if (k.keyCode === 119) {// `
-                this.y1++;
-            }
-            if (k.keyCode === 100) {// `
-                this.x2--;
-            }
-            if (k.keyCode === 115) {// `
-                this.y2--;
-            }
             console.log(k);
-            console.log(this.x1, this.x2, this.y1, this.y2);
         }.bind(this);
 
         var mapGraphics = new PIXI.Graphics();
