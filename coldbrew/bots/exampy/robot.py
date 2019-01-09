@@ -12,6 +12,10 @@ class MyRobot(BCAbstractRobot):
     step = -1
 
     def turn(self):
+        k = self.get_visible_robots()[0]
+        if self.is_visible(k):
+            self.log("Can see k.")
+
         self.step += 1
         self.log("START TURN " + self.step)
         if self.me['unit'] == SPECS['CRUSADER']:

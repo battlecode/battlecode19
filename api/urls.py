@@ -20,7 +20,6 @@ from django.views import generic
 from rest_framework import routers, serializers
 from rest_framework.documentation import include_docs_urls
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
-from django.conf import settings
 
 
 urlpatterns = [
@@ -29,14 +28,10 @@ urlpatterns = [
     path('auth/token/verify/', TokenVerifyView.as_view()),
     path('api/', include('api.urls')),
     path('admin/', admin.site.urls, name='admin'),
-    path('docs/', include_docs_urls(title='Your API',
-                                    authentication_classes=[],
-                                    permission_classes=[])),
-    path('api/password_reset/',
-         include('django_rest_passwordreset.urls',
-                 namespace='password_reset')),
+    path('docs/', include_docs_urls(title='Battlecode API')),
 ]
 
+from django.conf import settings
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
