@@ -185,7 +185,7 @@ class BCAbstractRobot:
             raise Exception("Can only give to adjacent squares.")
         if not self._bc_check_on_map(self.me['x']+dx,self.me['y']+dy):
             raise Exception("Can't give off of map.")
-        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dy] <= 0:
+        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] <= 0:
             raise Exception("Cannot give to empty square.")
         if karbonite < 0 or fuel < 0 or self.me['karbonite'] < karbonite or self.me['fuel'] < fuel:
             raise Exception("Do not have specified amount to give.")
