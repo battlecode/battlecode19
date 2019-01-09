@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Api from '../api';
 
-class ForgotPassword extends Component {
+class PasswordForgot extends Component {
   state = {
     success: false,
     error: '',
@@ -109,4 +109,4 @@ class ForgotPassword extends Component {
   }
 }
 
-export default ForgotPassword;
+export default PasswordForgot;

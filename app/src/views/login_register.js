@@ -243,7 +243,7 @@ class LoginRegister extends Component {
               {buttons}
               <br/>
               <a
-                href="/forgotPassword"
+                href="/password/forgot"
                 className="btn btn-secondary btn-block btn-fill"
               >
                 Forgot Password
