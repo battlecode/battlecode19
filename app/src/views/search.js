@@ -23,7 +23,7 @@ class Search extends Component {
 
     handleChange = (e) => {
       const { input } = this.state;
-      this.setState({ input: e.target.value }, Api.search(input, this.onDataLoad));
+      this.setState({ input: e.target.value });
     }
 
     onDataLoad = (data) => {
