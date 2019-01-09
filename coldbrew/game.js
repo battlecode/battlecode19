@@ -832,7 +832,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
 
     if (action.action === 'build') {
         if (robot.unit !== SPECS.PILGRIM && robot.unit !== SPECS.CASTLE && robot.unit !== SPECS.CHURCH) throw "Only pilgrims, castles and churches can build.";
-        if (action.dx > 1 || action.dy > 1) throw "Can only build on adjacent squares.";
+        if (Math.abs(action.dx > 1) || Math.abs(action.dy) > 1) throw "Can only build on adjacent squares.";
         if (int_param('build_unit') && action.build_unit >= 0 && action.build_unit <= 5) {
             if (robot.unit === SPECS.PILGRIM && action.build_unit !== SPECS.CHURCH) throw "Pilgrim failed to build non-church unit.";
             if (robot.unit !== SPECS.PILGRIM && action.build_unit === SPECS.CHURCH) throw "Non-pilgrim unit failed to build church.";
@@ -848,7 +848,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
     }
 
     else if (action.action === 'give') {
-        if (action.dx > 1 || action.dy > 1) throw "Can only give to adjacent squares.";
+        if (Math.abs(action.dx > 1) || Math.abs(action.dy) > 1) throw "Can only give to adjacent squares.";
         if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0 && action.give_fuel < Math.pow(2,8) && action.give_karbonite < Math.pow(2,8)) {
             if (robot.karbonite < action.give_karbonite || robot.fuel < action.give_fuel) throw "Tried to give more than you have.";
 
