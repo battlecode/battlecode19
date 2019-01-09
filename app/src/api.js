@@ -334,7 +334,8 @@ class Api {
 
       callback(data, true);
     }).fail((xhr, status, error) => {
-      callback(xhr, false);
+      console.log(xhr)
+      callback(xhr.responseJSON.non_field_errors, false);
     });
   }
 

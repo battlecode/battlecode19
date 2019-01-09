@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
 import Api from '../api';
 
-class ForgotPassword extends Component {
+class PasswordForgot extends Component {
   state = {
     success: false,
     error: '',
     email: '',
   }
 
-  forgotPassword = () => {
-    const { email } = this.state;
-    Api.forgotPassword(email, this.callback);
+  forgotPassword = (e) => {
+    e.preventDefault()
+    const { state } = this;
+    if (state.email) {
+      Api.forgotPassword(state.email, this.callback);
+    }
   }
 
   callback = (data, success) => {
@@ -80,23 +83,25 @@ class ForgotPassword extends Component {
           }}
         >
           <div className="content">
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                id="email"
-                className="form-control"
-                onChange={this.changeHandler}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={this.forgotPassword}
-              className="btn btn-secondary btn-block btn-fill"
-            >
-              Forgot Password
-            </button>
-            <div className="clearfix" />
+            <form onSubmit={this.forgotPassword}>
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  className="form-control"
+                  onChange={this.changeHandler}
+                />
+              </div>
+              <button
+                type="submit"
+                value="Submit"
+                className="btn btn-secondary btn-block btn-fill"
+              >
+                Forgot Password
+              </button>
+              <div className="clearfix" />
+            </form>
           </div>
         </div>
       </div>
@@ -104,4 +109,4 @@ class ForgotPassword extends Component {
   }
 }
 
-export default ForgotPassword;
+export default PasswordForgot;
