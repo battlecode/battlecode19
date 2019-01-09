@@ -1,9 +1,11 @@
+#!/usr/bin/env node
+
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
-const SPECS = require('./specs');
-const Game = require('./game');
-const Coldbrew = require('./runtime');
+const SPECS = require('../specs');
+const Game = require('../game');
+const Coldbrew = require('../runtime');
 
 const Storage = require('@google-cloud/storage');
 const projectId = 'battlecode18';

@@ -2,10 +2,6 @@ var SPECS = require('../specs');
 
 module.exports = 'SPECS = ' + JSON.stringify(SPECS) + `
 
-__pragma__('iconv')
-__pragma__('tconv')
-#__pragma__('opov')
-
 class BCAbstractRobot:
     def __init__(self):
         self._bc_reset_state()
@@ -68,7 +64,7 @@ class BCAbstractRobot:
         a = self._bc_null_action()
         
         if properties:
-            for key in properties:
+            for key in properties.keys():
                 a[key] = properties[key]
 
         a['action'] = action
