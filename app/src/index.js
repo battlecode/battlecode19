@@ -64,7 +64,6 @@ class App extends Component {
     } if (this.state.logged_in === false) {
       return (
         <Switch>
-          <Route path="/docs" component={Docs} />
           <Route path="/password/forgot" component={PasswordForgot} />
           <Route path="/password/change" component={PasswordChange} />
           <Route path="/" component={LoginRegister} />
