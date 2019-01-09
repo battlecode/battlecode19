@@ -26,7 +26,7 @@ Tank by Sandhi Priyasmoro from the Noun Project
 */
  
 class Visualizer {
-    constructor(div, replay, turn_callback, width=720, height=600) {
+    constructor(div, replay, turn_callback, width=840, height=672) {
         this.replay = replay;
 
         // Parse replay seed
@@ -65,10 +65,10 @@ class Visualizer {
         this.active_y = -1;
         this.active_id = 0;
 
-        this.grid_width = this.width * 5/6;
+        this.grid_width = this.height;
         this.grid_height = this.height;
         this.graph_width = this.width - this.grid_width;
-        this.graph_height = this.height;
+        this.graph_height = this.height*.8;
  
         this.stage = new PIXI.Container();
         this.stage.interactive = true;
@@ -136,15 +136,17 @@ class Visualizer {
         this.mapGraphics.lineStyle(0);
         this.IND_G_WIDTH = this.graph_width*.8 / 2;
         this.LR_BORDER = (this.graph_width - 2*this.IND_G_WIDTH) / 3;
-        this.TB_BORDER_HEIGHT = this.graph_height * 0.04;
-        this.IND_G_HEIGHT = this.graph_height - 4*this.TB_BORDER_HEIGHT;
+        this.T_BORDER_HEIGHT = this.graph_height * 0.14;
+        this.KF_BORDER_HEIGHT = this.graph_height * 0.05;
+        this.B_BORDER_HEIGHT = this.graph_height * 0.1;
+        this.IND_G_HEIGHT = this.graph_height - (2*this.KF_BORDER_HEIGHT+this.T_BORDER_HEIGHT+this.B_BORDER_HEIGHT);
         this.mapGraphics.beginFill(KARBONITE);
-        this.mapGraphics.drawRect(this.grid_width+this.LR_BORDER, this.TB_BORDER_HEIGHT, this.IND_G_WIDTH, this.TB_BORDER_HEIGHT);
-        this.mapGraphics.drawRect(this.grid_width+this.LR_BORDER, this.graph_height-2*this.TB_BORDER_HEIGHT, this.IND_G_WIDTH, this.TB_BORDER_HEIGHT);
+        this.mapGraphics.drawRect(this.grid_width+this.LR_BORDER, this.T_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
+        this.mapGraphics.drawRect(this.grid_width+this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT-this.KF_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
         this.mapGraphics.endFill();
         this.mapGraphics.beginFill(FUEL);
-        this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.TB_BORDER_HEIGHT, this.IND_G_WIDTH, this.TB_BORDER_HEIGHT);
-        this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.graph_height-2*this.TB_BORDER_HEIGHT, this.IND_G_WIDTH, this.TB_BORDER_HEIGHT);
+        this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.T_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
+        this.mapGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT-this.KF_BORDER_HEIGHT, this.IND_G_WIDTH, this.KF_BORDER_HEIGHT);
         this.mapGraphics.endFill();
    
         // Initialize textures
@@ -175,6 +177,27 @@ class Visualizer {
             this.spritestage.addChild(sprite);
             this.sprite_pools[i].push(sprite);
         }
+
+        // Deal with text
+        this.red_karbtext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 20, fill: '0xFF0000' });
+        this.red_karbtext.position = new PIXI.Point(this.grid_width+this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT+5);
+        this.stage.addChild(this.red_karbtext);
+        this.blue_karbtext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 20, fill: '0x0000FF' });
+        this.blue_karbtext.position = new PIXI.Point(this.grid_width+this.LR_BORDER, this.graph_height-this.B_BORDER_HEIGHT/2);
+        this.stage.addChild(this.blue_karbtext);
+        this.red_fueltext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 20, fill: '0xFF0000' });
+        this.red_fueltext.position = new PIXI.Point(this.grid_width+2*this.LR_BORDER+this.IND_G_WIDTH, this.graph_height-this.B_BORDER_HEIGHT+5);
+        this.stage.addChild(this.red_fueltext);
+        this.blue_fueltext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 20, fill: '0x0000FF' });
+        this.blue_fueltext.position = new PIXI.Point(this.grid_width+2*this.LR_BORDER+this.IND_G_WIDTH, this.graph_height-this.B_BORDER_HEIGHT/2);
+        this.stage.addChild(this.blue_fueltext);
+
+        this.roundtext = new PIXI.Text('', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 12, fill: '0xFFFFFF' });
+        this.roundtext.position = new PIXI.Point(this.grid_width+10, 10);
+        this.stage.addChild(this.roundtext);
+        this.infotext = new PIXI.Text('Click somewhere for information!', { fontFamily: "\"Courier New\", Courier, monospace", fontSize: 12, fill: '0xFFFFFF',  wordWrap: true, wordWrapWidth: this.graph_width });
+        this.infotext.position = new PIXI.Point(this.grid_width+10, this.graph_height);
+        this.stage.addChild(this.infotext);
     }
 
     draw(strategic=false) { // for later perhaps making strategic view
@@ -183,39 +206,85 @@ class Visualizer {
         var draw_height = this.grid_height / this.MAP_HEIGHT;
 
         // Draw graphs
-        // First, figure out max height for the graphs.
-        var MAX_KARB = Math.ceil(Math.max(5, this.game.karbonite[0]/20, this.game.karbonite[1]/20));
-        var MAX_FUEL = Math.ceil(Math.max(5, this.game.fuel[0]/100, this.game.fuel[1]/100));
+        // First, figure out scaling for the graphs.
+        const KARB_LINE = 20;
+        const FUEL_LINE = 100;
+        var MAX_KARB = Math.ceil(Math.max(5, this.game.karbonite[0]/KARB_LINE, this.game.karbonite[1]/KARB_LINE));
+        var MAX_FUEL = Math.ceil(Math.max(5, this.game.fuel[0]/FUEL_LINE, this.game.fuel[1]/FUEL_LINE));
         // Then, draw! I'm so sorry this is so disgusting. We do, in order, red karb, red fuel, blue karb, and blue fuel.
         // This puts those in the right places.
         this.graphGraphics.clear();
         this.graphGraphics.beginFill('0xFF0000');
         this.graphGraphics.drawRect(this.grid_width+this.LR_BORDER,
-            2*this.TB_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.karbonite[0]/MAX_KARB/20),
-            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.karbonite[0]/MAX_KARB/20);
+            this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.karbonite[0]/MAX_KARB/KARB_LINE),
+            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.karbonite[0]/MAX_KARB/KARB_LINE);
         this.graphGraphics.drawRect(this.grid_width+this.IND_G_WIDTH+2*this.LR_BORDER,
-            2*this.TB_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.fuel[0]/MAX_FUEL/100),
-            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.fuel[0]/MAX_FUEL/100);
+            this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.fuel[0]/MAX_FUEL/FUEL_LINE),
+            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.fuel[0]/MAX_FUEL/FUEL_LINE);
         this.graphGraphics.endFill();
         this.graphGraphics.beginFill('0x0000FF');
         this.graphGraphics.drawRect(this.grid_width+this.IND_G_WIDTH/2+this.LR_BORDER,
-            2*this.TB_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.karbonite[1]/MAX_KARB/20),
-            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.karbonite[1]/MAX_KARB/20);
+            this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.karbonite[1]/MAX_KARB/KARB_LINE),
+            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.karbonite[1]/MAX_KARB/KARB_LINE);
         this.graphGraphics.drawRect(this.grid_width+this.IND_G_WIDTH*3/2+2*this.LR_BORDER,
-            2*this.TB_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.fuel[1]/MAX_FUEL/100),
-            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.fuel[1]/MAX_FUEL/100);
+            this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+this.IND_G_HEIGHT*(1-this.game.fuel[1]/MAX_FUEL/FUEL_LINE),
+            this.IND_G_WIDTH/2, this.IND_G_HEIGHT*this.game.fuel[1]/MAX_FUEL/FUEL_LINE);
         this.graphGraphics.endFill();
 
         // Draw markers in graphs.
-        this.graphGraphics.lineStyle(3, '0xFFFFFF');
+        this.graphGraphics.lineStyle(2, '0xFFFFFF');
         for(var k = 1; k < MAX_KARB; k++) {
-            this.graphGraphics.moveTo(this.grid_width+this.LR_BORDER, 2*this.TB_BORDER_HEIGHT+k/MAX_KARB*this.IND_G_HEIGHT);
-            this.graphGraphics.lineTo(this.grid_width+this.LR_BORDER+this.IND_G_WIDTH,2*this.TB_BORDER_HEIGHT+k/MAX_KARB*this.IND_G_HEIGHT);
+            this.graphGraphics.moveTo(this.grid_width+this.LR_BORDER, this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+k/MAX_KARB*this.IND_G_HEIGHT);
+            this.graphGraphics.lineTo(this.grid_width+this.LR_BORDER+this.IND_G_WIDTH,this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+k/MAX_KARB*this.IND_G_HEIGHT);
         }
         for(var f = 1; f < MAX_FUEL; f++){
-            this.graphGraphics.moveTo(this.grid_width+2*this.LR_BORDER+this.IND_G_WIDTH, 2*this.TB_BORDER_HEIGHT+f/MAX_FUEL*this.IND_G_HEIGHT);
-            this.graphGraphics.lineTo(this.grid_width+2*this.LR_BORDER+2*this.IND_G_WIDTH,2*this.TB_BORDER_HEIGHT+f/MAX_FUEL*this.IND_G_HEIGHT);
+            this.graphGraphics.moveTo(this.grid_width+2*this.LR_BORDER+this.IND_G_WIDTH, this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+f/MAX_FUEL*this.IND_G_HEIGHT);
+            this.graphGraphics.lineTo(this.grid_width+2*this.LR_BORDER+2*this.IND_G_WIDTH,this.T_BORDER_HEIGHT+this.KF_BORDER_HEIGHT+f/MAX_FUEL*this.IND_G_HEIGHT);
         }
+
+        // Round text
+        this.roundtext.text  = "Round  : "+this.game.round+"\n"
+        this.roundtext.text += "Robin  : "+(isFinite(this.game.robin)?this.game.robin:0)+"\n";
+        this.roundtext.text += "Turn   : "+this.turn+"\n"
+        this.roundtext.text += "Winner : "+((this.game.winner === 0 || this.game.winner === 1)?(this.game.winner===0?'red':'blue'):"???")+"\n";
+
+        // Draw text for the stats
+        this.red_karbtext.text = ''+this.game.karbonite[0];
+        this.blue_karbtext.text = ''+this.game.karbonite[1];
+
+        this.red_fueltext.text = ''+this.game.fuel[0];
+        this.blue_fueltext.text = ''+this.game.fuel[1];
+
+        // Handle click and infotext
+        if (this.active_x !== -1) {
+            this.infotext.text = "Clicked (" + this.active_x + ", " + this.active_y + ")\n";
+
+            // Find robot using x, y
+            this.active_id = this.game.shadow[this.active_y][this.active_x];
+
+            if (this.active_id === 0) {
+                this.infotext.text  = "position   : ("+this.active_x+", "+this.active_y+")\n";
+                this.infotext.text += "passable   : "+this.game.map[this.active_y][this.active_x]+"\n";
+                this.infotext.text += "karbonite  : "+this.game.karbonite_map[this.active_y][this.active_x]+"\n";
+                this.infotext.text += "fuel       : "+this.game.fuel_map[this.active_y][this.active_x]+"\n";
+            }
+
+            this.active_x = -1;
+            this.active_y = -1;
+        }
+        if (this.active_id !== 0) {
+            let robot = this.game.getItem(this.active_id);
+            this.infotext.text  = "position   : ("+robot.x+", "+robot.y+")\n";
+            this.infotext.text += "id         : "+robot.id+"\n";
+            this.infotext.text += "team       : "+["red", "blue"][robot.team]+"\n";
+            this.infotext.text += "unit       : "+["castle", "church", "pilgrim", "crusader", "prophet", "preacher"][robot.unit]+"\n";
+            this.infotext.text += "health     : "+robot.health+"\n";
+            this.infotext.text += "karbonite  : "+robot.karbonite+"\n";
+            this.infotext.text += "fuel       : "+robot.fuel+"\n";
+            this.infotext.text += "signal     : "+robot.signal+"\n";
+            this.infotext.text += "castletalk : "+robot.castle_talk+"\n";
+        }
+
 
         // Draw units       
         var units = new Array(6);
@@ -237,24 +306,16 @@ class Visualizer {
                 counter++;
             }
         }
-       
-        this.robotInfo.innerText = "Round " + this.game.round + ", robin " + (isFinite(this.game.robin)?this.game.robin:0) + ", turn " + this.turn + "\n";
-        if (this.game.winner === 0 || this.game.winner === 1) this.robotInfo.innerText += "Winner is " + (this.game.winner===0?'red':'blue') + "\n";
 
-        // Handle click
-        if (this.active_x !== -1) {
-            this.robotInfo.innerText += "Clicked " + this.active_x + ", " + this.active_y;
-
-            // Find robot using x, y
-            this.active_id = this.game.shadow[this.active_y][this.active_x];
-
-            if (this.active_id !== 0) {
-                let robot = this.game.getItem(this.active_id);
-                this.robotInfo.innerText += "\n" + JSON.stringify(robot,null, 2);
-            }
-        }
+        
        
         this.renderer.render(this.stage);
+
+        // Remove text
+        //this.stage.removeChild(red_karbtext);
+        //this.stage.removeChild(blue_karbtext);
+        //this.stage.removeChild(red_fueltext);
+        //this.stage.removeChild(blue_fueltext);
        
         // Reset all sprite pools to be invisible
         for (let i = 0; i < 6; i++) this.sprite_pools[0][i].visible = false; // Castles
