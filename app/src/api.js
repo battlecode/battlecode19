@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import * as Cookies from 'js-cookie';
 
-// const URL = 'https://hack.battlecode.org';
-const URL = 'http://localhost:8000'; // DEVELOPMENT
+const URL = 'https://hack.battlecode.org';
+// const URL = 'http://localhost:8000'; // DEVELOPMENT
 const LEAGUE = 0;
 const PAGE_LIMIT = 10;
 
