@@ -12,6 +12,7 @@ from rest_framework.pagination import PageNumberPagination
 from api.serializers import *
 from api.permissions import *
 
+
 class SearchResultsPagination(PageNumberPagination):
     page_size = 10
 
@@ -49,6 +50,10 @@ class UserViewSet(viewsets.GenericViewSet,
     permission_classes = (IsAuthenticatedAsRequestedUser,)
 
 
+class ResumeUpload(viewsets.ViewSet):
+    permission_classes = (IsAuthenticatedAsRequestedUser,)
+
+
 class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     """
     list:
@@ -67,6 +72,25 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     pagination_class = SearchResultsPagination
+
+
+class VerifyUserViewSet(viewsets.GenericViewSet):
+    queryset = get_user_model().objects.all().order_by('id')
+    permission_classes = (IsAuthenticatedAsRequestedUser,)
+    serializer_class = VerifyUserSerializer
+
+    @action(detail=True, methods=['post'])
+    def verifyUser(self, request, pk=None):
+        serializer = self.serializer_class(data=request.data)
+        user = self.get_object()
+        serializer.is_valid(raise_exception=True)
+        gotten_key = serializer.validated_data['registration_key']
+        if gotten_key == user.registration_key:
+            user.verified = True
+            user.save()
+            return Response({'status': 'OK'})
+        return Response({'status': 'Wrong Key'},
+                status=status.HTTP_400_BAD_REQUEST)
 
 
 
