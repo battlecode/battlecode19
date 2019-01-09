@@ -29,7 +29,7 @@ class NavBar extends Component {
                     <div className="collapse navbar-collapse">
                         <ul className="nav navbar-nav navbar-right">
                             <li>
-                                <NavLink to="/account">Account</NavLink>
+                                <NavLink to={`${process.env.PUBLIC_URL}/account`}>Account</NavLink>
                             </li>
                             <li>
                                 <a onClick={ this.logout }>Log out</a>

@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import * as Cookies from 'js-cookie';
 
-const URL = 'https://hack.battlecode.org';
+const URL = 'https://battlecode.org';
 // const URL = 'http://localhost:8000'; // DEVELOPMENT
 const LEAGUE = 0;
 const PAGE_LIMIT = 10;
@@ -184,9 +184,21 @@ class Api {
   }
 
   static getReplayFromURL(url, callback) {
-    if ($.ajaxSettings && $.ajaxSettings.headers) {
-      delete $.ajaxSettings.headers.Authorization;
+    // If `https` not in current url, replace `https` with `http` in above
+    if (window.location.href.indexOf('http://') > -1) {
+      url = url.replace('https://', 'http://');
     }
+
+    const oReq = new XMLHttpRequest();
+    oReq.open('GET', url, true);
+    oReq.responseType = 'arraybuffer';
+
+    oReq.onload = function (oEvent) {
+      callback(new Uint8Array(oReq.response));
+    };
+
+    oReq.send();
+
 
     // If `https` not in current url, replace `https` with `http` in above
     if (window.location.href.indexOf('http://') > -1) {
@@ -334,7 +346,7 @@ class Api {
 
       callback(data, true);
     }).fail((xhr, status, error) => {
-      console.log(xhr)
+      console.log(xhr);
       callback(xhr.responseJSON.non_field_errors, false);
     });
   }

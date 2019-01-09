@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import Api from '../api';
-import Coldsys from 'coldbrew';
-import Compiler from '../compiler';
-import * as Cookies from "js-cookie";
 
-var Coldbrew = Coldsys.Coldbrew;
+import bc19 from 'bc19/runtime';
+import Game from 'bc19/game';
+import Compiler from 'bc19/compiler';
+
+import Visualizer from './visualizer';
+import Slider from 'rc-slider';
+
+
+import * as Cookies from "js-cookie";
 
 var firebase_config = {
     apiKey: "AIzaSyBT7Mu9Bw6UH0Tr-mKXMwhKjdnLppdjvA4",
@@ -40,7 +45,9 @@ class IDE extends Component {
             theme:(t ? t : 'light'),
             vimkeys:Cookies.get('vimkeys'),
             seed:Cookies.get('seed'),
-            auto:Cookies.get('auto')
+            auto:Cookies.get('auto'),
+            numTurns:0,
+            turn:null
         };
 
         this.storage = {};
@@ -52,7 +59,16 @@ class IDE extends Component {
         this.hideSidebar = this.hideSidebar.bind(this);
         this.exitTheater = this.exitTheater.bind(this);
         this.exitErrors = this.exitErrors.bind(this);
+        this.changeSlider = this.changeSlider.bind(this);
+        this.startStop = this.startStop.bind(this);
     }
+
+
+    startStop() {
+        this.v.startStop();
+    }
+
+
 
     componentDidMount() {
         this.editor = window.ace.edit("firepad-container");
@@ -93,17 +109,28 @@ class IDE extends Component {
 
         Compiler.Compile(this.state.lang, this.firepad.getText(), function(code) {
             this.setState({theater:true, loading:false});
-            var seed = (!this.state.seed || this.state.seed === '') ? Math.floor(10000*Math.random()) : parseInt(this.state.seed,10);
-            this.c = new Coldbrew(
-                "viewer", seed, code, code,
-                parseInt(this.state.chess_init,10),
-                parseInt(this.state.chess_extra,10)
-            ); this.c.playGame(function(logs) {
-                this.setState({logs:logs});
+            var seed = (!this.state.seed || this.state.seed === '' || this.state.seed === 0) ? Math.floor(Math.pow(2,31)*Math.random()) : parseInt(this.state.seed,10);
+            this.g = new Game(seed, parseInt(this.state.chess_init,10), parseInt(this.state.chess_extra,10), false, true);
+            this.v = new Visualizer('viewer', this.g.replay, function(turn) {
+                this.setState({turn:turn});
+            }.bind(this), 300, 300);
+            this.c = new bc19(this.g, null, function(logs) {}, function(logs) {
+                // log receiver
+                this.setState({logs:logs,numTurns:this.v.numTurns(),turn:this.v.turn});
+                this.v.populateCheckpoints();
+
             }.bind(this));
+
+            this.c.playGame(code, code);
         }.bind(this), function(errors) {
             this.setState({loading:false, error: true, errors:errors});
         }.bind(this));
+    }
+
+    changeSlider(turn) {
+        if (this.v.running) this.v.startStop();
+        this.v.goToTurn(turn);
+        this.setState({turn:turn});
     }
 
     componentDidUpdate() {
@@ -257,14 +284,28 @@ class IDE extends Component {
                         borderRadius:"20px"
                     }} onClick={ this.exitTheater }/>
 
-                    <canvas id="viewer" style={{
+                    <div id="viewer" style={{
                         position:"absolute",
                         top:"20px",
-                        left:"20px",
+                        left:"calc(50% - 150px)",
                         width:"calc(100% - 40px)",
                         height:"60%",
-                        border:"1px solid #ddd"
-                    }}></canvas>
+                    }}></div>
+                    <Slider style={{
+                        display:(this.v == null)?'none':'block',
+                        width:'80%',
+                        left:'10%',
+                        position:'absolute',
+                        top:'340px'
+                    }} max={this.state.numTurns} onChange={this.changeSlider} value={this.state.turn} />
+                    <button style={{
+                        display:(this.v == null)?'none':'block',
+                        width:'80%',
+                        position:'absolute',
+                        left:'10%',
+                        top:'360px'
+                    }} onClick={this.startStop}>START/STOP</button>
+
 
                     <div id="console" style={{
                         position:"absolute",

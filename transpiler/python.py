@@ -4,10 +4,12 @@ import os
 from time import sleep
 import math
 import shutil
+import re
+import glob
 
 WORKSPACE = "python_workspace"
 
-def compile(source, min=True):
+def compile(sources, min=True):
     p = None
     id = math.floor(random()*1000000)
     dir = WORKSPACE + "/" + str(id)
@@ -19,14 +21,26 @@ def compile(source, min=True):
     if not os.path.exists(dir):
         os.makedirs(dir)
 
-    with open(dir+"/robot.py", mode="w") as f:
-        f.write(source)
+    has_robot = False
+    for source in sources:
+        if source['filename'] == 'robot.py':
+            has_robot = True
 
-    print(dir)
+    if not has_robot:
+        return {'success':False, 'error':"No robot.py provided.", 'js':"", 'map':""}
+
+    for source in sources:
+        if len(source['filename']) > 20 or not re.match(r'^[A-Za-z0-9_.]+$', source['filename']) or source['filename'].count('.') != 1 or not source['filename'].endswith('.py'):
+            continue
+        
+        # Write sources to working directory.
+        with open(dir + "/" + source['filename'], mode="w") as f:
+            f.write(source['source'])
+
 
     # Launch compiler.
     p = subprocess.Popen(['python3', '-m', 'transcrypt', 
-                     '-m', '-b', '-p', '.none', 'robot.py'],
+                     '-n', '-m', '-b', '-p', '.none', 'robot'],
                      cwd=dir,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT)
@@ -39,29 +53,19 @@ def compile(source, min=True):
     
     success = False
     errors = ""
-    js = ""
+    js = {}
     source_map = ""
 
-    if o.split("\n")[-2] == "Ready":
+    if o.split("\n")[-3] == "Ready":
         success = True
-
-        if min:
-            with open(dir + "/__javascript__/robot.min.js") as f:
-                js = f.read()
-
-            with open(dir + "/__javascript__/extra/sourcemap/robot.min.js.map") as f:
-                source_map = f.read()
-        else:
-            with open(dir + "/__javascript__/robot.js") as f:
-                js = f.read()
-
-            with open(dir + "/__javascript__/extra/sourcemap/robot.js.map") as f:
-                source_map = f.read()
-
-
+        
+        for filepath in glob.iglob(dir + "/__target__/*.js"):
+            with open(filepath) as f:
+                js[filepath.split("/")[-1]] = f.read()
+    
     else:
         path = os.getcwd() + "/" + dir + "/"
-        errors = "\n".join(o.split("\n")[5:-3]).replace(path,"")
+        errors = "\n".join(o.split("\n")[6:-3]).replace(path,"")
 
     # Cleanup working file.
     shutil.rmtree(dir)

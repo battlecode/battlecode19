@@ -17,7 +17,7 @@ import ReplayViewer from './views/replay';
 import LoginRegister from './views/login_register';
 import VerifyUser from './views/VerifyUser';
 import PasswordForgot from './views/passwordForgot';
-import PasswordChange from './views/passwordChange'
+import PasswordChange from './views/passwordChange';
 
 import Footer from './footer';
 import NavBar from './navbar';
@@ -55,7 +55,6 @@ class App extends Component {
               <Route path="/account" component={Account} />
               <Route path="/tournaments" component={Tournaments} />
               <Route path="/replay" component={ReplayViewer} />
-              <Route path="/verify" component={VerifyUser} />
               <Route path="*" component={NotFound} />
             </Switch>
             <Footer />
