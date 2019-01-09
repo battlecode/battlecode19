@@ -409,15 +409,20 @@ class Visualizer {
         }
         if (this.active_id !== 0) {
             let robot = this.game.getItem(this.active_id);
-            this.infotext.text  = "position   : ("+robot.x+", "+robot.y+")\n";
-            this.infotext.text += "id         : "+robot.id+"\n";
-            this.infotext.text += "team       : "+["red", "blue"][robot.team]+"\n";
-            this.infotext.text += "unit       : "+["castle", "church", "pilgrim", "crusader", "prophet", "preacher"][robot.unit]+"\n";
-            this.infotext.text += "health     : "+robot.health+"\n";
-            this.infotext.text += "karbonite  : "+robot.karbonite+"\n";
-            this.infotext.text += "fuel       : "+robot.fuel+"\n";
-            this.infotext.text += "signal     : "+robot.signal+"\n";
-            this.infotext.text += "castletalk : "+robot.castle_talk+"\n";
+            if (robot == null) {
+                this.infotext.text = 'Click somewhere for information!';
+            }
+            else {
+                this.infotext.text  = "position   : ("+robot.x+", "+robot.y+")\n";
+                this.infotext.text += "id         : "+robot.id+"\n";
+                this.infotext.text += "team       : "+["red", "blue"][robot.team]+"\n";
+                this.infotext.text += "unit       : "+["castle", "church", "pilgrim", "crusader", "prophet", "preacher"][robot.unit]+"\n";
+                this.infotext.text += "health     : "+robot.health+"\n";
+                this.infotext.text += "karbonite  : "+robot.karbonite+"\n";
+                this.infotext.text += "fuel       : "+robot.fuel+"\n";
+                this.infotext.text += "signal     : "+robot.signal+"\n";
+                this.infotext.text += "castletalk : "+robot.castle_talk+"\n";
+            }
         }
 
 
