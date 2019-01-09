@@ -292,11 +292,11 @@ ActionRecord.prototype.enactAttack = function() {
                 target.health -= SPECS.UNITS[this.robot.unit]['ATTACK_DAMAGE'];
                 
                 if (target.health <= 0) {
-                    // Reclaim: attacker gets resources plus half karbonite to construct, divided by rad^2
+                    // Reclaim: attacker gets resources plus half karbonite to construct
 
                     if (target.unit !== SPECS.CASTLE) {
-                        var reclaimed_karb = Math.floor((target.karbonite + SPECS.UNITS[target.unit]['CONSTRUCTION_KARBONITE']/2)/rad);
-                        var reclaimed_fuel = Math.floor(target.fuel/rad);
+                        var reclaimed_karb = Math.floor(target.karbonite + SPECS.UNITS[target.unit]['CONSTRUCTION_KARBONITE']/2);
+                        var reclaimed_fuel = Math.floor(target.fuel);
 
                         this.robot.karbonite = Math.min(this.robot.karbonite+reclaimed_karb, SPECS.UNITS[this.robot.unit]['KARBONITE_CAPACITY']);
                         this.robot.fuel = Math.min(this.robot.fuel+reclaimed_fuel, SPECS.UNITS[this.robot.unit]['FUEL_CAPACITY']);
