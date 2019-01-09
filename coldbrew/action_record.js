@@ -287,6 +287,7 @@ ActionRecord.prototype.enactAttack = function() {
     for (var r=0; r<this.game.shadow.length; r++) {
         for (var c=0; c<this.game.shadow[0].length; c++) {
             var rad = Math.pow(this.robot.y+this.dy - r,2) + Math.pow(this.robot.x+this.dx - c,2);
+            var rad_to_attacker = Math.pow(this.robot.y - r,2) + Math.pow(this.robot.x - c,2);
             if (rad <= SPECS.UNITS[this.robot.unit]['DAMAGE_SPREAD'] && this.game.shadow[r][c] !== 0) {
                 var target = this.game.getItem(this.game.shadow[r][c]);
                 target.health -= SPECS.UNITS[this.robot.unit]['ATTACK_DAMAGE'];
@@ -295,8 +296,8 @@ ActionRecord.prototype.enactAttack = function() {
                     // Reclaim: attacker gets resources plus half karbonite to construct, divided by rad^2
 
                     if (target.unit !== SPECS.CASTLE) {
-                        var reclaimed_karb = Math.floor((target.karbonite + SPECS.UNITS[target.unit]['CONSTRUCTION_KARBONITE']/2)/rad);
-                        var reclaimed_fuel = Math.floor(target.fuel/rad);
+                        var reclaimed_karb = Math.floor((target.karbonite + SPECS.UNITS[target.unit]['CONSTRUCTION_KARBONITE']/2)/rad_to_attacker);
+                        var reclaimed_fuel = Math.floor(target.fuel/rad_to_attacker);
 
                         this.robot.karbonite = Math.min(this.robot.karbonite+reclaimed_karb, SPECS.UNITS[this.robot.unit]['KARBONITE_CAPACITY']);
                         this.robot.fuel = Math.min(this.robot.fuel+reclaimed_fuel, SPECS.UNITS[this.robot.unit]['FUEL_CAPACITY']);
@@ -314,7 +315,6 @@ ActionRecord.prototype.enact = function(game, robot) {
     this.robot = robot;
 
     this.game.robin++;
-    if (this.game.robin === this.game.robots.length) this.game.robin++;
 
     this.robot.signal = this.signal;
     this.robot.signal_radius = this.signal_radius;

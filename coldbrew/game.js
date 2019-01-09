@@ -542,7 +542,7 @@ Game.prototype.isOver = function() {
         this.win_condition = 0;
         if (this.debug) console.log("Game over, blue won by castle annihilation.");
     } else if (castles[0] !== 0 && castles[1] === 0) {
-        this.winner = 1;
+        this.winner = 0;
         this.win_condition = 0;
         if (this.debug) console.log("Game over, red won by castle annihilation.");
     } else if (castles[0] === 0 && castles[1] === 0) {
@@ -708,14 +708,21 @@ Game.prototype.enactTurn = function(record) {
 
     if (!record) {
         var dump = this.getGameStateDump(robot);
+        robot.time += this.chess_extra;
+
+        var action = null;
 
         robot.start_time = wallClock();
 
-        var action = null;
-        try { action = robot.hook(dump); }
-        catch (e) { this.robotError(e, robot); }
+        if (robot.time > 0) {
+            try { action = robot.hook(dump); }
+            catch (e) { this.robotError(e, robot); }
+        }
 
         var diff_time = wallClock() - robot.start_time;
+
+        action = insulate(action);
+
         record = new ActionRecord(this, robot);
 
         try {
@@ -748,9 +755,8 @@ Game.prototype.enactTurn = function(record) {
 Game.prototype.processAction = function(robot, action, time, record) {
     robot.time -= time;
     if (robot.time < 0 || robot.hook === null || !robot.initialized) {
-        record.timeout();
         return;
-    } else robot.time += this.chess_extra;
+    }
 
     function int_param(param) {
         return param in action && action[param] !== null && Number.isInteger(action[param]);

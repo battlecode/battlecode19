@@ -2,6 +2,10 @@ var SPECS = require('../specs');
 
 module.exports = 'SPECS = ' + JSON.stringify(SPECS) + `
 
+__pragma__('iconv')
+__pragma__('tconv')
+__pragma__('opov')
+
 class BCAbstractRobot:
     def __init__(self):
         self._bc_reset_state()
@@ -97,7 +101,7 @@ class BCAbstractRobot:
         self.fuel -= radius
 
     def castle_talk(self, value):
-        if value < 0 or value >= SPECS['CASTLE_TALK_BITS']**2:
+        if value < 0 or value >= 2**SPECS['CASTLE_TALK_BITS']:
             raise Exception('Invalid castle talk, must be between 0 and 2^8.')
 
         self._bc_castle_talk = value
@@ -185,7 +189,7 @@ class BCAbstractRobot:
             raise Exception("Can only give to adjacent squares.")
         if not self._bc_check_on_map(self.me['x']+dx,self.me['y']+dy):
             raise Exception("Can't give off of map.")
-        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dy] <= 0:
+        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] <= 0:
             raise Exception("Cannot give to empty square.")
         if karbonite < 0 or fuel < 0 or self.me['karbonite'] < karbonite or self.me['fuel'] < fuel:
             raise Exception("Do not have specified amount to give.")
