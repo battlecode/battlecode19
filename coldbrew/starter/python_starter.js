@@ -28,23 +28,28 @@ class BCAbstractRobot:
         if not t:
             t = self._bc_null_action()
 
+        t['signal'] = self._bc_signal
+        t['signal_radius'] = self._bc_signal_radius
+        t['logs'] = self._bc_logs
+        t['castle_talk'] = self._bc_castle_talk
+
         self._bc_reset_state()
 
         return t
 
     def _bc_reset_state(self):
         # Internal robot state representation
-        self._bc_logs = [];
-        self._bc_signal = 0;
-        self._bc_signal_radius = 0;
-        self._bc_game_state = None;
-        self._bc_castle_talk = 0;
+        self._bc_logs = []
+        self._bc_signal = 0
+        self._bc_signal_radius = 0
+        self._bc_game_state = None
+        self._bc_castle_talk = 0
         
-        self.me = None;
-        self.id = None;
-        self.fuel = None;
-        self.karbonite = None;
-        self.last_offer = None;
+        self.me = None
+        self.id = None
+        self.fuel = None
+        self.karbonite = None
+        self.last_offer = None
 
     def _bc_null_action(self):
         return {

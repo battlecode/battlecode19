@@ -35,6 +35,11 @@ export class BCAbstractRobot {
 
         if (!t) t = this._bc_null_action();
 
+        t.signal = this._bc_signal;
+        t.signal_radius = this._bc_signal_radius;
+        t.logs = this._bc_logs;
+        t.castle_talk = this._bc_castle_talk;
+
         this._bc_reset_state();
 
         return t;

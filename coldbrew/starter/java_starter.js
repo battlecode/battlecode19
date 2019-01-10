@@ -99,6 +99,11 @@ public class BCAbstractRobot {
 
         if (t == null) t = new Action(signal, signalRadius, logs, castleTalk);
         
+        t.signal = signal;
+        t.signal_radius = signalRadius;
+        t.logs = logs;
+        t.castle_talk = castleTalk;
+        
         resetState();
 
         return t;
