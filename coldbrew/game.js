@@ -832,7 +832,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
 
     if (action.action === 'build') {
         if (robot.unit !== SPECS.PILGRIM && robot.unit !== SPECS.CASTLE && robot.unit !== SPECS.CHURCH) throw "Only pilgrims, castles and churches can build.";
-        if (action.dx > 1 || action.dy > 1) throw "Can only build on adjacent squares.";
+        if (Math.abs(action.dx > 1) || Math.abs(action.dy) > 1) throw "Can only build on adjacent squares.";
         if (int_param('build_unit') && action.build_unit >= 0 && action.build_unit <= 5) {
             if (robot.unit === SPECS.PILGRIM && action.build_unit !== SPECS.CHURCH) throw "Pilgrim failed to build non-church unit.";
             if (robot.unit !== SPECS.PILGRIM && action.build_unit === SPECS.CHURCH) throw "Non-pilgrim unit failed to build church.";
