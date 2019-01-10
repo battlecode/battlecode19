@@ -527,6 +527,9 @@ Game.prototype.isOver = function() {
         }
     }
 
+    if (total[0] === 0) nulls[0] = -1;
+    if (total[1] === 0) nulls[1] = -1;
+
     if (nulls[0] === total[0] && nulls[1] === total[1]) {
         this.winner = +(Math.random() > 0.5);
         this.win_condition = 4;
