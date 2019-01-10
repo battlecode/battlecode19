@@ -757,7 +757,7 @@ Game.prototype.enactTurn = function(record) {
 Game.prototype.processAction = function(robot, action, time, record) {
     robot.time -= time;
     if (robot.time < 0 || robot.hook === null || !robot.initialized) {
-        return;
+        throw "Robot is frozen due to clock overdrawn by " + (-1*robot.time) + "ms.";
     }
 
     function int_param(param) {
