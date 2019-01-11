@@ -240,7 +240,7 @@ Game.prototype.makeMap = function() {
         for (var z=0; z<5*total_depot; z++) { // Choose an area 5x larger than necessary for the resource cluster.
             if (queue.length === 0) break;
 
-            [x,y] = queue.pop(0);
+            [x,y] = queue.shift();
             region.push([x,y]);
             visited[y][x] = true;
 
