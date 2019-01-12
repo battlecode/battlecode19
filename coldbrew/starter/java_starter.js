@@ -103,7 +103,7 @@ public class BCAbstractRobot {
         t.signal_radius = signalRadius;
         t.logs = logs;
         t.castle_talk = castleTalk;
-        
+
         resetState();
 
         return t;
@@ -390,6 +390,7 @@ public class Robot {
 	public int y;
 	public int unit;
     public int turn;
+    public int time;
 
 	public int health;
 	public int karbonite;

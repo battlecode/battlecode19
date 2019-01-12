@@ -457,7 +457,6 @@ class Visualizer {
         var last_checkpoint_game = this.checkpoints[this.checkpoints.length-1].copy();
 
         for (let i = last_checkpoint_turn+1; i<final_checkpoint_turn+1; i++) {
-            console.log('checkpoint i = '+i);
             // feed in the i-1th instruction
             var diff = this.replay.slice(6 + 8*(i-1), 6 + 8*i);
             last_checkpoint_game.enactTurn(diff);

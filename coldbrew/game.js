@@ -1,6 +1,6 @@
 var SPECS = require('./specs');
 var ActionRecord = require('./action_record');
-
+var MersenneTwister = require('mersenne-twister');
 
 // Check whether in browser or node.
 function inBrowser() {
@@ -50,10 +50,8 @@ function Game(seed, chess_initial, chess_extra, debug, create_replay, dont_creat
     this.fuel      = [SPECS.INITIAL_FUEL, SPECS.INITIAL_FUEL];
     this.last_offer = [[0,0],[0,0]];
 
-    this.random = function() {
-        var x = Math.sin(this.seed++) * 10000;
-        return x - Math.floor(x);
-    }.bind(this);
+    var generator = new MersenneTwister(this.seed);
+    this.random = generator.random.bind(generator);
 
     if (create_replay) this.initializeReplay();
 
@@ -646,7 +644,6 @@ Game.prototype.getGameStateDump = function(robot) {
         
         delete r.initialized;
         delete r.hook;
-        delete r.time;
         delete r.start_time;
         delete r.doing;
 
@@ -654,6 +651,7 @@ Game.prototype.getGameStateDump = function(robot) {
             delete r.health;
             delete r.karbonite;
             delete r.fuel;
+            delete r.time;
         }
 
         if (!radioable) {
@@ -665,10 +663,11 @@ Game.prototype.getGameStateDump = function(robot) {
             delete r.x;
             delete r.y;
             delete r.unit;
-            delete r.team;
         }
 
-        if (!is_castle) delete r.castle_talk;
+        if (!is_castle && !visible) delete r.team;
+
+        if (!is_castle || robot.team !== this.robots[i].team) delete r.castle_talk;
 
         visible_robots.push(r);
 
@@ -709,8 +708,8 @@ Game.prototype.enactTurn = function(record) {
     robot.turn++;
 
     if (!record) {
-        var dump = this.getGameStateDump(robot);
         robot.time += this.chess_extra;
+        var dump = this.getGameStateDump(robot);
 
         var action = null;
 
@@ -834,7 +833,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
 
     if (action.action === 'build') {
         if (robot.unit !== SPECS.PILGRIM && robot.unit !== SPECS.CASTLE && robot.unit !== SPECS.CHURCH) throw "Only pilgrims, castles and churches can build.";
-        if (Math.abs(action.dx > 1) || Math.abs(action.dy) > 1) throw "Can only build on adjacent squares.";
+        if (Math.abs(action.dx) > 1 || Math.abs(action.dy) > 1) throw "Can only build on adjacent squares.";
         if (int_param('build_unit') && action.build_unit >= 0 && action.build_unit <= 5) {
             if (robot.unit === SPECS.PILGRIM && action.build_unit !== SPECS.CHURCH) throw "Pilgrim failed to build non-church unit.";
             if (robot.unit !== SPECS.PILGRIM && action.build_unit === SPECS.CHURCH) throw "Non-pilgrim unit failed to build church.";

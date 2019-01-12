@@ -238,9 +238,10 @@ var robot = new MyRobot();`}</pre>
                                     <p>In the following list, assume that <code>r</code> is a robot object (e.g., <code>r = this.me</code>). Note that some properties are only available under certain circumstances.</p>
                                     <ul>
                                         <li><code>r.id</code>: The id of the robot, which is an integer between 1 and {SPECS.MAX_ID}. Always available.</li>
+                                        <li><code>r.time</code>: The chess clock's value at the start of the turn, in ms.  Only available if <code>r == this.me</code>.</li>
                                         <li><code>r.unit</code>: The robot's unit type, where { SPECS.CASTLE } stands for Castle, { SPECS.CHURCH } stands for Church, { SPECS.PILGRIM} stands for Pilgrim, {SPECS.CRUSADER} stands for Crusader, {SPECS.PROPHET} stands for Prophet and {SPECS.PREACHER} stands for Preacher. Available if visible.</li>
                                         <li><code>r.health</code>: The health of the robot. Only available for <code>r = this.me</code>.</li>
-                                        <li><code>r.team</code>: The team of the robot, where {SPECS.RED} stands for RED and {SPECS.BLUE} stands for BLUE. Available if visible. </li>
+                                        <li><code>r.team</code>: The team of the robot, where {SPECS.RED} stands for RED and {SPECS.BLUE} stands for BLUE. Available if visible, or you are a castle. </li>
                                         <li><code>r.x</code>: The x position of the robot. Available if visible. </li>
                                         <li><code>r.y</code>: The y position of the robot. Available if visible. </li>
                                         <li><code>r.fuel</code>: The amount of Fuel that the robot carries. Only available for <code>r = this.me</code>.</li>
@@ -341,9 +342,10 @@ robot = MyRobot()
                                     <p>In the following list, assume that <code>r</code> is a robot object (e.g., <code>r = self.me</code>). Note that some properties are only available under certain circumstances.</p>
                                     <ul>
                                         <li><code>r.id</code>: The id of the robot, which is an integer between 1 and {SPECS.MAX_ID}. Always available.</li>
+                                        <li><code>r.time</code>: The chess clock's value at the start of the turn, in ms.  Only available if <code>r == self.me</code>.</li>
                                         <li><code>r.unit</code>: The robot's unit type, where { SPECS.CASTLE } stands for Castle, { SPECS.CHURCH } stands for Church, { SPECS.PILGRIM} stands for Pilgrim, {SPECS.CRUSADER} stands for Crusader, {SPECS.PROPHET} stands for Prophet and {SPECS.PREACHER} stands for Preacher. Available if visible.</li>
                                         <li><code>r.health</code>: The health of the robot. Only available for <code>r = self.me</code>.</li>
-                                        <li><code>r.team</code>: The team of the robot, where {SPECS.RED} stands for RED and {SPECS.BLUE} stands for BLUE. Available if visible. </li>
+                                        <li><code>r.team</code>: The team of the robot, where {SPECS.RED} stands for RED and {SPECS.BLUE} stands for BLUE. Available if visible, or you are a castle. </li>
                                         <li><code>r.x</code>: The x position of the robot. Available if visible. </li>
                                         <li><code>r.y</code>: The y position of the robot. Available if visible. </li>
                                         <li><code>r.fuel</code>: The amount of Fuel that the robot carries. Only available for <code>r = self.me</code>.</li>
@@ -367,7 +369,7 @@ robot = MyRobot()
                                     <hr /><h6>Communication</h6><hr />
                                     <ul>
                                         <li><code>self.signal(value, sq_radius)</code>: Broadcast <code>value</code> to all robots within the squared radius <code>sq_radius</code>. Uses <code>sq_radius</code> Fuel. <code>value</code> should be an integer between <code>0</code> and <code>2^{SPECS.COMMUNICATION_BITS}-1</code> (inclusive). Can be called multiple times in one <code>turn()</code>; however, only the most recent signal will be used, while each signal will cost Fuel. </li>
-                                        <li><code>self.castleTalk(value)</code>: Broadcast <code>value</code> to all Castles of the same team. Does not use Fuel. <code>value</code> should be an integer between <code>0</code> and <code>2^{SPECS.CASTLE_TALK_BITS}-1</code> (inclusive). Can be called multiple times in one <code>turn()</code>; however, only the most recent castle talk will be used. </li>
+                                        <li><code>self.castle_talk(value)</code>: Broadcast <code>value</code> to all Castles of the same team. Does not use Fuel. <code>value</code> should be an integer between <code>0</code> and <code>2^{SPECS.CASTLE_TALK_BITS}-1</code> (inclusive). Can be called multiple times in one <code>turn()</code>; however, only the most recent castle talk will be used. </li>
                                     </ul>
                                     <hr /><h6>Helper Methods</h6><hr />
                                     <ul>
@@ -385,7 +387,11 @@ robot = MyRobot()
                                     <ul>
                                         <li><code>random.randrange</code> does not work</li>
                                         <li>Global variables do not work.</li>
-                                        <li>imports don't work on the online IDE</li>
+                                        <li>Imports don't work on the online IDE.</li>
+                                        <li><code>type()</code> does not work.</li>
+                                        <li>Checking if lists or tuples are present in lists or sets using <code>in</code> does not work.</li>
+                                        <li>Reversing a list using <code>list[::-1]</code> does not work.</li>
+                                        <li>The <code>collections</code> package is not supported.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -426,9 +432,10 @@ public class MyRobot extends BCAbstractRobot {
                                     <p>In the following list, assume that <code>r</code> is a robot object (e.g., <code>r = me</code>). Note that some properties are only available under certain circumstances.</p>
                                     <ul>
                                         <li><code>int r.id</code>: The id of the robot, which is an integer between 1 and {SPECS.MAX_ID}. Always available.</li>
+                                        <li><code>r.time</code>: The chess clock's value at the start of the turn, in ms.  Only available if <code>r == me</code>.</li>
                                         <li><code>int r.unit</code>: The robot's unit type, where { SPECS.CASTLE } stands for Castle, { SPECS.CHURCH } stands for Church, { SPECS.PILGRIM} stands for Pilgrim, {SPECS.CRUSADER} stands for Crusader, {SPECS.PROPHET} stands for Prophet and {SPECS.PREACHER} stands for Preacher. Available if visible.</li>
                                         <li><code>int r.health</code>: The health of the robot. Only available for <code>r = me</code>.</li>
-                                        <li><code>int r.team</code>: The team of the robot, where {SPECS.RED} stands for RED and {SPECS.BLUE} stands for BLUE. Available if visible. </li>
+                                        <li><code>int r.team</code>: The team of the robot, where {SPECS.RED} stands for RED and {SPECS.BLUE} stands for BLUE. Available if visible, or you are a castle. </li>
                                         <li><code>int r.x</code>: The x position of the robot. Available if visible. </li>
                                         <li><code>int r.y</code>: The y position of the robot. Available if visible. </li>
                                         <li><code>int r.fuel</code>: The amount of Fuel that the robot carries. Only available for <code>r = me</code>.</li>
@@ -469,6 +476,8 @@ public class MyRobot extends BCAbstractRobot {
                                     </ul>
                                     <hr /><h6>Known Bugs</h6><hr />
                                     <ul>
+                                        <li><code>System.nanoTime</code> does not work.</li>
+                                        <li><code>Java.util.Random</code> does not work. Use <code>Math.random()</code> instead.</li>
                                     </ul>
                                 </div>
                             </div>
