@@ -192,7 +192,6 @@ export class BCAbstractRobot {
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't attack off of map.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === -1) throw "Cannot attack outside of vision range.";
         if (!this.map[this.me.y+dy][this.me.x+dx]) throw "Cannot attack impassable terrain.";
-        if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === 0) throw "Cannot attack empty tile.";
 
         var r = Math.pow(dx,2) + Math.pow(dy,2);
         if (r > SPECS.UNITS[this.me.unit]['ATTACK_RADIUS'][1] || r < SPECS.UNITS[this.me.unit]['ATTACK_RADIUS'][0]) throw "Cannot attack outside of attack range.";

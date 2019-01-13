@@ -673,6 +673,14 @@ Game.prototype.getGameStateDump = function(robot) {
 
     }
 
+    // Shuffle visible_robots in place
+    for (var i = visible_robots.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var x = visible_robots[i];
+        visible_robots[i] = visible_robots[j];
+        visible_robots[j] = x;
+    }
+
     return 'robot._do_turn(' + JSON.stringify({
         id: robot.id, 
         shadow:shadow, 
@@ -871,7 +879,6 @@ Game.prototype.processAction = function(robot, action, time, record) {
         var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
         if (r > SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][1] || r < SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][0]) throw "Cannot attack outside of attack range.";
 
-        if (this.shadow[robot.y+action.dy][robot.x+action.dx] === 0) throw "Cannot attack an empty square.";
         if (this.fuel[robot.team] < SPECS.UNITS[robot.unit]['ATTACK_FUEL_COST']) throw "Not enough fuel to attack.";        
 
         record.attack(action.dx, action.dy);
