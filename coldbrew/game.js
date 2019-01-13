@@ -526,7 +526,7 @@ Game.prototype.isOver = function() {
     }
 
     if (nulls[0] === total[0] && nulls[1] === total[1]) {
-        this.winner = +(Math.random() > 0.5);
+        this.winner = +(this.random() > 0.5);
         this.win_condition = 4;
         if (this.debug) console.log("Both teams failed to initialize.");
     } else if (nulls[0] === total[0]) {
@@ -547,7 +547,7 @@ Game.prototype.isOver = function() {
         if (this.debug) console.log("Game over, red won by castle annihilation.");
     } else if (castles[0] === 0 && castles[1] === 0) {
         this.win_condition = 2;
-        this.winner = +(Math.random() > 0.5);
+        this.winner = +(this.random() > 0.5);
         if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw each with no castles.");
     } else if (this.round >= SPECS.MAX_ROUNDS) {
         if (castles[0] !== castles[1]) {
@@ -560,7 +560,7 @@ Game.prototype.isOver = function() {
                 if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by greater health.");
             } else {
                 this.win_condition = 2;
-                this.winner = +(Math.random() > 0.5);
+                this.winner = +(this.random() > 0.5);
                 if (this.debug) console.log("Game over, " + (this.winner===0?"red":"blue") + " won by random draw.");
             } this.win_condition = 1;
         }

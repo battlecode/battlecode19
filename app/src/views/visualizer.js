@@ -231,7 +231,7 @@ class Visualizer {
             this.spritestage.addChild(sprite);
             this.sprite_pools[0].push(sprite);
         }
-        for (let i = 1; i < 6; i++) for (let j = 0; j < 1000; j++) { // Other
+        for (let i = 1; i < 6; i++) for (let j = 0; j < 4096; j++) { // Other
             sprite = new PIXI.Sprite(this.textures[i]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
             sprite.visible = false;
@@ -259,7 +259,7 @@ class Visualizer {
             this.strategic_sprite_pools[0].push(sprite);
         }
         
-        for (let i = 1; i < 6; i++) for (let j = 0; j < 1000; j++) { // Other
+        for (let i = 1; i < 6; i++) for (let j = 0; j < 4096; j++) { // Other
             sprite = new PIXI.Sprite(this.textures[i]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
             sprite.mask = this.grid_mask;
