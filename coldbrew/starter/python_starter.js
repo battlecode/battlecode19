@@ -214,8 +214,6 @@ class BCAbstractRobot:
             raise Exception("Cannot attack outside of vision range.")
         if not self.map[self.me['y']+dy][self.me['x']+dx]:
             raise Exception("Cannot attack impassable terrain.")
-        if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] == 0:
-            raise Exception("Cannot attack empty tile.")
 
         r = dx**2 + dy**2
         if r > SPECS['UNITS'][self.me['unit']]['ATTACK_RADIUS'][1] or r < SPECS['UNITS'][self.me['unit']]['ATTACK_RADIUS'][0]:

@@ -442,8 +442,8 @@ public class MyRobot extends BCAbstractRobot {
                                         <li><code>int r.karbonite</code>: The amount of Karbonite that the robot carries. Only available for <code>r = me</code>.</li>
                                         <li><code>int r.turn</code>: The turn count of the robot (initialiazed to 0, and incremented just before <code>turn()</code>). Always available.</li>
                                         <li><code>int r.signal</code>: The signal of the robot. Available if radioable.</li>
-                                        <li><code>int r.signalRadius</code>: The signal radius of the robot. Available if radioable. </li>
-                                        <li><code>int r.castleTalk</code>: The castle talk message sent by the robot. Available if <code>me</code> is a Castle.</li>
+                                        <li><code>int r.signal_radius</code>: The signal radius of the robot. Available if radioable. </li>
+                                        <li><code>int r.castle_talk</code>: The castle talk message sent by the robot. Available if <code>me</code> is a Castle.</li>
                                     </ul>
                                     <p>Visible means that <code>r</code> is within <code>me</code>'s vision radius (particularly, <code>me</code> is always visible to itself). Radioable means that <code>me</code> is within <code>r</code>'s signal radius. </p>
                                     <hr /><h6>Actions</h6><hr />

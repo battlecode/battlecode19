@@ -199,7 +199,6 @@ public class BCAbstractRobot {
         if (!checkOnMap(me.x+dx,me.y+dy)) throw new BCException("Can't attack off of map.");
         if (gameState.shadow[me.y+dy][me.x+dx] == -1) throw new BCException("Cannot attack outside of vision range.");
         if (!map[me.y+dy][me.x+dx]) throw new BCException("Cannot attack impassable terrain.");
-        if (gameState.shadow[me.y+dy][me.x+dx] == 0) throw new BCException("Cannot attack empty tile.");
 
         int r = dx*dx + dy*dy;
         if (r > SPECS.UNITS[me.unit].ATTACK_RADIUS[1] || r < SPECS.UNITS[me.unit].ATTACK_RADIUS[0]) throw new BCException("Cannot attack outside of attack range.");
