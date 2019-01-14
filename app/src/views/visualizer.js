@@ -58,6 +58,11 @@ class Visualizer {
         this.MAP_WIDTH = this.game.map[0].length;
         this.MAP_HEIGHT = this.game.map.length;
 
+        this.w_pressed = false;
+        this.a_pressed = false;
+        this.s_pressed = false;
+        this.d_pressed = false;
+
         // Figure out how to convert between local and screen coordinates
         this.calculated_offset = false;
         this.pixi_x_offset = 0;
@@ -107,8 +112,9 @@ class Visualizer {
             var p_x = event.clientX-this.pixi_x_offset, p_y = event.clientY-this.pixi_y_offset
             if (this.calculated_offset && p_x >= 0 && p_x <= this.grid_width && p_y >= 0 && p_y <= this.grid_height) {
                 // Nice-ify event
-                const WHEEL_MOVE = event.deltaY / 120;
-                console.log(WHEEL_MOVE);
+                // commenting because browsers suck:
+                    // const WHEEL_MOVE = event.deltaY / 120;
+                const WHEEL_MOVE = event.deltaY > 0 ? 1 : -1;
                 const ZOOM = Math.pow(3/4, WHEEL_MOVE);
                 
                 // Calculate new bounds
@@ -144,10 +150,38 @@ class Visualizer {
         }.bind(this));
 
         document.onkeypress = function(k) {
-            if (k.keyCode === 96) {// `
+            var charCode = (typeof k.which == "number") ? k.which : k.keyCode
+            if (charCode === 96 || charCode === 192) {// `
                 this.strategic = !this.strategic;
+                console.log('toggled strategic view');
             }
-            console.log(k);
+            if (charCode === 87 || charCode === 119) {
+                this.w_pressed = true;
+            }
+            if (charCode === 65 || charCode === 97) {
+                this.a_pressed = true;
+            }
+            if (charCode === 83 || charCode === 115) {
+                this.s_pressed = true;
+            }
+            if (charCode === 68 || charCode === 100) {
+                this.d_pressed = true;
+            }
+        }.bind(this);
+        document.onkeyup = function(k) {
+            var charCode = (typeof k.which == "number") ? k.which : k.keyCode
+            if (charCode === 87 || charCode === 119) {
+                this.w_pressed = false;
+            }
+            if (charCode === 65 || charCode === 97) {
+                this.a_pressed = false;
+            }
+            if (charCode === 83 || charCode === 115) {
+                this.s_pressed = false;
+            }
+            if (charCode === 68 || charCode === 100) {
+                this.d_pressed = false;
+            }
         }.bind(this);
 
         var mapGraphics = new PIXI.Graphics();
@@ -155,22 +189,26 @@ class Visualizer {
         this.graphGraphics = new PIXI.Graphics();
         this.stage.addChild(this.graphGraphics);
 
+        this.RES_FACTOR = 4;
+
         this.renderer = PIXI.autoDetectRenderer(0, 0, { backgroundColor: 0x222222, antialias: true, transparent: false });
-        this.renderer.resize(this.width, this.height);
+        this.renderer.resize(this.RES_FACTOR*this.height, this.RES_FACTOR*this.height);
+        //this.renderer.resize(this.height, this.height);
+
 
         // Clear container before draw
         this.container.innerHTML = '';
         this.container.append(this.renderer.view);
 
-        this.BLANK = '0x444444';
-        this.OBSTACLE = '0xFFFFFF';
+        this.BLANK = '0xFFFFFF';
+        this.OBSTACLE = '0x444444';
         this.KARBONITE = '0x22BB22';
-        this.FUEL = '0xFFFF00';
+        this.FUEL = '0xCCCC00';
    
-        var draw_width = this.grid_width / this.MAP_WIDTH;
-        var draw_height = this.grid_height / this.MAP_HEIGHT;
+        var draw_width = this.RES_FACTOR*this.grid_width / this.MAP_WIDTH;
+        var draw_height = this.RES_FACTOR*this.grid_height / this.MAP_HEIGHT;
         mapGraphics.beginFill(this.BLANK);
-        mapGraphics.drawRect(0, 0, this.grid_width, this.grid_height);
+        mapGraphics.drawRect(0, 0, this.RES_FACTOR*this.grid_width, this.RES_FACTOR*this.grid_height);
         mapGraphics.endFill();
         for (let y = 0; y < this.MAP_HEIGHT; y++) for (let x = 0; x < this.MAP_WIDTH; x++) {
             if (!this.game.map[y][x] || this.game.karbonite_map[y][x] || this.game.fuel_map[y][x]) {
@@ -187,18 +225,19 @@ class Visualizer {
         }
 
         // Gridlines
-        mapGraphics.lineStyle(1, '0xFFFFFF');
+        mapGraphics.lineStyle(this.RES_FACTOR, this.OBSTACLE);
         for(var y = 0; y <= this.MAP_HEIGHT; y++) {
             mapGraphics.moveTo(0, y*draw_height);
-            mapGraphics.lineTo(this.grid_width, y*draw_height);
+            mapGraphics.lineTo(this.RES_FACTOR*this.grid_width, y*draw_height);
         }
         for(var x = 0; x <= this.MAP_WIDTH; x++){
             mapGraphics.moveTo(x*draw_width, 0);
-            mapGraphics.lineTo(x*draw_width, this.grid_height);
+            mapGraphics.lineTo(x*draw_width, this.RES_FACTOR*this.grid_height);
         }
 
-        PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-        var map_texture = PIXI.RenderTexture.create(this.height, this.height);
+        //PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+        var map_texture = PIXI.RenderTexture.create(this.RES_FACTOR*this.height, this.RES_FACTOR*this.height);
+        
         this.renderer.render(mapGraphics, map_texture);
         this.map = new PIXI.Sprite(map_texture);
         this.grid_mask = new PIXI.Graphics();
@@ -207,6 +246,9 @@ class Visualizer {
         this.grid_mask.endFill();
         this.map.mask = this.grid_mask;
         this.stage.addChild(this.map);
+
+        // Reset the renderer
+        this.renderer.resize(this.width, this.height);
 
         // Sprites!
         this.spritestage = new PIXI.Container();
@@ -260,7 +302,7 @@ class Visualizer {
         }
         
         for (let i = 1; i < 6; i++) for (let j = 0; j < 4096; j++) { // Other
-            sprite = new PIXI.Sprite(this.textures[i]);
+            sprite = new PIXI.Sprite(this.strategic_textures[i]);
             sprite.anchor = new PIXI.Point(0.5, 0.5);
             sprite.mask = this.grid_mask;
             sprite.visible = false;
@@ -441,11 +483,47 @@ class Visualizer {
         this.renderer.render(this.stage);
        
         // Reset all sprite pools to be invisible
-        for (let i = 0; i < 6; i++) spritepools[0][i].visible = false; // Castles
-        for (let i = 1; i < 6; i++) for (let j = 0; j < spritepools[i].length && this.sprite_pools[i][j].visible; j++) spritepools[i][j].visible = false; // Other
+        for (let i = 0; i < 6; i++) for (let j = 0; j < spritepools[i].length && spritepools[i][j].visible; j++) spritepools[i][j].visible = false; // Other
         
+        // Move frame
+        const PAN_SPEED = 0.4;
+        if (this.w_pressed) {
+            this.y1 -= PAN_SPEED;
+            this.y2 -= PAN_SPEED;
+        }
+        if (this.a_pressed) {
+            this.x1 -= PAN_SPEED;
+            this.x2 -= PAN_SPEED;
+        }
+        if (this.s_pressed) {
+            this.y1 += PAN_SPEED;
+            this.y2 += PAN_SPEED;
+        }
+        if (this.d_pressed) {
+            this.x1 += PAN_SPEED;
+            this.x2 += PAN_SPEED;
+        }
+        // Correct horizontal bounds.
+        if(this.x1 < 0) {
+            this.x2 -= this.x1;
+            this.x1 = 0;
+        }
+        else if(this.x2 > this.MAP_WIDTH) {
+            this.x1 -= this.x2-this.MAP_WIDTH;
+            this.x2 = this.MAP_WIDTH;
+        }
+        // Correct vertical bounds
+        if(this.y1 < 0) {
+            this.y2 -= this.y1;
+            this.y1 = 0;
+        }
+        else if(this.y2 > this.MAP_HEIGHT) {
+            this.y1 -= this.y2-this.MAP_HEIGHT;
+            this.y2 = this.MAP_HEIGHT;
+        }
+
         requestAnimationFrame(function() {
-            setTimeout(this.draw.bind(this),50);
+            setTimeout(this.draw.bind(this),33);
         }.bind(this));
     }
 
@@ -528,7 +606,7 @@ class Visualizer {
             this.interval = setInterval(function () {
                 if (this.turn < this.numTurns()) this.goToTurn(this.turn + 1);
                 else this.startStop();
-            }.bind(this), TIME_PER_TURN); 
+            }.bind(this), ); 
         }
     }
 
