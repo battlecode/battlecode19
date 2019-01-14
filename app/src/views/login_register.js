@@ -243,7 +243,7 @@ class LoginRegister extends Component {
               {buttons}
               <br/>
               <a
-                href="/password/forgot"
+                href={`${process.env.PUBLIC_URL}/password_forgot`}
                 className="btn btn-secondary btn-block btn-fill"
               >
                 Forgot Password
