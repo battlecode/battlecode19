@@ -42,7 +42,7 @@ class PasswordChange extends Component {
             const redirect = () => {
                 this.props.router.push('/dash/')
             }
-            this.setTimeOut(redirect.bind(this), 3000);
+            setTimeout(redirect.bind(this), 3000);
         } else {
             this.setState({error: 'Password Reset Failed. Try Again Later'});
         }

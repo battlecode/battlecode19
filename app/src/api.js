@@ -373,6 +373,10 @@ class Api {
   }
 
   static doResetPassword(password, token, callback) {
+    if ($.ajaxSettings && $.ajaxSettings.headers) {
+      delete $.ajaxSettings.headers.Authorization;
+    }
+
     $.post(`${URL}/api/password_reset/confirm/`,
       {
         password,
