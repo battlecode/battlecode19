@@ -227,7 +227,7 @@ var robot = new MyRobot();`}</pre>
                                     <hr /><h6>State Information</h6><hr />
                                     <ul>
                                         <li><code>this.me</code>: The robot object (see below) for this robot.</li>
-                                        <li><code>this.map</code>: The full map. Boolean grid where <code>true</code> indicates passable and <code>false</code> indicates impassable. </li>
+                                        <li><code>this.map</code>: The full map. Boolean grid where <code>true</code> indicates passable and <code>false</code> indicates impassable. Indexed <code>[y][x]</code>, like all 2D arrays in Battlecode.</li>
                                         <li><code>this.karbonite_map</code>: The Karbonite map. Boolean grid where <code>true</code> indicates that Karbonite is present and <code>false</code> indicates that it is not. </li>
                                         <li><code>this.fuel_map</code>: The Fuel map. Boolean grid where <code>true</code> indicates that Fuel is present and <code>false</code> indicates that it is not. </li>
                                         <li><code>this.karbonite</code>: The global amount of Karbonite that the team possesses.</li>
@@ -331,7 +331,7 @@ robot = MyRobot()
                                     <hr /><h6>State Information</h6><hr />
                                     <ul>
                                         <li><code>self.me</code>: The robot object (see below) for this robot.</li>
-                                        <li><code>self.map</code>: The full map. Boolean grid where <code>True</code> indicates passable and <code>False</code> indicates impassable. </li>
+                                        <li><code>self.map</code>: The full map. Boolean grid where <code>True</code> indicates passable and <code>False</code> indicates impassable.  Indexed <code>[y][x]</code>, like all 2D arrays in Battlecode.</li>
                                         <li><code>self.karbonite_map</code>: The Karbonite map. Boolean grid where <code>True</code> indicates that Karbonite is present and <code>False</code> indicates that it is not. </li>
                                         <li><code>self.fuel_map</code>: The Fuel map. Boolean grid where <code>True</code> indicates that Fuel is present and <code>False</code> indicates that it is not. </li>
                                         <li><code>self.karbonite</code>: The global amount of Karbonite that the team possesses.</li>
@@ -421,7 +421,7 @@ public class MyRobot extends BCAbstractRobot {
                                     <hr /><h6>State Information</h6><hr />
                                     <ul>
                                         <li><code>Robot me</code>: The robot object (see below) for this robot.</li>
-                                        <li><code>boolean[][] map</code>: The full map. Boolean grid where <code>true</code> indicates passable and <code>false</code> indicates impassable. </li>
+                                        <li><code>boolean[][] map</code>: The full map. Boolean grid where <code>true</code> indicates passable and <code>false</code> indicates impassable.   Indexed <code>[y][x]</code>, like all 2D arrays in Battlecode.</li>
                                         <li><code>boolean[][] karboniteMap</code>: The Karbonite map. Boolean grid where <code>true</code> indicates that Karbonite is present and <code>false</code> indicates that it is not. </li>
                                         <li><code>boolean[][] fuelMap</code>: The Fuel map. Boolean grid where <code>true</code> indicates that Fuel is present and <code>false</code> indicates that it is not. </li>
                                         <li><code>int karbonite</code>: The global amount of Karbonite that the team possesses.</li>
