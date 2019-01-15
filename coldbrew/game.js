@@ -856,6 +856,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
         if (int_param('build_unit') && action.build_unit >= 0 && action.build_unit <= 5) {
             if (robot.unit === SPECS.PILGRIM && action.build_unit !== SPECS.CHURCH) throw "Pilgrim failed to build non-church unit.";
             if (robot.unit !== SPECS.PILGRIM && action.build_unit === SPECS.CHURCH) throw "Non-pilgrim unit failed to build church.";
+            if (action.build_unit === SPECS.CASTLE) throw "Cannot build castles.";
 
             if (this.shadow[robot.y+action.dy][robot.x+action.dx] === 0) {
                 if (this.karbonite[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_KARBONITE'] || this.fuel[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_FUEL']) throw "Cannot afford to build specified unit.";
