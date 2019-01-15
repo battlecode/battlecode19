@@ -240,7 +240,7 @@ def password_reset_token_created(sender, reset_password_token, *args, **kwargs):
     context = {
         'username': reset_password_token.user.username,
         'reset_password_url':
-        "https://battlecode.org/password_change?token={}"
+        "https://battlecode.org/dash/password_change?token={}"
         .format(reset_password_token.key)
     }
     content = render_to_string('email/password_reset.html', context)

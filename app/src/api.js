@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import * as Cookies from 'js-cookie';
 
-const URL = 'https://battlecode.org';
-// const URL = 'http://localhost:8000'; // DEVELOPMENT
+//const URL = 'https://battlecode.org';
+const URL = 'http://localhost:8000'; // DEVELOPMENT
 const LEAGUE = 0;
 const PAGE_LIMIT = 10;
 
@@ -381,6 +381,9 @@ class Api {
   }
 
   static forgotPassword(email, callback) {
+    if ($.ajaxSettings && $.ajaxSettings.headers) {
+      delete $.ajaxSettings.headers.Authorization;
+    }
     $.post(`${URL}/api/password_reset/`,
       {
         email,
