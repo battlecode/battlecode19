@@ -50,8 +50,8 @@ function Game(seed, chess_initial, chess_extra, debug, create_replay, dont_creat
     this.fuel      = [SPECS.INITIAL_FUEL, SPECS.INITIAL_FUEL];
     this.last_offer = [[0,0],[0,0]];
 
-    var generator = new MersenneTwister(this.seed);
-    this.random = generator.random.bind(generator);
+    this.generator = new MersenneTwister(this.seed);
+    this.random = this.generator.random.bind(this.generator);
 
     if (create_replay) this.initializeReplay();
 
@@ -341,6 +341,8 @@ Game.prototype.makeMap = function() {
  * @return {Game} - A deep copy of the current game that will remain constant.
  */
 Game.prototype.copy = function() {
+    var m = insulate(this.generator);
+
     var g = new Game(this.seed, this.chess_initial, this.chess_extra, false, false, true);
     g.replay = this.replay ? insulate(this.replay) : undefined;
     g.map = insulate(this.map);
@@ -361,6 +363,15 @@ Game.prototype.copy = function() {
     g.karbonite = insulate(this.karbonite);
     g.fuel = insulate(this.fuel);
     g.last_offer = insulate(this.last_offer);
+
+    // Copy MersenneTwister. Thanks @hgarrereyn!
+    g.generator = new MersenneTwister();
+    var keys = Object.keys(m);
+    for (var i = 0; i < keys.length; ++i) {
+        g.generator[keys[i]] = m[keys[i]];
+    }
+
+    g.random = g.generator.random.bind(g.generator);
 
     return g;
 }
