@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET', 'asdf')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #yolo
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -73,7 +73,7 @@ ROOT_URLCONF = 'urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'api/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'code/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
