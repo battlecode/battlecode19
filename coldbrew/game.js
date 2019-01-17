@@ -686,7 +686,7 @@ Game.prototype.getGameStateDump = function(robot) {
 
     // Shuffle visible_robots in place
     for (var i = visible_robots.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
+        var j = Math.floor(this.random() * (i + 1));
         var x = visible_robots[i];
         visible_robots[i] = visible_robots[j];
         visible_robots[j] = x;
