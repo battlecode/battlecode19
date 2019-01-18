@@ -39,6 +39,7 @@ public class AttackAction extends Action {
 	'BCAbstractRobot.java':`
 package bc19;
 import java.util.ArrayList;
+import java.lang.Math; 
 
 public class BCAbstractRobot {
     public SpecHolder SPECS;
@@ -118,7 +119,7 @@ public class BCAbstractRobot {
     }
 
     public void signal(int value, int radius) {
-        if (fuel < radius) throw new BCException("Not enough fuel to signal given radius.");
+        if (fuel < Math.ceil(Math.sqrt(radius))) throw new BCException("Not enough fuel to signal given radius.");
 
         if (value < 0 || value >= Math.pow(2, SPECS.COMMUNICATION_BITS)) throw new BCException("Invalid signal, must be within bit range.");
         if (radius > 2*Math.pow(SPECS.MAX_BOARD_SIZE-1,2)) throw new BCException("Signal radius is too big.");
@@ -194,11 +195,10 @@ public class BCAbstractRobot {
     }
 
     public AttackAction attack(int dx, int dy) {
-        if (me.unit != SPECS.CRUSADER && this.me.unit != SPECS.PREACHER && me.unit != SPECS.PROPHET) throw new BCException("Given unit cannot attack.");
+        if (me.unit == SPECS.CHURCH) throw new BCException("Churches cannot attack.");
         if (fuel < SPECS.UNITS[me.unit].ATTACK_FUEL_COST) throw new BCException("Not enough fuel to attack.");
         if (!checkOnMap(me.x+dx,me.y+dy)) throw new BCException("Can't attack off of map.");
         if (gameState.shadow[me.y+dy][me.x+dx] == -1) throw new BCException("Cannot attack outside of vision range.");
-        if (!map[me.y+dy][me.x+dx]) throw new BCException("Cannot attack impassable terrain.");
 
         int r = dx*dx + dy*dy;
         if (r > SPECS.UNITS[me.unit].ATTACK_RADIUS[1] || r < SPECS.UNITS[me.unit].ATTACK_RADIUS[0]) throw new BCException("Cannot attack outside of attack range.");

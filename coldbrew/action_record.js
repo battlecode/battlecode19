@@ -295,7 +295,7 @@ ActionRecord.prototype.enactAttack = function() {
                 if (target.health <= 0) {
                     // Reclaim: attacker gets resources plus half karbonite to construct, divided by rad^2
 
-                    if (target.unit !== SPECS.CASTLE) {
+                    if (target.unit !== SPECS.CASTLE && target.unit !== SPECS.CHURCH) {
                         var reclaimed_karb = Math.floor((target.karbonite + SPECS.UNITS[target.unit]['CONSTRUCTION_KARBONITE']/2)/rad_to_attacker);
                         var reclaimed_fuel = Math.floor(target.fuel/rad_to_attacker);
 
@@ -319,6 +319,8 @@ ActionRecord.prototype.enact = function(game, robot) {
     this.robot.signal = this.signal;
     this.robot.signal_radius = this.signal_radius;
     this.robot.castle_talk = this.castle_talk;
+    
+    this.game.fuel[this.robot.team] -= Math.ceil(Math.sqrt(this.signal_radius));
 
     // NOTHING, MOVE, ATTACK, BUILD, MINE, TRADE, GIVE, TIMEOUT
     if      (this.action === 1) this.enactMove();

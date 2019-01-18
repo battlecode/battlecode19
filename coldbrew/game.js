@@ -670,10 +670,11 @@ Game.prototype.getGameStateDump = function(robot) {
             r.signal_radius = -1;
         }
 
-        if (!visible) {
+        if (!visible) delete r.unit;
+
+        if (!visible && !radioable) {
             delete r.x;
             delete r.y;
-            delete r.unit;
         }
 
         if (!is_castle && !visible) delete r.team;
@@ -799,12 +800,13 @@ Game.prototype.processAction = function(robot, action, time, record) {
         this.robotError(action.error, robot);
     }
 
+    var temp_fuel = this.fuel[robot.team];
     if ('signal' in action) {
         if (int_param('signal') && int_param('signal_radius') && action.signal >= 0 && action.signal < Math.pow(2,SPECS.COMMUNICATION_BITS) && action.signal_radius >= 0 && action.signal_radius <= 2*Math.pow(SPECS.MAX_BOARD_SIZE-1,2)) {
-            var fuel_cost = action.signal_radius;
+            var fuel_cost = Math.ceil(Math.sqrt(action.signal_radius));
 
             if (this.fuel[robot.team] >= fuel_cost) {
-                this.fuel[robot.team] -= fuel_cost;
+                temp_fuel -= fuel_cost;
                 record.signal = action.signal;
                 record.signal_radius = action.signal_radius;
             } else throw "Insufficient fuel to signal given radius.";
@@ -837,7 +839,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
 
     else if (action.action === 'mine') {
         if (robot.unit !== SPECS.PILGRIM) throw "Only Pilgrims can mine.";
-        if (this.fuel[robot.team] - SPECS.MINE_FUEL_COST < 0) throw "Not enough fuel to mine.";
+        if (temp_fuel - SPECS.MINE_FUEL_COST < 0) throw "Not enough fuel to mine.";
 
         record.mine();
 
@@ -859,7 +861,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
             if (action.build_unit === SPECS.CASTLE) throw "Cannot build castles.";
 
             if (this.shadow[robot.y+action.dy][robot.x+action.dx] === 0) {
-                if (this.karbonite[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_KARBONITE'] || this.fuel[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_FUEL']) throw "Cannot afford to build specified unit.";
+                if (this.karbonite[robot.team] < SPECS.UNITS[action.build_unit]['CONSTRUCTION_KARBONITE'] || temp_fuel < SPECS.UNITS[action.build_unit]['CONSTRUCTION_FUEL']) throw "Cannot afford to build specified unit.";
 
                 record.build(action.dx, action.dy, action.build_unit);
                 
@@ -882,7 +884,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
         var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
         if (r > SPECS.UNITS[robot.unit]['SPEED']) throw "Slow down, cowboy.  Tried to move faster than unit can.";
         if (this.shadow[robot.y+action.dy][robot.x+action.dx] > 0) throw "Cannot move into occupied square.";
-        if (this.fuel[robot.team] < r*SPECS.UNITS[robot.unit]['FUEL_PER_MOVE']) throw "Not enough fuel to move at given speed.";
+        if (temp_fuel < r*SPECS.UNITS[robot.unit]['FUEL_PER_MOVE']) throw "Not enough fuel to move at given speed.";
 
         record.move(action.dx, action.dy);
     }
@@ -891,7 +893,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
         var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
         if (r > SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][1] || r < SPECS.UNITS[robot.unit]['ATTACK_RADIUS'][0]) throw "Cannot attack outside of attack range.";
 
-        if (this.fuel[robot.team] < SPECS.UNITS[robot.unit]['ATTACK_FUEL_COST']) throw "Not enough fuel to attack.";        
+        if (temp_fuel < SPECS.UNITS[robot.unit]['ATTACK_FUEL_COST']) throw "Not enough fuel to attack.";        
 
         record.attack(action.dx, action.dy);
     }

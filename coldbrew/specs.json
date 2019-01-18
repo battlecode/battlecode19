@@ -32,12 +32,12 @@
             "FUEL_CAPACITY": null,
             "SPEED": 0,
             "FUEL_PER_MOVE": null,
-            "STARTING_HP": 100,
+            "STARTING_HP": 200,
             "VISION_RADIUS": 100,
-            "ATTACK_DAMAGE": null,
-            "ATTACK_RADIUS": null,
-            "ATTACK_FUEL_COST": null,
-            "DAMAGE_SPREAD": null
+            "ATTACK_DAMAGE": 10,
+            "ATTACK_RADIUS": [1,64],
+            "ATTACK_FUEL_COST": 10,
+            "DAMAGE_SPREAD": 0
         },
         {
             "CONSTRUCTION_KARBONITE": 50,
@@ -46,12 +46,12 @@
             "FUEL_CAPACITY": null,
             "SPEED": 0,
             "FUEL_PER_MOVE": null,
-            "STARTING_HP": 50,
+            "STARTING_HP": 100,
             "VISION_RADIUS": 100,
-            "ATTACK_DAMAGE": null,
-            "ATTACK_RADIUS": null,
-            "ATTACK_FUEL_COST": null,
-            "DAMAGE_SPREAD": null
+            "ATTACK_DAMAGE": 0,
+            "ATTACK_RADIUS": 0,
+            "ATTACK_FUEL_COST": 0,
+            "DAMAGE_SPREAD": 0
         },
         {
             "CONSTRUCTION_KARBONITE": 10,
@@ -68,14 +68,14 @@
             "DAMAGE_SPREAD": null
         },
         {
-            "CONSTRUCTION_KARBONITE": 20,
+            "CONSTRUCTION_KARBONITE": 15,
             "CONSTRUCTION_FUEL": 50,
             "KARBONITE_CAPACITY": 20,
             "FUEL_CAPACITY": 100,
             "SPEED": 9,
             "FUEL_PER_MOVE": 1,
             "STARTING_HP": 40,
-            "VISION_RADIUS": 36,
+            "VISION_RADIUS": 49,
             "ATTACK_DAMAGE": 10,
             "ATTACK_RADIUS": [1,16],
             "ATTACK_FUEL_COST": 10,

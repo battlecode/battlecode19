@@ -1,6 +1,6 @@
 var SPECS = require('../specs');
 
-module.exports = 'SPECS = ' + JSON.stringify(SPECS) + `
+module.exports = 'import math\n\nSPECS = ' + JSON.stringify(SPECS) + `
 
 class BCAbstractRobot:
     def __init__(self):
@@ -87,7 +87,7 @@ class BCAbstractRobot:
 
     def signal(self, value, radius):
         # Check if enough fuel to signal, and that valid value.
-        if self.fuel < radius:
+        if self.fuel < math.ceil(math.sqrt(radius)):
             raise Exception("Not enough fuel to signal given radius.")
         
         if value < 0 or value >= 2**SPECS['COMMUNICATION_BITS']:
@@ -203,7 +203,7 @@ class BCAbstractRobot:
     
 
     def attack(self, dx, dy):
-        if self.me['unit'] != SPECS['CRUSADER'] and self.me['unit'] != SPECS['PREACHER'] and self.me['unit'] != SPECS['PROPHET']:
+        if self.me['unit'] == SPECS['CHURCH']:
             raise Exception("Given unit cannot attack.")
         
         if self.fuel < SPECS['UNITS'][self.me['unit']]['ATTACK_FUEL_COST']:
@@ -212,8 +212,6 @@ class BCAbstractRobot:
             raise Exception("Can't attack off of map.")
         if self._bc_game_state['shadow'][self.me['y']+dy][self.me['x']+dx] == -1:
             raise Exception("Cannot attack outside of vision range.")
-        if not self.map[self.me['y']+dy][self.me['x']+dx]:
-            raise Exception("Cannot attack impassable terrain.")
 
         r = dx**2 + dy**2
         if r > SPECS['UNITS'][self.me['unit']]['ATTACK_RADIUS'][1] or r < SPECS['UNITS'][self.me['unit']]['ATTACK_RADIUS'][0]:
@@ -236,7 +234,7 @@ class BCAbstractRobot:
     # Check if a given robot is visible.
     def is_visible(self, robot):
         __pragma__('tconv')
-        x = 'x' in robot
+        x = 'unit' in robot
         __pragma__('notconv')
         
         return x

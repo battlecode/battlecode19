@@ -97,7 +97,7 @@ export class BCAbstractRobot {
     signal(value, radius) {
         // Check if enough fuel to signal, and that valid value.
 
-        if (this.fuel < radius) throw "Not enough fuel to signal given radius.";
+        if (this.fuel < Math.ceil(Math.sqrt(radius))) throw "Not enough fuel to signal given radius.";
         if (!Number.isInteger(value) || value < 0 || value >= Math.pow(2,SPECS.COMMUNICATION_BITS)) throw "Invalid signal, must be int within bit range.";
         if (radius > 2*Math.pow(SPECS.MAX_BOARD_SIZE-1,2)) throw "Signal radius is too big.";
 
@@ -187,11 +187,10 @@ export class BCAbstractRobot {
     }
 
     attack(dx, dy) {
-        if (this.me.unit !== SPECS.CRUSADER && this.me.unit !== SPECS.PREACHER && this.me.unit !== SPECS.PROPHET) throw "Given unit cannot attack.";
+        if (this.me.unit === SPECS.CHURCH) throw "Churches cannot attack.";
         if (this.fuel < SPECS.UNITS[this.me.unit].ATTACK_FUEL_COST) throw "Not enough fuel to attack.";
         if (!this._bc_check_on_map(this.me.x+dx,this.me.y+dy)) throw "Can't attack off of map.";
         if (this._bc_game_state.shadow[this.me.y+dy][this.me.x+dx] === -1) throw "Cannot attack outside of vision range.";
-        if (!this.map[this.me.y+dy][this.me.x+dx]) throw "Cannot attack impassable terrain.";
 
         var r = Math.pow(dx,2) + Math.pow(dy,2);
         if (r > SPECS.UNITS[this.me.unit]['ATTACK_RADIUS'][1] || r < SPECS.UNITS[this.me.unit]['ATTACK_RADIUS'][0]) throw "Cannot attack outside of attack range.";
@@ -215,7 +214,7 @@ export class BCAbstractRobot {
 
     // Check if a given robot is visible.
     isVisible(robot) {
-        return ('x' in robot);
+        return ('unit' in robot);
     }
 
     // Check if a given robot is sending you radio.
