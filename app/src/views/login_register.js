@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Api from '../api';
 
 class LoginRegister extends Component {
-
   state = {
     email: '',
     password: '',
@@ -30,20 +29,18 @@ class LoginRegister extends Component {
   }
 
   formSubmit = (e) => {
-    console.log("HI!");
+    console.log('HI!');
     e.preventDefault();
     const { register } = this.state;
     if (register) {
       this.submitRegister();
-    }
-    else {
+    } else {
       this.submitLogin();
-    } 
+    }
   }
 
   startRegister = () => {
-    console.log("HIIII")
-    this.setState({ register: true, error: "" });
+    this.setState({ register: true, error: '' });
   }
 
   submitLogin = () => {
@@ -62,22 +59,22 @@ class LoginRegister extends Component {
       password,
     } = this.state;
       // ensure that all fields are correct
-      if (username.length < 4) this.setState({ error: 'Username must be at least 4 characters.' });
-      else if (email.length < 4) this.setState({ error: 'Email must be at least 4 characters.' });
-      else if (username.indexOf('.') > -1) this.setState({ error: 'Username must not contain dots.' });
-      else if (!first) this.setState({ error: 'Must provide first name.' });
-      else if (!last) this.setState({ error: 'Must provide last name.' });
-      else if (dob.match(/^\d{4}-\d{2}-\d{2}$/g)) this.setState({ error: 'Must provide DOB in YYYY-MM-DD form.' });
-      else if (password.length < 6) this.setState({ error: 'Password must be at least 6 characters.' });
-      else {
-        Api.register(email, username, password, first, last, dob, this.callback);
-      }
+    if (username.length < 4) this.setState({ error: 'Username must be at least 4 characters.' });
+    else if (email.length < 4) this.setState({ error: 'Email must be at least 4 characters.' });
+    else if (username.indexOf('.') > -1) this.setState({ error: 'Username must not contain dots.' });
+    else if (!first) this.setState({ error: 'Must provide first name.' });
+    else if (!last) this.setState({ error: 'Must provide last name.' });
+    else if (!dob.match(/^\d{4}-\d{2}-\d{2}$/g)) this.setState({ error: 'Must provide DOB in YYYY-MM-DD form.' });
+    else if (password.length < 6) this.setState({ error: 'Password must be at least 6 characters.' });
+    else {
+      Api.register(email, username, password, first, last, dob, this.callback);
+    }
   };
 
   changeHandler = (e) => {
     const { id } = e.target;
     const val = e.target.value;
-    this.setState({[id]: val});
+    this.setState({ [id]: val });
   }
 
   render() {
@@ -121,7 +118,7 @@ class LoginRegister extends Component {
       buttons = (
         <button
           type="submit"
-          value= "submit"
+          value="submit"
           className="btn btn-primary btn-block btn-fill"
         >
           Register
@@ -241,7 +238,7 @@ class LoginRegister extends Component {
                 </div>
               </div>
               {buttons}
-              <br/>
+              <br />
               <a
                 href={`${process.env.PUBLIC_URL}/password_forgot`}
                 className="btn btn-secondary btn-block btn-fill"
@@ -252,7 +249,7 @@ class LoginRegister extends Component {
               <div className="clearfix" />
             </div>
           </div>
-        </form> 
+        </form>
       </div>
     );
   }
