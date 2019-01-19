@@ -853,9 +853,9 @@ Game.prototype.processAction = function(robot, action, time, record) {
     valid = int_param('dx') && int_param('dy') && (action.dx != 0 || action.dy != 0) && Math.abs(action.dx) < SPECS.MAX_BOARD_SIZE && Math.abs(action.dy) < SPECS.MAX_BOARD_SIZE; 
     valid = valid && robot.x + action.dx < this.shadow[0].length && robot.x + action.dx >= 0 && robot.y + action.dy < this.shadow.length && robot.y + action.dy >= 0;
     if (!valid) throw "Require a valid, onboard, nonzero dx and dy for given action."
-    if (!this.map[robot.y + action.dy][robot.x + action.dx]) throw "Cannot perform action on impassable tile.";
 
     if (action.action === 'build') {
+        if (!this.map[robot.y + action.dy][robot.x + action.dx]) throw "Cannot build on impassable tile.";
         if (robot.unit !== SPECS.PILGRIM && robot.unit !== SPECS.CASTLE && robot.unit !== SPECS.CHURCH) throw "Only pilgrims, castles and churches can build.";
         if (Math.abs(action.dx) > 1 || Math.abs(action.dy) > 1) throw "Can only build on adjacent squares.";
         if (int_param('build_unit') && action.build_unit >= 0 && action.build_unit <= 5) {
@@ -874,6 +874,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
     }
 
     else if (action.action === 'give') {
+        if (!this.map[robot.y + action.dy][robot.x + action.dx]) throw "Cannot give to impassable tile.";
         if (Math.abs(action.dx) > 1 || Math.abs(action.dy) > 1) throw "Can only give to adjacent squares.";
         if (int_param('give_karbonite') && int_param('give_fuel') && action.give_karbonite >= 0 && action.give_fuel >= 0 && action.give_fuel < Math.pow(2,8) && action.give_karbonite < Math.pow(2,8)) {
             if (robot.karbonite < action.give_karbonite || robot.fuel < action.give_fuel) throw "Tried to give more than you have.";
@@ -884,6 +885,7 @@ Game.prototype.processAction = function(robot, action, time, record) {
     }
     
     else if (action.action === 'move') {
+        if (!this.map[robot.y + action.dy][robot.x + action.dx]) throw "Cannot move to impassable tile.";
         var r = Math.pow(action.dx,2) + Math.pow(action.dy,2);
         if (r > SPECS.UNITS[robot.unit]['SPEED']) throw "Slow down, cowboy.  Tried to move faster than unit can.";
         if (this.shadow[robot.y+action.dy][robot.x+action.dx] > 0) throw "Cannot move into occupied square.";
