@@ -283,6 +283,8 @@ ActionRecord.prototype.enactMove = function() {
 }
 
 ActionRecord.prototype.enactAttack = function() {
+    this.game.fuel[this.robot.team] -= SPECS.UNITS[this.robot.unit]['ATTACK_FUEL_COST'];
+
     // Handle AOE damage
     for (var r=0; r<this.game.shadow.length; r++) {
         for (var c=0; c<this.game.shadow[0].length; c++) {
