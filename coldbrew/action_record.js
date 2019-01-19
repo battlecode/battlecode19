@@ -41,8 +41,8 @@ ActionRecord.prototype.serialize = function() {
     //  3: action (NOTHING, MOVE, ATTACK, BUILD, MINE, TRADE, GIVE, TIMEOUT)
     //  
     //  if trade:
-    //    11: trade_fuel (twos complement)
-    //    11: trade_karbonite (twos complement)
+    //    11: trade_fuel (sign and mag)
+    //    11: trade_karbonite (sign and mag)
     //  
     //  if mine:
     //    ignore
@@ -81,10 +81,12 @@ ActionRecord.prototype.serialize = function() {
     s[5] = (this.action % Math.pow(2,2)) << 6;
 
     if (this.action === 5) { // Trade
-        s[5] += this.trade_fuel >> 5;
-        s[6] = (this.trade_fuel % Math.pow(2,3)) << 5;
-        s[6] += this.trade_karbonite >> 8;
-        s[7] = this.trade_karbonite % Math.pow(2,8);
+        var trade_fuel = Math.abs(this.trade_fuel) + (this.trade_fuel < 0 ? (1 << 10) : 0);
+        var trade_karbonite = Math.abs(this.trade_karbonite) + (this.trade_karbonite < 0 ? (1 << 10) : 0);
+        s[5] += trade_fuel >> 5;
+        s[6] = (trade_fuel % Math.pow(2,5)) << 3;
+        s[6] += trade_karbonite >> 8;
+        s[7] = trade_karbonite % Math.pow(2,8);
     }
 
     else if (this.action === 1 || this.action === 2) { // move or attack
@@ -132,6 +134,8 @@ ActionRecord.FromBytes = function(s) { // deserialize
         x.trade_fuel += s[6] >> 3;
         x.trade_karbonite = (s[6] % Math.pow(2,3)) << 8;
         x.trade_karbonite += s[7];
+        if (x.trade_fuel >= (1 << 10)) x.trade_fuel = -(x.trade_fuel - (1 << 10));
+        if (x.trade_karbonite >= (1 << 10)) x.trade_karbonite = -(x.trade_karbonite - (1 << 10));
     }
     
     else if (x.action === 1 || x.action === 2) {
