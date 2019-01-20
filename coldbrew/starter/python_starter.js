@@ -87,7 +87,8 @@ class BCAbstractRobot:
 
     def signal(self, value, radius):
         # Check if enough fuel to signal, and that valid value.
-        if self.fuel < math.ceil(math.sqrt(radius)):
+        fuelNeeded = int(math.ceil(math.sqrt(radius)))
+        if self.fuel < fuelNeeded:
             raise Exception("Not enough fuel to signal given radius.")
         
         if value < 0 or value >= 2**SPECS['COMMUNICATION_BITS']:
@@ -99,7 +100,7 @@ class BCAbstractRobot:
         self._bc_signal = value
         self._bc_signal_radius = radius
 
-        self.fuel -= radius
+        self.fuel -= fuelNeeded
 
     def castle_talk(self, value):
         if value < 0 or value >= 2**SPECS['CASTLE_TALK_BITS']:
