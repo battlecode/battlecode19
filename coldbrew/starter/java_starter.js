@@ -119,7 +119,8 @@ public class BCAbstractRobot {
     }
 
     public void signal(int value, int radius) {
-        if (fuel < Math.ceil(Math.sqrt(radius))) throw new BCException("Not enough fuel to signal given radius.");
+        int fuelNeeded = (int) Math.ceil(Math.sqrt(radius));
+        if (fuel < fuelNeeded) throw new BCException("Not enough fuel to signal given radius.");
 
         if (value < 0 || value >= Math.pow(2, SPECS.COMMUNICATION_BITS)) throw new BCException("Invalid signal, must be within bit range.");
         if (radius > 2*Math.pow(SPECS.MAX_BOARD_SIZE-1,2)) throw new BCException("Signal radius is too big.");
@@ -127,7 +128,7 @@ public class BCAbstractRobot {
         signal = value;
         signalRadius = radius;
 
-        fuel -= radius;
+        fuel -= fuelNeeded;
     }
 
     public void castleTalk(int value) {

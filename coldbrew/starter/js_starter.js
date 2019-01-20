@@ -96,15 +96,16 @@ export class BCAbstractRobot {
     // Set signal value.
     signal(value, radius) {
         // Check if enough fuel to signal, and that valid value.
-
-        if (this.fuel < Math.ceil(Math.sqrt(radius))) throw "Not enough fuel to signal given radius.";
+        
+        var fuelNeeded = Math.ceil(Math.sqrt(radius));
+        if (this.fuel < fuelNeeded) throw "Not enough fuel to signal given radius.";
         if (!Number.isInteger(value) || value < 0 || value >= Math.pow(2,SPECS.COMMUNICATION_BITS)) throw "Invalid signal, must be int within bit range.";
         if (radius > 2*Math.pow(SPECS.MAX_BOARD_SIZE-1,2)) throw "Signal radius is too big.";
 
         this._bc_signal = value;
         this._bc_signal_radius = radius;
 
-        this.fuel -= radius;
+        this.fuel -= fuelNeeded;
     }
 
     // Set castle talk value.
