@@ -331,7 +331,32 @@ Game.prototype.makeMap = function() {
             y:all_castles[(all_castles.length/2) + i][1]
         });
     }
+    
+    // Figure out if we need to rerun the map generator because impassable
+    regions = [];
+    visited = makemap(false, width, height);
+    for (var n=0; n<height; n++) {
+        for (var m=0; m<width; m++) {
+            if (this.map[n][m] && !visited[n][m]) {
+                regions.push([]);
+                var stack = [[m,n]]; // Stack-based DFS to flood-fill
+                while (stack.length > 0) {
+                    var coords = stack.pop();
+                    var x = coords[0];
+                    var y = coords[1];
 
+                    regions[regions.length-1].push(coords);
+                    visited[y][x] = true;
+
+                    if (y > 0 && this.map[y-1][x] && !visited[y-1][x]) stack.push([x, y-1]);
+                    if (x > 0 && this.map[y][x-1] && !visited[y][x-1]) stack.push([x-1, y]);
+                    if (y < height-1 && this.map[y+1][x] && !visited[y+1][x]) stack.push([x, y+1]);
+                    if (x < width-1 && this.map[y][x+1] && !visited[y][x+1]) stack.push([x+1, y]);
+                }
+            }
+        }
+    }
+    if (regions.length > 1) return this.makeMap();
     return to_create;
 }
 
