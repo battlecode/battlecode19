@@ -179,7 +179,7 @@ Game.prototype.makeMap = function() {
         var coord = roll_castle();
         
         // forgive me christ
-        while (!passmap[coord[1]][coord[0]] || (castles.length > 0 && Math.min.apply(null, castles.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 16) && counter < 1000) {
+        while ((!passmap[coord[1]][coord[0]] || (castles.length > 0 && Math.min.apply(null, castles.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 16)) && counter < 1000) {
             coord = roll_castle();
             counter += 1;
         }
@@ -198,7 +198,7 @@ Game.prototype.makeMap = function() {
         var coord = roll_resource_seed();
 
         // oops i did it again
-        while (!passmap[coord[1]][coord[0]] || Math.min.apply(null, resources_cluster_seeds.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 12 && counter < 1000) {
+        while ((!passmap[coord[1]][coord[0]] || Math.min.apply(null, resources_cluster_seeds.map(c => Math.abs(c[0]-coord[0]) + Math.abs(c[1]-coord[1]))) < 12) && counter < 1000) {
             coord = roll_resource_seed();
             counter += 1;
         }
