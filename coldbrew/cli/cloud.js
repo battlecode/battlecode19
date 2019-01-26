@@ -53,10 +53,15 @@ const end_match = `
 UPDATE ` + TABLE + ` SET status = $1, replay = $2 WHERE id = $3;
 `
 
+const queue_match = `update ` + TABLE + ` set status='queued' where id=$1;`;
+
+var game_id;
 
 function playGame() {
     db.one(queue).then(function(scrimmage) {
-        console.log(`[Worker ${process.pid}] Running match ${scrimmage.id}`);
+        game_id = scrimmage.id;
+
+        console.log(`[Worker ${process.pid}] Running match ${game_id}`);
         var seed = Math.floor(Math.pow(2,31)*Math.random());
         
         let g = new Game(seed, CHESS_INITIAL, CHESS_EXTRA, false, true);
@@ -91,6 +96,9 @@ if (cluster.isMaster) {
 
     for (let i = 0; i < numCPUs; i++) cluster.fork();
     cluster.on('exit', (worker, code, signal) => {
-        console.log(`[Worker ${worker.process.pid}] Worker died`);
+        console.log(`[Worker ${worker.process.pid}] Worker died running ${worker.game_id}.`);
+        db.none(queue_match, [worker.game_id]).then(function() {
+            cluster.fork();
+        });
     });
 } else setTimeout(playGame,Math.floor(5000*Math.random()));

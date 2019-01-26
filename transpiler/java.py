@@ -29,7 +29,7 @@ def compile(sources):
             f.write(source['source'])
 
     # Launch compiler.
-    p = subprocess.Popen(['mvn', 'generate-sources'],
+    p = subprocess.Popen(['mvn', '-o', 'generate-sources'],
                      cwd=dir,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE)

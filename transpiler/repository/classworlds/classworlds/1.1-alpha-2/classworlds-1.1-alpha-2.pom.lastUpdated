@@ -1,0 +1,7 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Sat Jan 05 02:26:57 UTC 2019
+http\://repository.jsweet.org/artifactory/plugins-release-local/.error=
+https\://repo.maven.apache.org/maven2/.lastUpdated=1546655217483
+http\://repository.jsweet.org/artifactory/plugins-snapshot-local/.error=Could not transfer artifact classworlds\:classworlds\:pom\:1.1-alpha-2 from/to jsweet-plugins-snapshots (http\://repository.jsweet.org/artifactory/plugins-snapshot-local)\: Failed to transfer file\: http\://repository.jsweet.org/artifactory/plugins-snapshot-local/classworlds/classworlds/1.1-alpha-2/classworlds-1.1-alpha-2.pom. Return code is\: 409 , ReasonPhrase\:Conflict.
+http\://repository.jsweet.org/artifactory/plugins-release-local/.lastUpdated=1546655217162
+@default-jsweet-plugins-snapshots-http\://repository.jsweet.org/artifactory/plugins-snapshot-local/.lastUpdated=1546655217355

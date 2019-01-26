@@ -1,0 +1,7 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Sat Jan 05 02:27:54 UTC 2019
+@default-jsweet-snapshots-http\://repository.jsweet.org/artifactory/libs-snapshot-local/.lastUpdated=1546655273352
+https\://repo.maven.apache.org/maven2/.lastUpdated=1546655274172
+http\://repository.jsweet.org/artifactory/libs-release-local/.lastUpdated=1546655273160
+http\://repository.jsweet.org/artifactory/libs-release-local/.error=
+http\://repository.jsweet.org/artifactory/libs-snapshot-local/.error=Could not transfer artifact com.google.code.gson\:gson\:jar\:2.7 from/to jsweet-snapshots (http\://repository.jsweet.org/artifactory/libs-snapshot-local)\: Failed to transfer file\: http\://repository.jsweet.org/artifactory/libs-snapshot-local/com/google/code/gson/gson/2.7/gson-2.7.jar. Return code is\: 409 , ReasonPhrase\:Conflict.

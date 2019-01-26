@@ -1,0 +1,7 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Sat Jan 05 02:26:59 UTC 2019
+http\://repository.jsweet.org/artifactory/plugins-release-local/.error=
+https\://repo.maven.apache.org/maven2/.lastUpdated=1546655219269
+http\://repository.jsweet.org/artifactory/plugins-snapshot-local/.error=Could not transfer artifact org.apache.maven\:maven-artifact\:pom\:2.2.1 from/to jsweet-plugins-snapshots (http\://repository.jsweet.org/artifactory/plugins-snapshot-local)\: Failed to transfer file\: http\://repository.jsweet.org/artifactory/plugins-snapshot-local/org/apache/maven/maven-artifact/2.2.1/maven-artifact-2.2.1.pom. Return code is\: 409 , ReasonPhrase\:Conflict.
+http\://repository.jsweet.org/artifactory/plugins-release-local/.lastUpdated=1546655219029
+@default-jsweet-plugins-snapshots-http\://repository.jsweet.org/artifactory/plugins-snapshot-local/.lastUpdated=1546655219219

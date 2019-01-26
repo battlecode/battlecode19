@@ -34,4 +34,5 @@ WORKDIR /app
 ENV LISTEN_PORT 80
 ENV NGINX_MAX_UPLOAD 1m
 
+copy ./repository /root/.m2/repository
 copy . /app

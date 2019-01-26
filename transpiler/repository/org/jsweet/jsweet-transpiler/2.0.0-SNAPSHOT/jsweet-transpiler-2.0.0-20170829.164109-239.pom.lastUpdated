@@ -1,0 +1,9 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Sat Jan 05 02:27:02 UTC 2019
+http\://repository.jsweet.org/artifactory/libs-snapshot-local/.lastUpdated=1546655222373
+http\://repository.jsweet.org/artifactory/plugins-release-local/.error=Could not transfer artifact org.jsweet\:jsweet-transpiler\:pom\:2.0.0-20170829.164109-239 from/to jsweet-plugins-release (http\://repository.jsweet.org/artifactory/plugins-release-local)\: Failed to transfer file\: http\://repository.jsweet.org/artifactory/plugins-release-local/org/jsweet/jsweet-transpiler/2.0.0-SNAPSHOT/jsweet-transpiler-2.0.0-20170829.164109-239.pom. Return code is\: 409 , ReasonPhrase\:Conflict.
+http\://repository.jsweet.org/artifactory/plugins-snapshot-local/.error=
+http\://repository.jsweet.org/artifactory/plugins-snapshot-local/.lastUpdated=1546655221875
+@default-jsweet-plugins-release-http\://repository.jsweet.org/artifactory/plugins-release-local/.lastUpdated=1546655221683
+http\://repository.jsweet.org/artifactory/libs-release-local/.error=Could not transfer artifact org.jsweet\:jsweet-transpiler\:pom\:2.0.0-20170829.164109-239 from/to jsweet-release (http\://repository.jsweet.org/artifactory/libs-release-local)\: Failed to transfer file\: http\://repository.jsweet.org/artifactory/libs-release-local/org/jsweet/jsweet-transpiler/2.0.0-SNAPSHOT/jsweet-transpiler-2.0.0-20170829.164109-239.pom. Return code is\: 409 , ReasonPhrase\:Conflict.
+@default-jsweet-release-http\://repository.jsweet.org/artifactory/libs-release-local/.lastUpdated=1546655222061

@@ -1,0 +1,7 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Sat Jan 05 02:26:55 UTC 2019
+http\://repository.jsweet.org/artifactory/plugins-release-local/.error=
+https\://repo.maven.apache.org/maven2/.lastUpdated=1546655215060
+http\://repository.jsweet.org/artifactory/plugins-snapshot-local/.error=Could not transfer artifact org.codehaus.plexus\:plexus-containers\:pom\:1.0.3 from/to jsweet-plugins-snapshots (http\://repository.jsweet.org/artifactory/plugins-snapshot-local)\: Failed to transfer file\: http\://repository.jsweet.org/artifactory/plugins-snapshot-local/org/codehaus/plexus/plexus-containers/1.0.3/plexus-containers-1.0.3.pom. Return code is\: 409 , ReasonPhrase\:Conflict.
+http\://repository.jsweet.org/artifactory/plugins-release-local/.lastUpdated=1546655214828
+@default-jsweet-plugins-snapshots-http\://repository.jsweet.org/artifactory/plugins-snapshot-local/.lastUpdated=1546655215017
