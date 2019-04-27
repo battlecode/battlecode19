@@ -7,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 class UpdateCard extends Component {
     constructor() {
         super();
-        this.state = {'update_date': new Date()}; 
+        this.state = {'update_date': new Date()};
     }
 
     timeSince() {
@@ -19,7 +19,7 @@ class UpdateCard extends Component {
         if (interval > 1) return "Updated " + interval + " hours ago.";
         interval = Math.floor(seconds / 60);
         if (interval > 1) return "Updated " + interval + " minutes ago.";
-        //if (seconds <= 15) return "Just updated." 
+        //if (seconds <= 15) return "Just updated."
         return "Updated " + Math.floor(seconds) + " seconds ago.";
     }
 }
@@ -77,7 +77,7 @@ class StatCard extends UpdateCard {
                 window.Chartist.Pie('#stat_chart', {
                     labels: stats,
                     series: stats
-                }); 
+                });
             });
         });
     }
@@ -123,7 +123,7 @@ class DateCard extends UpdateCard {
         return (
             <div className="card ">
                 <div className="header">
-                    <h4 className="title">Recent Updates</h4>
+                    <h4 className="title">Updates During the Competition</h4>
                     <p className="category">A full listing can be found in the sidebar.</p>
                 </div>
                 <div className="content">
@@ -182,11 +182,11 @@ class Home extends Component {
                         <div className="col-md-12">
                             <div className="card">
                                 <div className="header">
-                                    <h4 className="title">Welcome to Battlecode 2019: Crusade!</h4>
+                                    <h4 className="title">Welcome to Battlecode 2019 Practice: Crusade!</h4>
                                 </div>
                                 <div className="content">
                                     <div className="typo-line">
-                                        <p>To compete in Battlecode, you must be on a team.  To join or create a team, simply click the <NavLink to={`${process.env.PUBLIC_URL}/team`}>Team</NavLink> link in the sidebar.</p>
+                                        <p>Scrimmages are no longer enabled, so being on a team does not affect your practice.  However, if you want to join or create a team, simply click the <NavLink to={`${process.env.PUBLIC_URL}/team`}>Team</NavLink> link in the sidebar.</p>
                                     </div>
                                 </div>
                             </div>

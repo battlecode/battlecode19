@@ -112,8 +112,8 @@ class RobotTable extends Component {
                         );
                     }) }
                 </tr>
-                
-                
+
+
                 </tbody>
             </table>
         );
@@ -129,7 +129,7 @@ class Docs extends Component {
                         <div className="col-md-12">
                             <div className="card">
                                 <div className="header">
-                                    <h4 className="title">Battlecode: Crusade Official Game Specs</h4>
+                                    <h4 className="title">Battlecode 2019: Crusade Official Game Specs</h4>
                                     <p className="category">Updated 1/7/19 7:00PM EST</p>
                                 </div>
                                 <div className="content">
@@ -174,7 +174,11 @@ class Docs extends Component {
                                     <p className="category">Updated 1/7/19 7:00PM EST</p>
                                 </div>
                                 <div className="content">
-                                    <p>This year, Battlecode will be run through the Node Package Manager (npm). Installation for npm varies from operating system to operating system, but generally achieved through the <a href='https://nodejs.org/en/'>Node Website</a>. If you are on a Mac, download Homebrew and install from there using <code>brew install node npm</code>.</p>
+                                    <p>Battlecode 2019 ran through the Node Package Manager (npm). Installation for npm varies from operating system to operating system, but generally achieved through the <a href='https://nodejs.org/en/'>Node Website</a>.
+
+                                    If you are on a Mac/Unix-based OS, <a href='https://brew.sh/'>download brew</a> and install from there using <code>brew install node npm</code>.</p>
+
+                                    If you are on a Windows OS, try following <a href = 'https://blog.teamtreehouse.com/install-node-js-npm-windows'> this tutorial</a> to download node.  You can also look at the node site.
                                     <ol>
                                         <li>Install npm.</li>
                                         <li><code>npm install -g bc19</code>.</li>
@@ -182,7 +186,8 @@ class Docs extends Component {
                                         <li>Upload compiled code using <code>bc19upload</code>.  Make sure you've defined environment variables <code>BC_USERNAME</code> and <code>BC_PASSWORD</code>, which should be the credentials you use to access this site.</li>
                                     </ol>
 
-                                    You must have internet access to compile Python and Java code.  Additionally, be sure to frequently update by running <code>npm install -g bc19</code>.  If you are not running the most recent distribution, replays will not render correctly.
+                                    You must have internet access to compile Python and Java code (no longer supported).  Additionally, be sure to frequently update by running <code>npm install -g bc19</code>.  If you are not running the most recent distribution, replays will not render correctly.
+                                    Also consider installing the <a href = 'https://github.com/ArVID220u/Clairvoyance'>offline replay viewer</a> to view your practice games (it provides more detail than the online viewer).
                                 </div>
                             </div>
                             <div className="card">
@@ -191,7 +196,7 @@ class Docs extends Component {
                                     <p className="category">Updated 1/7/19 7:00PM EST</p>
                                 </div>
                                 <div className="content">
-                                    <p>Javascript is the primary language supported by Battlecode Crusade, and the target all other languages are compiled to, so it's a great choice to develop a bot in (especially for beginners).  Below is a bare minimum bot example:</p>
+                                    <p>Javascript is the only language currently supported by Battlecode Crusade.  During the tournament Python and Java supported by transpilation to Javascript, but the transpiler is currently down.  Below is a bare minimum bot example:</p>
                                     <pre>{`import {BCAbstractRobot, SPECS} from 'battlecode';
 
 var step = -1;
@@ -260,7 +265,7 @@ var robot = new MyRobot();`}</pre>
                                         <li><code>this.give(dx, dy, karbonite, fuel)</code>: Give <code>karbonite</code> Karbonite and <code>fuel</code> Fuel to the robot in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>this.me</code>. A robot can only give to another robot that is in one of its 8 adjacent tiles, and cannot give more than it has. Uses 0 Fuel. Available for all robots.  If a unit tries to give a robot more than its capacity, the excess is loss to the void.</li>
                                         <li><code>this.attack(dx, dy)</code>: Attack the robot in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>this.me</code>. A robot can only attack another robot that is within its attack radius (depending on unit). Uses Fuel (depending on unit). Available for Crusaders, Prophets, Preachers. </li>
                                         <li><code>this.buildUnit(unit, dx, dy)</code>: Build a unit of the type <code>unit</code> (integer, see <code>r.unit</code>) in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>this.me</code>. Can only build in adjacent, empty and passable tiles. Uses Fuel and Karbonite (depending on the constructed unit). Available for Pilgrims, Castles, Churches. Pilgrims can only build Churches, and Castles and Churches can only build Pilgrims, Crusaders, Prophets and Preachers.</li>
-                                        <li><code>this.proposeTrade(karbonite, fuel)</code>: Propose a trade with the other team. <code>karbonite</code> and <code>fuel</code> need to be integers. For example, for RED to make the offer "I give you 10 Karbonite if you give me 10 Fuel", the parameters would be <code>karbonite = 10</code> and <code>fuel = -10</code> (for BLUE, the signs are reversed). If the proposed trade is the same as the other team's <code>last_offer</code>, a trade is performed, after which the <code>last_offer</code> of both teams will be nullified. Available for Castles.</li> 
+                                        <li><code>this.proposeTrade(karbonite, fuel)</code>: Propose a trade with the other team. <code>karbonite</code> and <code>fuel</code> need to be integers. For example, for RED to make the offer "I give you 10 Karbonite if you give me 10 Fuel", the parameters would be <code>karbonite = 10</code> and <code>fuel = -10</code> (for BLUE, the signs are reversed). If the proposed trade is the same as the other team's <code>last_offer</code>, a trade is performed, after which the <code>last_offer</code> of both teams will be nullified. Available for Castles.</li>
                                     </ul>
                                     <hr /><h6>Communication</h6><hr />
                                     <ul>
@@ -285,7 +290,7 @@ var robot = new MyRobot();`}</pre>
 
                             <div className="card">
                                 <div className="header">
-                                    <h4 className="title">Python Bot Reference</h4>
+                                    <h4 className="title">Python Bot Reference (drepecated)</h4>
                                     <p className="category">Updated 1/7/19 7:00PM EST</p>
                                 </div>
                                 <div className="content">
@@ -364,7 +369,7 @@ robot = MyRobot()
                                         <li><code>self.give(dx, dy, karbonite, fuel)</code>: Give <code>karbonite</code> Karbonite and <code>fuel</code> Fuel to the robot in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>self.me</code>. A robot can only give to another robot that is in one of its 8 adjacent tiles, and cannot give more than it has. Uses 0 Fuel. Available for all robots.  If a unit tries to give a robot more than its capacity, the excess is loss to the void. </li>
                                         <li><code>self.attack(dx, dy)</code>: Attack the robot in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>self.me</code>. A robot can only attack another robot that is within its attack radius (depending on unit). Uses Fuel (depending on unit). Available for Crusaders, Prophets, Preachers. </li>
                                         <li><code>self.build_unit(unit, dx, dy)</code>: Build a unit of the type <code>unit</code> (integer, see <code>r.unit</code>) in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>self.me</code>. Can only build in adjacent, empty and passable tiles. Uses Fuel and Karbonite (depending on the constructed unit). Available for Pilgrims, Castles, Churches. Pilgrims can only build Churches, and Castles and Churches can only build Pilgrims, Crusaders, Prophets and Preachers.</li>
-                                        <li><code>self.propose_trade(karbonite, fuel)</code>: Propose a trade with the other team. <code>karbonite</code> and <code>fuel</code> need to be integers. For example, for RED to make the offer "I give you 10 Karbonite if you give me 10 Fuel", the parameters would be <code>karbonite = 10</code> and <code>fuel = -10</code> (for BLUE, the signs are reversed). If the proposed trade is the same as the other team's <code>last_offer</code>, a trade is performed, after which the <code>last_offer</code> of both teams will be nullified. Available for Castles.</li> 
+                                        <li><code>self.propose_trade(karbonite, fuel)</code>: Propose a trade with the other team. <code>karbonite</code> and <code>fuel</code> need to be integers. For example, for RED to make the offer "I give you 10 Karbonite if you give me 10 Fuel", the parameters would be <code>karbonite = 10</code> and <code>fuel = -10</code> (for BLUE, the signs are reversed). If the proposed trade is the same as the other team's <code>last_offer</code>, a trade is performed, after which the <code>last_offer</code> of both teams will be nullified. Available for Castles.</li>
                                     </ul>
                                     <hr /><h6>Communication</h6><hr />
                                     <ul>
@@ -398,7 +403,7 @@ robot = MyRobot()
 
                             <div className="card">
                                 <div className="header">
-                                    <h4 className="title">Java Bot Reference</h4>
+                                    <h4 className="title">Java Bot Reference (deprecated)</h4>
                                     <p className="category">Updated 1/7/19 7:00PM EST</p>
                                 </div>
                                 <div className="content">
@@ -454,7 +459,7 @@ public class MyRobot extends BCAbstractRobot {
                                         <li><code>GiveAction give(int dx, int dy, int karbonite, int fuel)</code>: Give <code>karbonite</code> Karbonite and <code>fuel</code> Fuel to the robot in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>me</code>. A robot can only give to another robot that is in one of its 8 adjacent tiles, and cannot give more than it has. Uses 0 Fuel. Available for all robots.   If a unit tries to give a robot more than its capacity, the excess is loss to the void.</li>
                                         <li><code>AttackAction attack(int dx, int dy)</code>: Attack the robot in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>me</code>. A robot can only attack another robot that is within its attack radius (depending on unit). Uses Fuel (depending on unit). Available for Crusaders, Prophets, Preachers. </li>
                                         <li><code>BuildAction buildUnit(int unit, int dx, int dy)</code>: Build a unit of the type <code>unit</code> (see <code>r.unit</code>) in the tile that is <code>dx</code> steps in the x direction and <code>dy</code> steps in the y direction from <code>me</code>. Can only build in adjacent, empty and passable tiles. Uses Fuel and Karbonite (depending on the constructed unit). Available for Pilgrims, Castles, Churches. Pilgrims can only build Churches, and Castles and Churches can only build Pilgrims, Crusaders, Prophets and Preachers.</li>
-                                        <li><code>TradeAction proposeTrade(int karbonite, int fuel)</code>: Propose a trade with the other team. <code>karbonite</code> and <code>fuel</code> need to be integers. For example, for RED to make the offer "I give you 10 Karbonite if you give me 10 Fuel", the parameters would be <code>karbonite = 10</code> and <code>fuel = -10</code> (for BLUE, the signs are reversed). If the proposed trade is the same as the other team's <code>last_offer</code>, a trade is performed, after which the <code>last_offer</code> of both teams will be nullified. Available for Castles.</li> 
+                                        <li><code>TradeAction proposeTrade(int karbonite, int fuel)</code>: Propose a trade with the other team. <code>karbonite</code> and <code>fuel</code> need to be integers. For example, for RED to make the offer "I give you 10 Karbonite if you give me 10 Fuel", the parameters would be <code>karbonite = 10</code> and <code>fuel = -10</code> (for BLUE, the signs are reversed). If the proposed trade is the same as the other team's <code>last_offer</code>, a trade is performed, after which the <code>last_offer</code> of both teams will be nullified. Available for Castles.</li>
                                     </ul>
                                     <hr /><h6>Communication</h6><hr />
                                     <ul>

@@ -121,7 +121,7 @@ class LoginRegister extends Component {
           value="submit"
           className="btn btn-primary btn-block btn-fill"
         >
-          Register
+          Register for Battlecode 2019 Practice
         </button>
       );
     } else {
@@ -132,13 +132,13 @@ class LoginRegister extends Component {
             value="submit"
             className="btn btn-success btn-block btn-fill"
           >
-            Login
+            Login to Battlecode 2019
           </button>
           <button
             onClick={this.startRegister}
             className="btn btn-primary btn-block btn-fill"
           >
-            Register
+            Register for Battlecode 2019 Practice
           </button>
         </div>
       );
