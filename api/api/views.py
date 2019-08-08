@@ -165,7 +165,7 @@ class TeamViewSet(viewsets.GenericViewSet,
     pagination_class = SearchResultsPagination
     permission_classes = (LeagueActiveOrSafeMethods, IsAuthenticatedOrSafeMethods)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    search_fields = ('name','users__username')
 
     def get_queryset(self):
         """
