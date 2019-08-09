@@ -1,5 +1,5 @@
 # Start with a Python image.
-FROM python:latest
+FROM python@sha256:6eaf19442c358afc24834a6b17a3728a45c129de7703d8583392a138ecbdb092
 
 # Some stuff that everyone has been copy-pasting
 # since the dawn of time.
