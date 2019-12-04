@@ -3,7 +3,7 @@ chardet==3.0.4
 coreapi==2.3.3
 coreschema==0.0.4
 coverage==4.5.4
-Django==2.2.4
+Django==2.2.8
 django-cors-headers==3.0.2
 django-debug-toolbar==2.0
 django-nose==1.4.6
